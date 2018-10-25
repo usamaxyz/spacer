@@ -20,7 +20,7 @@
   "author": "Usama Alshihabi <usamaxyz@gmail.com> (http://www.azarasoft.com)",
   "license": "ISC",
   "devDependencies": {
-    "vinus": "^1.3.0"
+    "vinus": "^1.3.4"
   },
   "dependencies": {}
 }

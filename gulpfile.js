@@ -82,57 +82,62 @@ if (vinusObj.scripts)
  * core tasks
  */
 function styles() {
-    let tasks = vinusObj.styles.map(function (element) {
-        return gulp.src(element.src)
-            .pipe(gulpif(element.isSass, sass()))
-            .pipe(gulpif(element.isLess, less()))
-            .pipe(gulpif(element.concat.status, concat(element.concat.fileName)))
-            .pipe(gulpif(vinusObj.isProduction, cleanCss()))
+    let notUsed = 'not.used',
+        tasks = vinusObj.styles.map(function (element) {
+            return gulp.src(element.src)
+                .pipe(gulpif(element.isSass, sass()))
+                .pipe(gulpif(element.isLess, less()))
+                .pipe(gulpif(element.concat, concat(element.concat ? element.filename : notUsed)))
+                .pipe(gulpif(vinusObj.isProduction, cleanCss()))
+                //if element.concat => it is already renamed
+                .pipe(gulpif(!element.concat && element.filename, rename(element.filename)))
 
-            //emit original if withRtl() is used
-            .pipe(gulpif(element.generateRtl && vinusObj.isProduction, rename({
-                suffix: '.min'
-            })))
-            //save
-            .pipe(gulpif(element.generateRtl, gulp.dest(element.dist)))
-            //remove .min suffix
-            .pipe(gulpif(element.generateRtl && vinusObj.isProduction, rename(function (path) {
-                path.basename = path.basename.substring(0, path.basename.length - 4);
-            })))
-            //emit rtl version if withRtl() is used
-            .pipe(gulpif(element.generateRtl, rtl()))
-            .pipe(gulpif(element.generateRtl, rename({
-                suffix: '.rtl'
-            })))
-            .pipe(gulpif(vinusObj.isProduction, rename({
-                suffix: '.min'
-            })))
-            .pipe(gulp.dest(element.dist));
-    });
+                //emit original if withRtl() is used
+                .pipe(gulpif(element.generateRtl && vinusObj.isProduction, rename({
+                    suffix: '.min'
+                })))
+                //save
+                .pipe(gulpif(element.generateRtl, gulp.dest(element.dist)))
+                //remove .min suffix
+                .pipe(gulpif(element.generateRtl && vinusObj.isProduction, rename(function (path) {
+                    path.basename = path.basename.substring(0, path.basename.length - 4);
+                })))
+                //emit rtl version if withRtl() is used
+                .pipe(gulpif(element.generateRtl, rtl()))
+                .pipe(gulpif(element.generateRtl, rename({
+                    suffix: '.rtl'
+                })))
+                .pipe(gulpif(vinusObj.isProduction, rename({
+                    suffix: '.min'
+                })))
+                .pipe(gulp.dest(element.dist));
+        });
     // create a merged stream
     if (tasks.length)
         return es.merge.apply(null, tasks);
 }
 
 function scripts() {
+    let notUsed = 'not.used',
+        tasks = vinusObj.scripts.map(function (element) {
+            let browserifyStatus = element.browserify.status;
+            return (browserifyStatus ? element.browserifySrc.bundle() : gulp.src(element.src))
+                .pipe(gulpif(!browserifyStatus && element.typescript.status, gulpTypescript()))
+                .pipe(gulpif(!browserifyStatus && element.babel.status, gulpBabel()))
+                .pipe(gulpif(browserifyStatus, source(element.browserify.sourceName)))
+                .pipe(gulpif(browserifyStatus, buffer()))
+                .pipe(gulpif(element.concat, concat(element.concat ? element.filename : notUsed)))
+                //if element.concat => it is already renamed
+                .pipe(gulpif(!element.concat && element.filename, rename(element.filename)))
 
-    let tasks = vinusObj.scripts.map(function (element) {
-        let browserifyStatus = element.browserify.status;
-
-        return (browserifyStatus ? element.browserifySrc.bundle() : gulp.src(element.src))
-            .pipe(gulpif(!browserifyStatus && element.typescript.status, gulpTypescript()))
-            .pipe(gulpif(!browserifyStatus && element.babel.status, gulpBabel()))
-            .pipe(gulpif(browserifyStatus, source(element.browserify.sourceName)))
-            .pipe(gulpif(browserifyStatus, buffer()))
-            .pipe(gulpif(element.concat.status, concat(element.concat.fileName)))
-            // .pipe(sourcemaps.init({ loadMaps: true }))
-            .pipe(gulpif(vinusObj.isProduction, uglify()))
-            // .pipe(sourcemaps.write('./'))
-            .pipe(gulpif(vinusObj.isProduction, rename({
-                suffix: '.min'
-            })))
-            .pipe(gulp.dest(element.dist));
-    });
+                // .pipe(sourcemaps.init({ loadMaps: true }))
+                .pipe(gulpif(vinusObj.isProduction, uglify()))
+                // .pipe(sourcemaps.write('./'))
+                .pipe(gulpif(vinusObj.isProduction, rename({
+                    suffix: '.min'
+                })))
+                .pipe(gulp.dest(element.dist));
+        });
 
 
     // create a merged stream
@@ -165,11 +170,23 @@ function watch() {
     logger.info('Watching...');
 }
 
+function copy() {
+    let tasks = vinusObj.copies.map(function (element) {
+        return gulp.src(element.src)
+            .pipe(gulpif(element.filename && true, rename(element.filename)))
+            .pipe(gulp.dest(element.dist));
+    });
+    // create a merged stream
+    if (tasks.length)
+        return es.merge.apply(null, tasks);
+}
+
 /*
  * end of core tasks
  */
 
 gulp.task('styles', styles);
 gulp.task('scripts', scripts);
-gulp.task('default', ['styles', 'scripts']);
+gulp.task('copy', copy);
+gulp.task('default', ['styles', 'scripts', 'copy']);
 gulp.task('watch', watch);
