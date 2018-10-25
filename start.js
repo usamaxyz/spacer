@@ -1,0 +1,58 @@
+let vinus = require('vinus');
+
+let spacerVersion = '-3.1.6';
+
+
+vinus
+
+    //notify css
+    .css('src/css/ukNotify.css', 'dist/css/ukNotify.css')
+
+    //spacer
+    .babel('src/js/spacer.js', `dist/js/spacer.js`)
+    .babel('src/js/spacer.js', `dist/js/spacer${spacerVersion}.js`)
+
+    //services  => uncomment changed
+    .babel('src/js/services/bootstrap3ModalService.js', `dist/js/services/bootstrap3ModalService.js`)
+    .babel('src/js/services/bootstrap3PanelService.js', `dist/js/services/bootstrap3PanelService.js`)
+    .babel('src/js/services/bootstrap3ValidationDriver.js', `dist/js/services/bootstrap3ValidationDriver.js`)
+    .babel('src/js/services/bootstrap4ValidationDriver.js', `dist/js/services/bootstrap4ValidationDriver.js`)
+    .babel('src/js/services/storage.js', `dist/js/services/storage.js`)
+    .babel('src/js/services/ukNotifyRemark.js', `dist/js/services/ukNotifyRemark.js`)
+    .babel('src/js/services/ukNotifyBootstrap3.js', `dist/js/services/ukNotifyBootstrap3.js`)
+
+
+
+
+/*
+
+Api Function:
+-------------
+newCss()
+src(dist)
+dist(dist)
+concat(name)
+asSass()
+asLess()
+withRtl()
+rename(name)
+
+newJs()
+src(dist)
+dist(dist)
+concat(name)
+babelify(opts)
+browserify()
+asTs(opts)
+rename(name)
+
+//alias
+css(src, dist)
+sass(src, dist)
+less(src, dist)
+js(src, dist)
+vue(src, dist)
+babel(src, dist)
+ts(src, dist)
+
+ */

@@ -1,0 +1,412 @@
+3.1.6:
+------
+- strict mode
+- performance improvements
+
+
+3.1.5:
+------
+- spa.web.updateQueryString() accept obj
+
+
+3.1.4:
+------ 
+- bug fixes in spa.web
+
+
+3.1.3:
+------
+- spa.dialog.confirmDelete
+
+
+3.1.2:
+------
+- fix bug: comment line 1224: driversUnit.setFlashCD(config.flashCurrentDriver); since config.flashCurrentDriver defaulted to ''
+
+3.1.1:
+------
+- bug fix in spa.util.getTimelineDiff
+
+3.1.0:
+------
+- config.dialogCurrentDriver
+    - defaults to 'alert'
+- config.dialogDrivers
+    - remove: bootstrap3Panel: spacerDialog(bootstrap3Panel),
+    - remove: bootstrap3Modal: spacerDialog(bootstrap3Modal),
+- config.flashCurrentDriver
+    - defaults to ''
+- config.flashDrivers
+    - remove ukNotify driver
+- config.validationCurrentDriver
+    - defaults to 'dialog'
+- config.validationDrivers
+    - remove bootstrap3 driver
+- move spacerDialog() from spa root to spa return body
+- add consts aliases to spa return body
+- spa.dialog:
+    - remove: bootstrap3Panel and bootstrap3Modal
+- spa.storage: removed
+
+3.0.19:
+-------
+- bug fix in spa.dom.setDisabled
+
+3.0.18:
+-------
+- spa.init.autocomplete:
+    - convert jsonp -> jsonp
+
+3.0.17:
+-------
+- spa.web
+    - add pathHas()
+- bug fixes
+
+3.0.16:
+-------
+- config: add parameters for localization methods:
+    - localeMethod: 2,
+    - localeQueryKey: 'lang',
+    - defaultLocale: 'en',
+- spa.array
+    - add filter(array, fn)
+- spa.web: add function:
+    - localize(url, locale, method)
+    - removeQueryString(key, url)
+    - urlSegments(index, url)
+    - getPath(url)
+    - getPathWithoutQueryString(url)
+- spa.web: update functions name and implementation using URL class:
+    - getUrlWithQueryString()               => getUrl(url)
+    - getUrlWithoutQueryString()            => getUrlWithoutQueryString(url)
+    - getQueryString(name)                  => getQueryString(name, url)
+    - updateQueryString(key, value, url)    => updateQueryString(key, value, url)
+    - queryStringToObject()                 => getQueryStringAsObject(url)
+
+3.0.15:
+-------
+- add spa.isDebug
+- change dom.click implementation
+
+
+3.0.14:
+-------
+- bug fix in driversUnit
+
+
+3.0.13:
+-------
+- performance enhancement
+- [future]: enhance 'dialog' and 'flash' validation driver check => done
+
+3.0.12:
+------
+- add spa.dom.click
+
+3.0.11:
+------
+- add spa.dom.addHtmlAttr
+
+3.0.10:
+------
+- spa.input.select.addOptions: now accept id, class, attr attribute in option object
+
+3.0.9:
+------
+- spa.validation.validate: add isSilent boolean
+- spa.init: add datepickerOnChange
+
+
+3.0.8:
+------
+- spa.ajax
+    - fix bug [verb]Btn functions
+
+3.0.7:
+------
+- spa.validation:
+    - custom error message support
+    - populateErrorMessages() now looks for custom error message as the following:
+        1- data-v-[pattern]-[ruleKey]-[locale]
+        2- data-v-[pattern]-[ruleKey]
+        3- spa.resource
+    - [future]: enhance looking for validation error message
+
+
+
+3.0.6:
+------
+- validation drivers now include flash
+- [future]: enhance 'dialog' and 'flash' validation driver check
+
+3.0.5:
+------
+- spa.form.getFormInputsAsObject fix bug
+
+3.0.4:
+------
+- config:
+    - tokenValue: undefined
+    - tokenName: undefined
+- resourceBank: add timeline resources
+- spa.validation.isTimeline: return moment object if valid. false otherwise.
+- spa.resource.replace: added.
+- spa.util.getTimelineDiff: added.
+- spa.util.token: added. for general token management
+
+
+
+3.0.3:
+------
+- spa.ajax add postBtn, getBtn, deleteBtn, putBtn
+
+
+3.0.2:
+------
+- single file spacer
+- remove moment
+
+3.0.1:
+------
+- remove jquery
+
+3.0.0
+-----
+- change the name vali -> spacer
+- code: vali => spa
+- config.listOfErrorsSelector default = #spacer-listOfErrors
+- include jquery
+
+
+2.0.1
+-------
+- fix bug in parsing unit when rule name has spaces
+- fix bug in validators when valueToValidate is undefined
+- fix bus in validation extended rules
+- remove ukNotify styles
+
+2.0.0
+-------
+- webpack
+- moment is included
+- dialog driver:
+    'bootstrap3Panel'
+    'bootstrap3Modal'
+- validation driver:
+    'dialog.bootstrap3' => 'dialog.bootstrap3panel|modal'
+- flash driver:
+    'ukNotify'
+- setLoadingButton: function (button, ajax = undefined)
+- ajax functions: move button param to the end
+- momentLocales to config
+- listOfErrorsSelector
+- remove validation functions params
+- vali-p => data-v-p
+- vali-fn => data-v-fn
+
+
+
+
+1.0.13
+------
+- remove button from vali.ajax
+- add new function vali.ajax.button()
+
+1.0.12
+------
+- fix bug in vali.web.queryStringToObject()
+- vali.array.foreach() now loop through array or object
+
+1.0.11
+------
+- fix bug related to changes in setLoadingButton() & unsetLoadingButton()
+
+1.0.10
+------
+- dom:
+    - fix setLoadingButton() & unsetLoadingButton()
+    - setLoadingButton() & unsetLoadingButton() returns jquery button
+    - setLoadingButton() & unsetLoadingButton() original html is stored in jquery data
+
+1.0.9
+-----
+- fix bug in dom.unsetLoadingButton()
+
+
+1.0.8
+-----
+- vali.web:
+    - remove ? from getQueryString()
+    - add updateQueryString()
+vali v1.0.7:
+------------
+- add validationIsLite = false to config
+- update timeline min max error messages
+- add getTimelineFormat() to vali root
+- vali.validation:
+    - add isValidInput
+
+vali v1.0.6:
+------------
+- remove the following from start: (for auto complete to work)
+if (window.vali !== undefined)
+    return window.vali;
+- dialog:
+- add flashSuccess, flashError
+
+
+vali v1.0.5:
+------------
+- revert v1.0.4:
+    - remove jquery-3.3.1 and moment-2.22.1 from vali
+- fix bug when pattern is not required
+
+
+vali v1.0.4:
+------------
+- add jquery-3.3.1 and moment-2.22.1 to vali
+
+vali v1.0.3:
+------------
+- add boundaries to: min, max, range, s_min, s_max, s_range
+    - o => exclusion
+    - i => inclusion
+- remove gt and lt rules from number validator.
+
+vali v1.0.2:
+------------
+- performance enhancement
+- bug fix in vali.form
+- bug fix in vali.input.getValue
+- apply toLowerCase() to pattern and rule names.
+- add gt and lt rules to number validator.
+
+
+vali v1.0.1:
+------------
+desc: vali.table bug fixes (when using datatable) & enhancement
+
+vali.table:
+    - addRow:
+        - addRow => addRows
+        - function (row, table) => function (table, rows)
+
+    - removeRow:
+        - removeRow => removeRows
+        - function (row, table)=> function (table, rows)
+
+    - removeChecked
+        - inputSelectorString => inputName
+        - function (inputSelectorString, table) => function (table, inputName)
+
+    - moveRow:
+        - moveRow => moveRows
+        - function (row, from, to) => function (from, to, rows)
+
+    - moveChecked:
+        - - inputSelectorString => inputName
+        - function (inputSelectorString, from, to) => function (from, to, inputName)
+
+
+
+vali v1.0.0:
+----------
+vali.init:
+    - remove default: datepicker '.form-control.date' => input, options
+    - remove default: select2 '.form-control.select' => input, options
+    - remove default: dataTable 'table.datatable' => table, options
+    - remove default: createCounter 'textarea' , '#counter' => input, counter, max
+    - remove default: showMsg '.vali-show-msg', 'data-vali-msg'
+    - remove default: delete => deleteAndRedirect '.vali-remove' => btnSelector, deleteUrl, redirectUrl, title, msg
+    - remove default: listDelete '.vali-remove-list', 'data-vali-id' => btnSelector, idAttribute, url, tableSelector, title, msg
+
+
+vali.input:
+    - vali.input.select:
+        - getSelectedItem => getSelectedOption
+        - getSelectedItemValue => getSelectedValue
+        - getSelectedItemText => getSelectedText
+        - setSelectedFirstOption => setFirstOptionSelected
+        - populate => addOptions
+        - addItem => addOption
+    - later...
+    - remove _default from all functions:
+        - input.getValue
+        - input.select.getSelectedValue
+        - input.select.getSelectedText
+    - add getFiles
+
+
+vali.form:
+    - change signature:
+        - submitAjax: function (form, submitter, validate, fn)
+        - submit: function (form, submitter, validate)
+        - registerNormalSubmitter: function (form, submitter, validate)
+        - registerAjaxSubmitter: function (form, submitter, validate, fn)
+    - remove default value from all functions:
+        valiForm: '#vali-form',
+        normalSubmitter: '#vali-submit',
+        ajaxSubmitter: '#vali-submit-ajax',
+
+config:
+    - debug default value is false
+    - add trimValues with default to true
+    - remove
+        valiForm: '#vali-form',
+        normalSubmitter: '#vali-submit',
+        ajaxSubmitter: '#vali-submit-ajax',
+        icons
+
+vali.validation:
+    - change all bootstrap drivers to bootstrap3
+    - update validation object
+    - update all validation function parameters
+    - validateForm => validate
+    - remove validateInput
+    - add silent driver
+    - later...
+    - change vali-p syntax
+        - pattern() => pattern[]
+        - rule: not_in => not
+        - rule add: not_of, len
+        - regex.pattern add ~x~
+        - timeline.format: add ~x~
+        - add check pattern
+
+vali.dialog:
+    - change all bootstrap drivers to bootstrap3
+    - change bootstrap3 dialog object
+    - remove modal => add bootstrap3Dialog
+    - remove modalClose: use this.close
+    - remove modalShowLoading: use this.
+    - later...
+    - drivers:
+        - bootstrap3 => bootstrap3Panel
+        - add bootstrap3Modal
+    - vali.dialog.bootstrap3Dialog => bootstrap3Panel
+    - add vali.dialog.bootstrap3Modal
+
+vali.resource:
+    - change resources structure
+    - remove vali.setResources()
+    - remove vali.getResources()
+    - later...
+    - all resources keys are changed
+
+vali.util:
+    - change vali.utils => vali.util
+    - generatePassword => randomString
+    - clearTimer => cancelTimer
+    - timeout => executeLater
+    - clearTimeout => cancelExecuteLater
+
+vali.web:
+    - url => getUrlWithQueryString
+    - urlWithoutQueryString => getUrlWithoutQueryString
+    - queryString => getQueryString
+
+vali.table:
+    - change cols => columns in row object
+    - change attr in row object
+    - updateTotal => updatePaginationTotal
