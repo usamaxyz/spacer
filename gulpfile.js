@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 let gulp = require('gulp'),
     less = require('gulp-less'),
     sass = require('gulp-sass'),
@@ -41,14 +42,23 @@ let isProduction = !!args.prod,
 
 
 if (isProduction) {
-    logger.info('Production mode...');
+    logger.warning('Production mode...');
     process.env.NODE_ENV = 'production';
 }
 
 //start file
 try {
     require('./' + (args.start || 'start.js'));
-    vinusObj = require('vinus').get();
+    vinusObj = require('vinus').get(args.group);
+
+    if (args.group)
+        logger.warning('Group: ' + args.group);
+
+    if (!vinusObj) {
+        logger.error('Group: ' + args.group + ' not found.');
+        return;
+    }
+
 } catch (ex) {
     logger.error(ex);
     return logger.error((args.start || 'start.js') + ' not found. Use "npx vinus init" command to add start.js.');
@@ -173,7 +183,7 @@ function watch() {
 function copy() {
     let tasks = vinusObj.copies.map(function (element) {
         return gulp.src(element.src)
-            .pipe(gulpif(element.filename && true, rename(element.filename)))
+            .pipe(gulpif(!!element.filename, rename(element.filename)))
             .pipe(gulp.dest(element.dist));
     });
     // create a merged stream
