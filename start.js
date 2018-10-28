@@ -1,6 +1,6 @@
 let vinus = require('vinus');
 
-let spacerVersion = '-3.1.8';
+let spacerVersion = '-3.1.9';
 
 
 vinus
