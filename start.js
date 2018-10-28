@@ -1,12 +1,13 @@
 let vinus = require('vinus');
 
-let spacerVersion = '-3.1.9';
+let spacerVersion = '-3.1.10';
 
 
 vinus
 
     //notify css
     // .css('src/css/ukNotify.css', 'dist/css/ukNotify.css')
+    // .withRtl()
 
     //spacer
     .babel('src/js/spacer.js', `dist/js/spacer.js`)

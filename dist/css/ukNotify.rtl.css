@@ -1,0 +1,60 @@
+.uk-notify {
+    position: fixed;
+    top: 50px;
+    right: 50px;
+    z-index: 100000;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 350px;
+}
+
+.uk-notify-top-right,
+.uk-notify-bottom-right {
+    right: auto;
+    left: 50px;
+}
+
+.uk-notify-top-center,
+.uk-notify-bottom-center {
+    right: 50%;
+    margin-right: -175px;
+}
+
+.uk-notify-bottom-left,
+.uk-notify-bottom-right,
+.uk-notify-bottom-center {
+    top: auto;
+    bottom: 50px;
+}
+
+@media (max-width: 480px) {
+    .uk-notify {
+        right: 10px;
+        left: 10px;
+        width: auto;
+        margin: 0;
+    }
+}
+
+.uk-notify-message {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 22px;
+    padding-left: 35px;
+    cursor: pointer;
+}
+
+.uk-notify-message.alert.alert-normal {
+    background: #444;
+    color: #fff;
+}
+
+.uk-notify-message > .close {
+    visibility: hidden;
+}
+
+.uk-notify-message:hover > .close {
+    visibility: visible;
+}
