@@ -4152,11 +4152,11 @@ let spa = (function () {
                 if (locale === config.defaultLocale)
                     return url;
                 method = method || config.localeMethod;
-                if (method === '1') {
+                if (method == '1') {
                     //cookie
                     return url;
                 }
-                if (method === '2') {
+                if (method == '2') {
                     url = new URL(url, window.location.origin);
                     //segment
                     url.pathname = '/' + locale + url.pathname;
