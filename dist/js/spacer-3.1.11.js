@@ -118,12 +118,8 @@ var spa = function () {
             },
             sweetAlert: function () {
                 function iconMapper(icon) {
-                    switch (icon) {
-                        case 'danger':
-                            return 'error';
-                        default:
-                            return icon;
-                    }
+                    if (icon === 'danger') return 'error';
+                    return icon;
                 }
 
                 return {
@@ -255,12 +251,6 @@ var spa = function () {
             'min_input': {
                 /**
                  *  Min than input value. For integer, float and timeline patterns only
-                 *
-                 *  get p1 from:
-                 *  1. local tag
-                 *  2. related input friendly name
-                 *  3. related input value
-                 *
                  */
                 validate: function validate(vo, index) {
                     //return true or false

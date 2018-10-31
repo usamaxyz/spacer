@@ -1,3 +1,7 @@
+3.1.11:
+------
+- performance enhancement
+
 3.1.7:
 ------
 - update vinus
