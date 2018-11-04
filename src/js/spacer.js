@@ -4155,8 +4155,7 @@ let spa = (function () {
                 }
 
                 //query
-                return spa.web.updateQueryString(config.localeQueryKey, locale, url);
-
+                return spa.web.updateQueryString({[config.localeQueryKey]: locale}, url);
             },
 
             urlSegments(index, url) {

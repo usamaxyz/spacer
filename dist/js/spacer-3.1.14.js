@@ -1,5 +1,7 @@
 'use strict';
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 var spa = function () {
 
     //config
@@ -3815,7 +3817,7 @@ var spa = function () {
                 }
 
                 //query
-                return spa.web.updateQueryString(config.localeQueryKey, locale, url);
+                return spa.web.updateQueryString(_defineProperty({}, config.localeQueryKey, locale), url);
             },
 
             urlSegments: function urlSegments(index, url) {

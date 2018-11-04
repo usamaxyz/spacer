@@ -1,3 +1,7 @@
+3.1.14:
+------
+- bug fix in web.localize()
+
 3.1.12:
 ------
 - update services and css files (remove camel case to dashes)
