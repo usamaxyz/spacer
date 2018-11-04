@@ -1,3 +1,8 @@
+3.1.12:
+------
+- update services and css files (remove camel case to dashes)
+
+
 3.1.11:
 ------
 - performance enhancement
