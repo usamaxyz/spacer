@@ -112,14 +112,15 @@ let spa = (function () {
                 },
                 confirm: function (title, msg, status, icon, fn1, fn2) {
                     if (window.confirm(title + "\n" + msg))
-                        if (fn1) fn1();
-                        else if (fn2) fn2();
+                        fn1();
+                    else if (fn2) fn2();
                 },
                 prompt: function (title, msg, status, icon, fn1, fn2) {
                     let result = window.prompt(title + "\n" + msg);
-                    if (result === null)
+                    if (result === null) {
                         if (fn2) fn2();
-                        else if (fn1) fn1(result);
+                    }
+                    else fn1(result);
                 }
             },
             sweetAlert: (function () {
@@ -148,7 +149,7 @@ let spa = (function () {
                             dangerMode: true,
                             buttons: [spa.resource.get('btn.no'), spa.resource.get('btn.yes')]
                         }).then(function (value) {
-                            if (value && fn1)
+                            if (value)
                                 fn1();
                             else if (fn2)
                                 fn2();
@@ -162,9 +163,10 @@ let spa = (function () {
                             content: "input",
                             buttons: [spa.resource.get('btn.cancel'), spa.resource.get('btn.continue')]
                         }).then(function (value) {
-                            if (value === null && fn2)
+                            if (value === null) {
                                 if (fn2) fn2();
-                                else if (fn1) fn1(value);
+                            }
+                            else fn1(value);
                         });
                     }
                 }
@@ -3085,7 +3087,7 @@ let spa = (function () {
                     fn();
                 });
             },
-            
+
             /*
             *   pos: top-left, top-center, top-right
             *   pos: bottom-left, bottom-center, bottom-right
@@ -4155,7 +4157,7 @@ let spa = (function () {
                 }
 
                 //query
-                return spa.web.updateQueryString({[config.localeQueryKey]: locale}, url);
+                return spa.web.updateQueryString({ [config.localeQueryKey]: locale }, url);
             },
 
             urlSegments(index, url) {

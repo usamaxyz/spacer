@@ -111,11 +111,13 @@ var spa = function () {
                     if (fn) fn();
                 },
                 confirm: function confirm(title, msg, status, icon, fn1, fn2) {
-                    if (window.confirm(title + "\n" + msg)) if (fn1) fn1();else if (fn2) fn2();
+                    if (window.confirm(title + "\n" + msg)) fn1();else if (fn2) fn2();
                 },
                 prompt: function prompt(title, msg, status, icon, fn1, fn2) {
                     var result = window.prompt(title + "\n" + msg);
-                    if (result === null) if (fn2) fn2();else if (fn1) fn1(result);
+                    if (result === null) {
+                        if (fn2) fn2();
+                    } else fn1(result);
                 }
             },
             sweetAlert: function () {
@@ -143,7 +145,7 @@ var spa = function () {
                             dangerMode: true,
                             buttons: [spa.resource.get('btn.no'), spa.resource.get('btn.yes')]
                         }).then(function (value) {
-                            if (value && fn1) fn1();else if (fn2) fn2();
+                            if (value) fn1();else if (fn2) fn2();
                         });
                     },
                     prompt: function prompt(title, msg, status, icon, fn1, fn2) {
@@ -154,7 +156,9 @@ var spa = function () {
                             content: "input",
                             buttons: [spa.resource.get('btn.cancel'), spa.resource.get('btn.continue')]
                         }).then(function (value) {
-                            if (value === null && fn2) if (fn2) fn2();else if (fn1) fn1(value);
+                            if (value === null) {
+                                if (fn2) fn2();
+                            } else fn1(value);
                         });
                     }
                 };

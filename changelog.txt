@@ -1,3 +1,7 @@
+3.1.16:
+------
+- bug fix in dialog parameter functions fn, fn1, fn2
+
 3.1.15:
 ------
 - bug fix in web.localize()
