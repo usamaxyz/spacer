@@ -38,7 +38,8 @@ let gulp = require('gulp'),
  */
 
 let isProduction = !!args.prod,
-    vinusObj;
+    vinusObj,
+    vinusGlobals;
 
 
 if (isProduction) {
@@ -49,14 +50,24 @@ if (isProduction) {
 //start file
 try {
     require('./' + (args.start || 'start.js'));
-    vinusObj = require('vinus').get(args.group);
 
-    if (args.group)
+    let vinus = require('vinus');
+    vinusGlobals = vinus.getGlobals();
+
+    if (args.all) {
+        logger.warning('All Groups');
+        vinusObj = vinus.get();
+    }
+    else if (args.group) {
         logger.warning('Group: ' + args.group);
-
-    if (!vinusObj) {
-        logger.error('Group: ' + args.group + ' not found.');
-        return;
+        vinusObj = vinus.get(args.group);
+        if (!vinusObj) {
+            logger.error('Group: ' + args.group + ' not found.');
+            return;
+        }
+    }
+    else {
+        vinusObj = vinus.get('default');
     }
 
 } catch (ex) {
@@ -64,7 +75,7 @@ try {
     return logger.error((args.start || 'start.js') + ' not found. Use "npx vinus init" command to add start.js.');
 }
 
-vinusObj['isProduction'] = isProduction;
+
 if (vinusObj.scripts)
     vinusObj.scripts.forEach(element => {
         //init browserify
@@ -98,27 +109,27 @@ function styles() {
                 .pipe(gulpif(element.isSass, sass()))
                 .pipe(gulpif(element.isLess, less()))
                 .pipe(gulpif(element.concat, concat(element.concat ? element.filename : notUsed)))
-                .pipe(gulpif(vinusObj.isProduction, cleanCss()))
+                .pipe(gulpif(isProduction, cleanCss()))
                 //if element.concat => it is already renamed
                 .pipe(gulpif(!element.concat && element.filename, rename(element.filename)))
 
                 //emit original if withRtl() is used
-                .pipe(gulpif(element.generateRtl && vinusObj.isProduction, rename({
-                    suffix: '.min'
+                .pipe(gulpif(element.generateRtl && isProduction, rename({
+                    suffix: vinusGlobals.prodSuffix
                 })))
                 //save
                 .pipe(gulpif(element.generateRtl, gulp.dest(element.dist)))
                 //remove .min suffix
-                .pipe(gulpif(element.generateRtl && vinusObj.isProduction, rename(function (path) {
-                    path.basename = path.basename.substring(0, path.basename.length - 4);
+                .pipe(gulpif(element.generateRtl && isProduction, rename(function (path) {
+                    path.basename = path.basename.substring(0, path.basename.length - vinusGlobals.prodSuffix.length);
                 })))
                 //emit rtl version if withRtl() is used
                 .pipe(gulpif(element.generateRtl, rtl()))
                 .pipe(gulpif(element.generateRtl, rename({
-                    suffix: '.rtl'
+                    suffix: vinusGlobals.rtlSuffix
                 })))
-                .pipe(gulpif(vinusObj.isProduction, rename({
-                    suffix: '.min'
+                .pipe(gulpif(isProduction, rename({
+                    suffix: vinusGlobals.prodSuffix
                 })))
                 .pipe(gulp.dest(element.dist));
         });
@@ -141,10 +152,10 @@ function scripts() {
                 .pipe(gulpif(!element.concat && element.filename, rename(element.filename)))
 
                 // .pipe(sourcemaps.init({ loadMaps: true }))
-                .pipe(gulpif(vinusObj.isProduction, uglify()))
+                .pipe(gulpif(isProduction, uglify()))
                 // .pipe(sourcemaps.write('./'))
-                .pipe(gulpif(vinusObj.isProduction, rename({
-                    suffix: '.min'
+                .pipe(gulpif(isProduction, rename({
+                    suffix: vinusGlobals.prodSuffix
                 })))
                 .pipe(gulp.dest(element.dist));
         });

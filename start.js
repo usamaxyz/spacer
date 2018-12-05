@@ -61,4 +61,10 @@ vue(src, dist)
 babel(src, dist)
 ts(src, dist)
 copy(src, dist)
+
+//configs
+setGlobals({
+    prodSuffix:'.min',
+    rtlSuffix: '.rtl',
+})
  */
