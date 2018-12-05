@@ -74,10 +74,12 @@ let bootstrap3PanelService = function(options) {
 
     modalJq.on('hidden.bs.modal', function () {
         //cancel: cancel button, esc, click outside
-        if (confirmed && options.onConfirm)
-            options.onConfirm.call(dialog, inputValue);
-        else if (!confirmed && options.onCancel)
-            options.onCancel.call(dialog);
+        if (confirmed) {
+            if(options.onConfirm) options.onConfirm.call(dialog, inputValue);
+        }
+        else {
+            if(options.onCancel) options.onCancel.call(dialog);
+        }
         modalJq.remove();
         dialog = undefined;
     });

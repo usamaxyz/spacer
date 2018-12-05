@@ -81,511 +81,509 @@ let spa = (function () {
 
 
     let config = {
-        locale: 'en',
-        debug: false,
-        timelineFormat: 'D-M-YYYY',
-        trimValues: true,
+            locale: 'en',
+            debug: false,
+            timelineFormat: 'D-M-YYYY',
+            trimValues: true,
 
-        ajaxOnError: function (jqXHR) {
-            //jqXHR, textStatus, errorThrown
-            spa.dialog.messageError(
-                spa.resource.get('ajax.errorTitle'),
-                spa.resource.get('ajax.errorBody') + jqXHR.status);
-        },
-        ajaxLaravelHeader: false,
-        ajaxHeader: undefined,
-
-        //for util.token
-        tokenValue: undefined,
-        tokenName: undefined,
-
-        /*
-            'alert'
-            'sweetAlert'
-         */
-        dialogCurrentDriver: 'alert',
-        dialogDrivers: {
-            alert: {
-                message: function (title, msg, status, icon, fn) {
-                    window.alert(title + "\n" + msg);
-                    if (fn) fn();
-                },
-                confirm: function (title, msg, status, icon, fn1, fn2) {
-                    if (window.confirm(title + "\n" + msg))
-                        fn1();
-                    else if (fn2) fn2();
-                },
-                prompt: function (title, msg, status, icon, fn1, fn2) {
-                    let result = window.prompt(title + "\n" + msg);
-                    if (result === null) {
-                        if (fn2) fn2();
-                    }
-                    else fn1(result);
-                }
+            ajaxOnError: function (jqXHR) {
+                //jqXHR, textStatus, errorThrown
+                spa.dialog.messageError(
+                    spa.resource.get('ajax.errorTitle'),
+                    spa.resource.get('ajax.errorBody') + jqXHR.status);
             },
-            sweetAlert: (function () {
-                function iconMapper(icon) {
-                    if (icon === 'danger')
-                        return 'error';
-                    return icon;
-                }
+            ajaxLaravelHeader: false,
+            ajaxHeader: undefined,
 
-                return {
+            //for util.token
+            tokenValue: undefined,
+            tokenName: undefined,
+
+            /*
+                'alert'
+                'sweetAlert'
+             */
+            dialogCurrentDriver: 'alert',
+            dialogDrivers: {
+                alert: {
                     message: function (title, msg, status, icon, fn) {
-                        swal({
-                            title: title,
-                            text: msg,
-                            icon: iconMapper(icon),
-                            button: spa.resource.get('btn.ok')
-                        }).then(function () {
-                            if (fn) fn();
-                        });
+                        window.alert(title + "\n" + msg);
+                        if (fn) fn();
                     },
                     confirm: function (title, msg, status, icon, fn1, fn2) {
-                        swal({
-                            title: title,
-                            text: msg,
-                            icon: iconMapper(icon),
-                            dangerMode: true,
-                            buttons: [spa.resource.get('btn.no'), spa.resource.get('btn.yes')]
-                        }).then(function (value) {
-                            if (value)
-                                fn1();
-                            else if (fn2)
-                                fn2();
-                        });
+                        if (window.confirm(title + "\n" + msg))
+                            fn1();
+                        else if (fn2) fn2();
                     },
                     prompt: function (title, msg, status, icon, fn1, fn2) {
-                        swal({
-                            title: title,
-                            text: msg,
-                            icon: iconMapper(icon),
-                            content: "input",
-                            buttons: [spa.resource.get('btn.cancel'), spa.resource.get('btn.continue')]
-                        }).then(function (value) {
-                            if (value === null) {
-                                if (fn2) fn2();
-                            }
-                            else fn1(value);
-                        });
+                        let result = window.prompt(title + "\n" + msg);
+                        if (result === null) {
+                            if (fn2) fn2();
+                        }
+                        else fn1(result);
                     }
-                }
-            })(),
-        },
-
-        flashCurrentDriver: '',
-        flashDrivers: {
-
-        },
-
-        /*
-            'silent'
-            'listOfErrors'
-            'dialog'
-            'dialog.alert'
-            'dialog.sweetAlert'
-            'flash'
-         */
-        validationCurrentDriver: 'dialog',
-        validationDrivers: {
-            silent: {
-                onError: function () {
                 },
-                clearError: function () {
-                }
-            },
-            listOfErrors: (function () {
-                let validationErrors = [];
+                sweetAlert: (function () {
+                    function iconMapper(icon) {
+                        if (icon === 'danger')
+                            return 'error';
+                        return icon;
+                    }
 
-                return {
-                    onError: function (vo) {
-                        //add new errors
-                        for (let i = 0, l = vo.pattern.invalidRules.length; i < l; i++)
-                            validationErrors.push({
-                                msg: vo.pattern.invalidRules[i].message,
-                                input: vo.input
+                    return {
+                        message: function (title, msg, status, icon, fn) {
+                            swal({
+                                title: title,
+                                text: msg,
+                                icon: iconMapper(icon),
+                                button: spa.resource.get('btn.ok')
+                            }).then(function () {
+                                if (fn) fn();
                             });
-                        let ul = $(config.listOfErrorsSelector);
-                        if (ul.length) {
-                            let str = '';
-                            for (let i = 0, l = validationErrors.length; i < l; i++)
-                                str += '<li>' + validationErrors[i].msg + '</li>';
-                            ul.html(str);
-                        }
-                    },
-                    clearError: function (inputJq) {
-                        for (let i = validationErrors.length - 1; i >= 0; i--)
-                            if (validationErrors[i].input.jquery[0] === inputJq[0])
-                                validationErrors.splice(i, 1);
-                        let ul = $(config.listOfErrorsSelector);
-                        if (ul.length) {
-                            let str = '',
-                                l = validationErrors.length;
-                            for (let i = 0; i < l; i++)
-                                str += '<li>' + validationErrors[i].msg + '</li>';
-                            ul.html(str);
-                        }
-                    },
-                    getErrorList: function () {
-                        let result = [];
-                        for (let i = 0, l = validationErrors.length; i < l; i++) {
-                            let newItem = validationErrors[i];
-
-                            let index = -1;
-                            for (let _j = 0, _m = result.length; _j < _m; _j++)
-                                if (result[_j].input.jquery[0] === newItem.input.jquery[0]) {
-                                    index = _j;
-                                    break;
+                        },
+                        confirm: function (title, msg, status, icon, fn1, fn2) {
+                            swal({
+                                title: title,
+                                text: msg,
+                                icon: iconMapper(icon),
+                                dangerMode: true,
+                                buttons: [spa.resource.get('btn.no'), spa.resource.get('btn.yes')]
+                            }).then(function (value) {
+                                if (value)
+                                    fn1();
+                                else if (fn2)
+                                    fn2();
+                            });
+                        },
+                        prompt: function (title, msg, status, icon, fn1, fn2) {
+                            swal({
+                                title: title,
+                                text: msg,
+                                icon: iconMapper(icon),
+                                content: "input",
+                                buttons: [spa.resource.get('btn.cancel'), spa.resource.get('btn.continue')]
+                            }).then(function (value) {
+                                if (value === null) {
+                                    if (fn2) fn2();
                                 }
-                            if (index === -1)
-                                //not exist
-                                result.push({
-                                    input: newItem.input,
-                                    errors: [newItem.msg]
+                                else fn1(value);
+                            });
+                        }
+                    }
+                })(),
+            },
+
+            flashCurrentDriver: '',
+            flashDrivers: {},
+
+            /*
+                'silent'
+                'listOfErrors'
+                'dialog'
+                'dialog.alert'
+                'dialog.sweetAlert'
+                'flash'
+             */
+            validationCurrentDriver: 'dialog',
+            validationDrivers: {
+                silent: {
+                    onError: function () {
+                    },
+                    clearError: function () {
+                    }
+                },
+                listOfErrors: (function () {
+                    let validationErrors = [];
+
+                    return {
+                        onError: function (vo) {
+                            //add new errors
+                            for (let i = 0, l = vo.pattern.invalidRules.length; i < l; i++)
+                                validationErrors.push({
+                                    msg: vo.pattern.invalidRules[i].message,
+                                    input: vo.input
                                 });
-                            else
+                            let ul = $(config.listOfErrorsSelector);
+                            if (ul.length) {
+                                let str = '';
+                                for (let i = 0, l = validationErrors.length; i < l; i++)
+                                    str += '<li>' + validationErrors[i].msg + '</li>';
+                                ul.html(str);
+                            }
+                        },
+                        clearError: function (inputJq) {
+                            for (let i = validationErrors.length - 1; i >= 0; i--)
+                                if (validationErrors[i].input.jquery[0] === inputJq[0])
+                                    validationErrors.splice(i, 1);
+                            let ul = $(config.listOfErrorsSelector);
+                            if (ul.length) {
+                                let str = '',
+                                    l = validationErrors.length;
+                                for (let i = 0; i < l; i++)
+                                    str += '<li>' + validationErrors[i].msg + '</li>';
+                                ul.html(str);
+                            }
+                        },
+                        getErrorList: function () {
+                            let result = [];
+                            for (let i = 0, l = validationErrors.length; i < l; i++) {
+                                let newItem = validationErrors[i];
+
+                                let index = -1;
+                                for (let _j = 0, _m = result.length; _j < _m; _j++)
+                                    if (result[_j].input.jquery[0] === newItem.input.jquery[0]) {
+                                        index = _j;
+                                        break;
+                                    }
+                                if (index === -1)
+                                //not exist
+                                    result.push({
+                                        input: newItem.input,
+                                        errors: [newItem.msg]
+                                    });
+                                else
                                 //exist => add message to error list
-                                result[index].errors.push(newItem.msg);
+                                    result[index].errors.push(newItem.msg);
+                            }
+                            return result;
                         }
-                        return result;
-                    }
-                };
-            })(),
-        },
-        reValidationDelay: 500,
-        listOfErrorsSelector: '#spacer-listOfErrors',
+                    };
+                })(),
+            },
+            reValidationDelay: 500,
+            listOfErrorsSelector: '#spacer-listOfErrors',
 
-        validationCustomRules: {
-            // validationCustomRules: {
-            //     ruleName: {
-            //         validate: function (vo, index) {
-            //             var rule = vo.pattern.rules[index];
-            //             //return true or false
-            //         },
-            //         getErrorMessage: function (vo, index) {
-            //             var rule = vo.invalidRules[index];
-            //             //return string
-            //         },
-            //     },
-            // },
-            'min_input': {
-                /**
-                 *  Min than input value. For integer, float and timeline patterns only
-                 */
-                validate: function (vo, index) {
-                    //return true or false
+            validationCustomRules: {
+                // validationCustomRules: {
+                //     ruleName: {
+                //         validate: function (vo, index) {
+                //             var rule = vo.pattern.rules[index];
+                //             //return true or false
+                //         },
+                //         getErrorMessage: function (vo, index) {
+                //             var rule = vo.invalidRules[index];
+                //             //return string
+                //         },
+                //     },
+                // },
+                'min_input': {
+                    /**
+                     *  Min than input value. For integer, float and timeline patterns only
+                     */
+                    validate: function (vo, index) {
+                        //return true or false
 
-                    let valueToValidate = vo.input.valueToValidate,
-                        rule = vo.pattern.rules[index],
+                        let valueToValidate = vo.input.valueToValidate,
+                            rule = vo.pattern.rules[index],
 
-                        minInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
+                            minInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
 
-                        format = vo.pattern.timelineFormat.params[0];
+                            format = vo.pattern.timelineFormat.params[0];
 
-                    if (minInput.length) {
+                        if (minInput.length) {
 
-                        let minInputValue = minInput.val();
+                            let minInputValue = minInput.val();
 
-                        if (minInputValue) {
-                            let isOut = rule.params[1] === 'o';
-                            switch (vo.pattern.type) {
-                                case PatternTypes.integer:
-                                case PatternTypes.float: {
-                                    let parsedValue = parseFloat(valueToValidate);
-                                    minInputValue = parseFloat(minInputValue);
+                            if (minInputValue) {
+                                let isOut = rule.params[1] === 'o';
+                                switch (vo.pattern.type) {
+                                    case PatternTypes.integer:
+                                    case PatternTypes.float: {
+                                        let parsedValue = parseFloat(valueToValidate);
+                                        minInputValue = parseFloat(minInputValue);
 
-                                    if (isNaN(minInputValue)) {
-                                        return false;
-                                    }
-                                    if (isOut) {
-                                        //isOut
-                                        if (parsedValue <= minInputValue)
+                                        if (isNaN(minInputValue)) {
                                             return false;
+                                        }
+                                        if (isOut) {
+                                            //isOut
+                                            if (parsedValue <= minInputValue)
+                                                return false;
+                                        }
+                                        else {
+                                            //in
+                                            if (parsedValue < minInputValue)
+                                                return false
+                                        }
+                                        break;
                                     }
-                                    else {
-                                        //in
-                                        if (parsedValue < minInputValue)
-                                            return false
-                                    }
-                                    break;
+                                    case PatternTypes.timeline:
+                                        if (isOut) {
+                                            //isOut
+                                            if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format))
+                                                return false;
+                                        }
+                                        else {
+                                            //in
+                                            if (!spa.validation.isTimelineAfterOrEqual(valueToValidate, minInputValue, format))
+                                                return false;
+                                        }
+                                        break;
                                 }
-                                case PatternTypes.timeline:
-                                    if (isOut) {
-                                        //isOut
-                                        if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format))
-                                            return false;
-                                    }
-                                    else {
-                                        //in
-                                        if (!spa.validation.isTimelineAfterOrEqual(valueToValidate, minInputValue, format))
-                                            return false;
-                                    }
-                                    break;
                             }
                         }
-                    }
-                    return true;
-                },
-                getErrorMessage: function (vo, index) {
-                    //return string
-
-                    let rule = vo.pattern.invalidRules[index];
-
-                    let ruleName = 'min' + ((rule.params[1] === 'o' ? '_o' : '_i'));
-
-                    /**
-                     * get p1 from:
-                     *  1. rule 3rd parameter
-                     *  2. related input friendly name
-                     *  3. related input value
-                     */
-
-                    //rule 3rd parameter
-                    let p1 = rule.params[2];
-
-                    let relatedInput;
-
-                    //related input friendly name
-                    if (!p1) {
-                        relatedInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
-                        p1 = relatedInput.attr(Tags.friendlyName);
-                    }
-
-                    //related input value
-                    if (!p1) {
-                        //no from-min tag is provided => get the value which is existed for sure
-                        p1 = relatedInput.val();
-                    }
-
-                    return spa.resource.get(vo.pattern.name + '.' + ruleName, {
-                        fn: vo.input.friendlyName,
-                        p1: p1,
-                    });
-                },
-            },
-            'max_input': {
-                /**
-                 *  Max than input value. For integer, float and timeline patterns only
-                 */
-                validate: function (vo, index) {
-                    //return true or false
-
-                    let valueToValidate = vo.input.valueToValidate,
-                        rule = vo.pattern.rules[index],
-                        maxInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
-
-                        format = vo.pattern.timelineFormat.params[0];
-
-                    if (maxInput.length) {
-
-                        let maxInputValue = maxInput.val();
-
-                        if (maxInputValue) {
-                            let isOut = rule.params[1] === 'o';
-                            switch (vo.pattern.type) {
-                                case PatternTypes.integer:
-                                case PatternTypes.float: {
-                                    let parsedValue = parseFloat(valueToValidate);
-                                    maxInputValue = parseFloat(maxInputValue);
-
-                                    if (isNaN(maxInputValue)) {
-                                        return false;
-                                    }
-                                    if (isOut) {
-                                        //isOut
-                                        if (parsedValue >= maxInputValue)
-                                            return false;
-                                    }
-                                    else {
-                                        //in
-                                        if (parsedValue > maxInputValue)
-                                            return false
-                                    }
-                                    break;
-                                }
-                                case PatternTypes.timeline:
-                                    if (isOut) {
-                                        //isOut
-                                        if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format))
-                                            return false;
-                                    }
-                                    else {
-                                        //in
-                                        if (!spa.validation.isTimelineBeforeOrEqual(valueToValidate, maxInputValue, format))
-                                            return false;
-                                    }
-                                    break;
-                            }
-                        }
-                    }
-                    return true;
-                },
-                getErrorMessage: function (vo, index) {
-                    //return string
-
-                    let rule = vo.pattern.invalidRules[index];
-
-                    let ruleName = 'max' + ((rule.params[1] === 'o' ? '_o' : '_i'));
-
-                    /**
-                     * get p1 from:
-                     *  1. rule 3rd parameter
-                     *  2. related input friendly name
-                     *  3. related input value
-                     */
-
-                    //rule 3rd parameter
-                    let p1 = rule.params[2];
-
-                    let relatedInput;
-
-                    //related input friendly name
-                    if (!p1) {
-                        relatedInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
-                        p1 = relatedInput.attr(Tags.friendlyName);
-                    }
-
-                    //related input value
-                    if (!p1) {
-                        //no from-min tag is provided => get the value which is existed for sure
-                        p1 = relatedInput.val();
-                    }
-
-                    return spa.resource.get(vo.pattern.name + '.' + ruleName, {
-                        fn: vo.input.friendlyName,
-                        p1: p1,
-                    });
-                },
-            },
-        },
-        validationPre: undefined,
-        validationIsLite: false,
-
-        //momentLocales without en: because en is loaded by default
-        momentLocales: {
-            ar: {
-                months: months,
-                monthsShort: monthsShort,
-                weekdays: days,
-                weekdaysShort: daysShort,
-                weekdaysMin: daysMin,
-                weekdaysParseExact: true,
-                longDateFormat: {
-                    LT: 'HH:mm',
-                    LTS: 'HH:mm:ss',
-                    L: 'DD/MM/YYYY',
-                    LL: 'D MMMM YYYY',
-                    LLL: 'D MMMM YYYY HH:mm',
-                    LLLL: 'dddd D MMMM YYYY HH:mm'
-                },
-                calendar: {
-                    sameDay: '[اليوم على الساعة] LT',
-                    nextDay: '[غدا على الساعة] LT',
-                    nextWeek: 'dddd [على الساعة] LT',
-                    lastDay: '[أمس على الساعة] LT',
-                    lastWeek: 'dddd [على الساعة] LT',
-                    sameElse: 'L'
-                },
-                relativeTime: {
-                    future: 'في %s',
-                    past: 'منذ %s',
-                    s: 'ثوان',
-                    ss: '%d ثانية',
-                    m: 'دقيقة',
-                    mm: '%d دقائق',
-                    h: 'ساعة',
-                    hh: '%d ساعات',
-                    d: 'يوم',
-                    dd: '%d أيام',
-                    M: 'شهر',
-                    MM: '%d أشهر',
-                    y: 'سنة',
-                    yy: '%d سنوات'
-                },
-                week: {
-                    dow: 0, // Sunday is the first day of the week.
-                    doy: 12  // The week that contains Jan 1st is the first week of the year.
-                }
-            }
-        },
-        datepickerOptions: {
-            ar: {
-                closeText: "إغلاق",
-                prevText: "&#x3C;السابق",
-                nextText: "التالي&#x3E;",
-                currentText: "اليوم",
-                monthNames: months,
-                monthNamesShort: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
-                dayNames: days,
-                dayNamesShort: daysShort,
-                dayNamesMin: daysMin,
-                weekHeader: "أسبوع",
-                firstDay: 1,
-                isRTL: true,
-                showMonthAfterYear: false,
-                yearSuffix: '',
-
-                dateFormat: 'dd-mm-yy',
-                changeMonth: true,
-                changeYear: true,
-                showButtonPanel: true
-            },
-            en: {
-                dateFormat: 'dd-mm-yy',
-                changeMonth: true,
-                changeYear: true,
-                showButtonPanel: true
-            }
-        },
-        datatableOptions: {
-            ar: {
-                paging: false,
-                info: false,
-                searching: false,
-                order: [],
-                language: {
-                    decimal: "",
-                    emptyTable: "لا توجد بيانات",
-                    info: "عرض _START_ إلى _END_. الاجمالي _TOTAL_ عنصر",
-                    infoEmpty: "لا توجد بيانات",
-                    infoFiltered: "(filtered from _MAX_ total entries)",
-                    infoPostFix: "",
-                    thousands: ",",
-                    lengthMenu: "عدد المداخل في كل صفحة  _MENU_",
-                    loadingRecords: "جاري التحميل...",
-                    processing: "جاري المعالجة...",
-                    search: "فلترة: ",
-                    zeroRecords: "لا توجد بيانات مطابقة",
-                    paginate: {
-                        first: "البداية",
-                        last: "النهاية",
-                        next: "التالي",
-                        previous: "السابق"
+                        return true;
                     },
-                    aria: {
-                        sortAscending: ": activate to sort column ascending",
-                        sortDescending: ": activate to sort column descending"
+                    getErrorMessage: function (vo, index) {
+                        //return string
+
+                        let rule = vo.pattern.invalidRules[index];
+
+                        let ruleName = 'min' + ((rule.params[1] === 'o' ? '_o' : '_i'));
+
+                        /**
+                         * get p1 from:
+                         *  1. rule 3rd parameter
+                         *  2. related input friendly name
+                         *  3. related input value
+                         */
+
+                            //rule 3rd parameter
+                        let p1 = rule.params[2];
+
+                        let relatedInput;
+
+                        //related input friendly name
+                        if (!p1) {
+                            relatedInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
+                            p1 = relatedInput.attr(Tags.friendlyName);
+                        }
+
+                        //related input value
+                        if (!p1) {
+                            //no from-min tag is provided => get the value which is existed for sure
+                            p1 = relatedInput.val();
+                        }
+
+                        return spa.resource.get(vo.pattern.name + '.' + ruleName, {
+                            fn: vo.input.friendlyName,
+                            p1: p1,
+                        });
+                    },
+                },
+                'max_input': {
+                    /**
+                     *  Max than input value. For integer, float and timeline patterns only
+                     */
+                    validate: function (vo, index) {
+                        //return true or false
+
+                        let valueToValidate = vo.input.valueToValidate,
+                            rule = vo.pattern.rules[index],
+                            maxInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
+
+                            format = vo.pattern.timelineFormat.params[0];
+
+                        if (maxInput.length) {
+
+                            let maxInputValue = maxInput.val();
+
+                            if (maxInputValue) {
+                                let isOut = rule.params[1] === 'o';
+                                switch (vo.pattern.type) {
+                                    case PatternTypes.integer:
+                                    case PatternTypes.float: {
+                                        let parsedValue = parseFloat(valueToValidate);
+                                        maxInputValue = parseFloat(maxInputValue);
+
+                                        if (isNaN(maxInputValue)) {
+                                            return false;
+                                        }
+                                        if (isOut) {
+                                            //isOut
+                                            if (parsedValue >= maxInputValue)
+                                                return false;
+                                        }
+                                        else {
+                                            //in
+                                            if (parsedValue > maxInputValue)
+                                                return false
+                                        }
+                                        break;
+                                    }
+                                    case PatternTypes.timeline:
+                                        if (isOut) {
+                                            //isOut
+                                            if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format))
+                                                return false;
+                                        }
+                                        else {
+                                            //in
+                                            if (!spa.validation.isTimelineBeforeOrEqual(valueToValidate, maxInputValue, format))
+                                                return false;
+                                        }
+                                        break;
+                                }
+                            }
+                        }
+                        return true;
+                    },
+                    getErrorMessage: function (vo, index) {
+                        //return string
+
+                        let rule = vo.pattern.invalidRules[index];
+
+                        let ruleName = 'max' + ((rule.params[1] === 'o' ? '_o' : '_i'));
+
+                        /**
+                         * get p1 from:
+                         *  1. rule 3rd parameter
+                         *  2. related input friendly name
+                         *  3. related input value
+                         */
+
+                            //rule 3rd parameter
+                        let p1 = rule.params[2];
+
+                        let relatedInput;
+
+                        //related input friendly name
+                        if (!p1) {
+                            relatedInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
+                            p1 = relatedInput.attr(Tags.friendlyName);
+                        }
+
+                        //related input value
+                        if (!p1) {
+                            //no from-min tag is provided => get the value which is existed for sure
+                            p1 = relatedInput.val();
+                        }
+
+                        return spa.resource.get(vo.pattern.name + '.' + ruleName, {
+                            fn: vo.input.friendlyName,
+                            p1: p1,
+                        });
+                    },
+                },
+            },
+            validationPre: undefined,
+            validationIsLite: false,
+
+            //momentLocales without en: because en is loaded by default
+            momentLocales: {
+                ar: {
+                    months: months,
+                    monthsShort: monthsShort,
+                    weekdays: days,
+                    weekdaysShort: daysShort,
+                    weekdaysMin: daysMin,
+                    weekdaysParseExact: true,
+                    longDateFormat: {
+                        LT: 'HH:mm',
+                        LTS: 'HH:mm:ss',
+                        L: 'DD/MM/YYYY',
+                        LL: 'D MMMM YYYY',
+                        LLL: 'D MMMM YYYY HH:mm',
+                        LLLL: 'dddd D MMMM YYYY HH:mm'
+                    },
+                    calendar: {
+                        sameDay: '[اليوم على الساعة] LT',
+                        nextDay: '[غدا على الساعة] LT',
+                        nextWeek: 'dddd [على الساعة] LT',
+                        lastDay: '[أمس على الساعة] LT',
+                        lastWeek: 'dddd [على الساعة] LT',
+                        sameElse: 'L'
+                    },
+                    relativeTime: {
+                        future: 'في %s',
+                        past: 'منذ %s',
+                        s: 'ثوان',
+                        ss: '%d ثانية',
+                        m: 'دقيقة',
+                        mm: '%d دقائق',
+                        h: 'ساعة',
+                        hh: '%d ساعات',
+                        d: 'يوم',
+                        dd: '%d أيام',
+                        M: 'شهر',
+                        MM: '%d أشهر',
+                        y: 'سنة',
+                        yy: '%d سنوات'
+                    },
+                    week: {
+                        dow: 0, // Sunday is the first day of the week.
+                        doy: 12  // The week that contains Jan 1st is the first week of the year.
                     }
                 }
             },
-            en: {
-                paging: false,
-                info: false,
-                searching: false,
-                order: []
-            }
-        },
+            datepickerOptions: {
+                ar: {
+                    closeText: "إغلاق",
+                    prevText: "&#x3C;السابق",
+                    nextText: "التالي&#x3E;",
+                    currentText: "اليوم",
+                    monthNames: months,
+                    monthNamesShort: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+                    dayNames: days,
+                    dayNamesShort: daysShort,
+                    dayNamesMin: daysMin,
+                    weekHeader: "أسبوع",
+                    firstDay: 1,
+                    isRTL: true,
+                    showMonthAfterYear: false,
+                    yearSuffix: '',
 
-        /*
-         * options:
-         *      1 => cookie
-         *      2 => segment
-         *      3 => query
-         */
-        localeMethod: 2,
-        localeQueryKey: 'lang',
-        defaultLocale: 'en',
-    },
+                    dateFormat: 'dd-mm-yy',
+                    changeMonth: true,
+                    changeYear: true,
+                    showButtonPanel: true
+                },
+                en: {
+                    dateFormat: 'dd-mm-yy',
+                    changeMonth: true,
+                    changeYear: true,
+                    showButtonPanel: true
+                }
+            },
+            datatableOptions: {
+                ar: {
+                    paging: false,
+                    info: false,
+                    searching: false,
+                    order: [],
+                    language: {
+                        decimal: "",
+                        emptyTable: "لا توجد بيانات",
+                        info: "عرض _START_ إلى _END_. الاجمالي _TOTAL_ عنصر",
+                        infoEmpty: "لا توجد بيانات",
+                        infoFiltered: "(filtered from _MAX_ total entries)",
+                        infoPostFix: "",
+                        thousands: ",",
+                        lengthMenu: "عدد المداخل في كل صفحة  _MENU_",
+                        loadingRecords: "جاري التحميل...",
+                        processing: "جاري المعالجة...",
+                        search: "فلترة: ",
+                        zeroRecords: "لا توجد بيانات مطابقة",
+                        paginate: {
+                            first: "البداية",
+                            last: "النهاية",
+                            next: "التالي",
+                            previous: "السابق"
+                        },
+                        aria: {
+                            sortAscending: ": activate to sort column ascending",
+                            sortDescending: ": activate to sort column descending"
+                        }
+                    }
+                },
+                en: {
+                    paging: false,
+                    info: false,
+                    searching: false,
+                    order: []
+                }
+            },
+
+            /*
+             * options:
+             *      1 => cookie
+             *      2 => segment
+             *      3 => query
+             */
+            localeMethod: 2,
+            localeQueryKey: 'lang',
+            defaultLocale: 'en',
+        },
         resourcesBank = {
             'btn.ok': {
                 en: 'Ok',
@@ -639,357 +637,357 @@ let spa = (function () {
 
             //integer
             'integer.integer': {
-                en: 'The :fn must be an integer number.',
-                ar: 'يجب أن يكون :fn رقم صحيح.'
+                en: 'The :fn must be an integer number',
+                ar: 'يجب أن يكون :fn رقم صحيح'
             },
             'integer.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
             'integer.positive': {
-                en: 'The :fn must be positive number.',
-                ar: 'يجب أن يكون :fn رقم موجب.'
+                en: 'The :fn must be positive number',
+                ar: 'يجب أن يكون :fn رقم موجب'
             },
             'integer.negative': {
-                en: 'The :fn must be negative number.',
-                ar: 'يجب أن يكون :fn رقم سالب.'
+                en: 'The :fn must be negative number',
+                ar: 'يجب أن يكون :fn رقم سالب'
             },
             'integer.min_i': {
-                en: 'The :fn must be less than or equal to :p1.',
-                ar: ' يجب أن يكون :fn :p1 على الأقل.'
+                en: 'The :fn must be greater than or equal :p1',
+                ar: ' يجب أن يكون :fn :p1 على الأقل'
             },
             'integer.min_o': {
-                en: 'The :fn must be greater than :p1.',
-                ar: ' يجب أن يكون :fn أكبر من :p1.'
+                en: 'The :fn must be greater than :p1',
+                ar: ' يجب أن يكون :fn أكبر من :p1'
             },
             'integer.max_i': {
-                en: 'The :fn may not be greater than :p1.',
-                ar: 'يجب أن يكون :fn :p1 على الأكثر.'
+                en: 'The :fn must be less than or equal :p1',
+                ar: 'يجب أن يكون :fn :p1 على الأكثر'
             },
             'integer.max_o': {
-                en: 'The :fn must be less than :p1.',
-                ar: 'يجب أن يكون :fn أقل من :p1.'
+                en: 'The :fn must be less than :p1',
+                ar: 'يجب أن يكون :fn أقل من :p1'
             },
             'integer.range': {
-                en: 'The :fn must be between :p1 and :p2.',
-                ar: 'يجب أن يكون :fn بين :p1 و :p2.'
+                en: 'The :fn must be between :p1 and :p2',
+                ar: 'يجب أن يكون :fn بين :p1 و :p2'
             },
             'integer.confirmed': {
-                en: 'The :fn confirmation does not match.',
-                ar: 'تأكيد :fn غير مطابق.'
+                en: 'The :fn confirmation does not match',
+                ar: 'تأكيد :fn غير مطابق'
             },
             'integer.not': {
-                en: 'The :fn is invalid.',
-                ar: ':fn غير صالح.'
+                en: 'The :fn is invalid',
+                ar: ':fn غير صالح'
             },
 
 
             'float.float': {
-                en: 'The :fn must be a float number.',
-                ar: 'يجب أن يكون :fn رقم صحيح.'
+                en: 'The :fn must be a float number',
+                ar: 'يجب أن يكون :fn رقم صحيح'
             },
             'float.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
             'float.positive': {
-                en: 'The :fn must be positive number.',
-                ar: 'يجب أن يكون :fn رقم صحيح موجب.'
+                en: 'The :fn must be positive number',
+                ar: 'يجب أن يكون :fn رقم صحيح موجب'
             },
             'float.negative': {
-                en: 'The :fn must be negative number.',
-                ar: 'يجب أن يكون :fn رقم صحيح سالب.'
+                en: 'The :fn must be negative number',
+                ar: 'يجب أن يكون :fn رقم صحيح سالب'
             },
             'float.min_i': {
-                en: 'The :fn must be less than or equal to :p1.',
-                ar: ' يجب أن يكون :fn :p1 على الأقل.'
+                en: 'The :fn must be greater than or equal :p1',
+                ar: ' يجب أن يكون :fn :p1 على الأقل'
             },
             'float.min_o': {
-                en: 'The :fn must be greater than :p1.',
-                ar: ' يجب أن يكون :fn أكبر من :p1.'
+                en: 'The :fn must be greater than :p1',
+                ar: ' يجب أن يكون :fn أكبر من :p1'
             },
             'float.max_i': {
-                en: 'The :fn may not be greater than :p1.',
-                ar: 'يجب أن يكون :fn :p1 على الأكثر.'
+                en: 'The :fn must be less than or equal :p1',
+                ar: 'يجب أن يكون :fn :p1 على الأكثر'
             },
             'float.max_o': {
-                en: 'The :fn must be less than :p1.',
-                ar: 'يجب أن يكون :fn أقل من :p1.'
+                en: 'The :fn must be less than :p1',
+                ar: 'يجب أن يكون :fn أقل من :p1'
             },
             'float.range': {
-                en: 'The :fn must be between :p1 and :p2.',
-                ar: 'يجب أن يكون :fn بين :p1 و :p2.'
+                en: 'The :fn must be between :p1 and :p2',
+                ar: 'يجب أن يكون :fn بين :p1 و :p2'
             },
             'float.confirmed': {
-                en: 'The :fn confirmation does not match.',
-                ar: 'تأكيد :fn غير مطابق.'
+                en: 'The :fn confirmation does not match',
+                ar: 'تأكيد :fn غير مطابق'
             },
             'float.not': {
-                en: 'The :fn is invalid.',
-                ar: ':fn غير صالح.'
+                en: 'The :fn is invalid',
+                ar: ':fn غير صالح'
             },
             'string.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
             'string.of': {
-                en: 'The :fn contains unacceptable character(s).',
-                ar: ':fn يحوي رموز غير صالحة.'
+                en: 'The :fn contains unacceptable character(s)',
+                ar: ':fn يحوي رموز غير صالحة'
             },
             'string.not_of': {
-                en: 'The :fn contains unacceptable character(s).',
-                ar: ':fn يحوي رموز غير صالحة.'
+                en: 'The :fn contains unacceptable character(s)',
+                ar: ':fn يحوي رموز غير صالحة'
             },
             'string.min_i': {
-                en: 'The :fn must be :p1 character(s) at least.',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأقل.'
+                en: 'The :fn must be :p1 character(s) at least',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأقل'
             },
             'string.min_o': {
-                en: 'The :fn must be more than :p1 character(s).',
-                ar: 'يجب أن يكون :fn أكثر من :p1 محرف.'
+                en: 'The :fn must be more than :p1 character(s)',
+                ar: 'يجب أن يكون :fn أكثر من :p1 محرف'
             },
             'string.max_i': {
-                en: 'The :fn may not contain more than :p1 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأكثر.'
+                en: 'The :fn may not contain more than :p1 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأكثر'
             },
             'string.max_o': {
-                en: 'The :fn must be less than :p1 character(s).',
-                ar: 'يجب أن يكون :fn أقل من :p1 محرف.'
+                en: 'The :fn must be less than :p1 character(s)',
+                ar: 'يجب أن يكون :fn أقل من :p1 محرف'
             },
             'string.range': {
-                en: 'The :fn must be between :p1 and :p2 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 إلى :p2 محرف.'
+                en: 'The :fn must be between :p1 and :p2 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 إلى :p2 محرف'
             },
             'string.len': {
-                en: 'The :fn must be :p1 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف.'
+                en: 'The :fn must be :p1 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف'
             },
             'string.confirmed': {
-                en: 'The :fn confirmation does not match.',
-                ar: 'تأكيد :fn غير مطابق.'
+                en: 'The :fn confirmation does not match',
+                ar: 'تأكيد :fn غير مطابق'
             },
             'string.not': {
-                en: 'The :fn is invalid.',
-                ar: ':fn غير صالح.'
+                en: 'The :fn is invalid',
+                ar: ':fn غير صالح'
             },
 
             'check.required': {
-                en: 'Please choose :fn.',
-                ar: 'يرجى اختيار :fn.'
+                en: 'Please choose :fn',
+                ar: 'يرجى اختيار :fn'
             },
 
             'timeline.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
             'timeline.format': {
-                en: 'The :fn is not in the correct format: :p1.',
-                ar: ':fn ليس بالتنسيق المطلوب: :p1.'
+                en: 'The :fn is not in the correct format: :p1',
+                ar: ':fn ليس بالتنسيق المطلوب: :p1'
             },
             'timeline.min_i': {
-                en: 'The :fn must be a date after or equal to :p1.',
-                ar: ' يجب أن يكون :fn أكبر من أو يساوي :p1.'
+                en: 'The :fn must be a date after or equal :p1',
+                ar: ' يجب أن يكون :fn أكبر من أو يساوي :p1'
             },
             'timeline.min_o': {
-                en: 'The :fn must be a date after :p1.',
-                ar: ' يجب أن يكون :fn أكبر من :p1.'
+                en: 'The :fn must be a date after :p1',
+                ar: ' يجب أن يكون :fn أكبر من :p1'
             },
             'timeline.max_i': {
-                en: 'The :fn must be a date before or equal to :p1.',
-                ar: ' يجب أن يكون :fn أصغر من أو يساوي :p1.'
+                en: 'The :fn must be a date before or equal :p1',
+                ar: ' يجب أن يكون :fn أصغر من أو يساوي :p1'
             },
             'timeline.max_o': {
-                en: 'The :fn must be a date before :p1.',
-                ar: ' يجب أن يكون :fn أصغر من :p1.'
+                en: 'The :fn must be a date before :p1',
+                ar: ' يجب أن يكون :fn أصغر من :p1'
             },
             'timeline.range': {
-                en: 'The :fn must be between :p1 and :p2.',
-                ar: 'يجب أن يكون :fn بين :p1 و :p2.'
+                en: 'The :fn must be between :p1 and :p2',
+                ar: 'يجب أن يكون :fn بين :p1 و :p2'
             },
             'timeline.confirmed': {
-                en: 'The :fn confirmation does not match.',
-                ar: 'تأكيد :fn غير مطابق.'
+                en: 'The :fn confirmation does not match',
+                ar: 'تأكيد :fn غير مطابق'
             },
 
             'email.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
             'email.email': {
-                en: 'The :fn must be a valid email address.',
-                ar: ':fn غير صالح.'
+                en: 'The :fn must be a valid email address',
+                ar: ':fn غير صالح'
             },
             'email.min_i': {
-                en: 'The :fn must be :p1 character(s) at least.',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأقل.'
+                en: 'The :fn must be :p1 character(s) at least',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأقل'
             },
             'email.min_o': {
-                en: 'The :fn must be more than :p1 character(s).',
-                ar: 'يجب أن يكون :fn أكثر من :p1 محرف.'
+                en: 'The :fn must be more than :p1 character(s)',
+                ar: 'يجب أن يكون :fn أكثر من :p1 محرف'
             },
             'email.max_i': {
-                en: 'The :fn may not contain more than :p1 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأكثر.'
+                en: 'The :fn may not contain more than :p1 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأكثر'
             },
             'email.max_o': {
-                en: 'The :fn must be less than :p1 character(s).',
-                ar: 'يجب أن يكون :fn أقل من :p1 محرف.'
+                en: 'The :fn must be less than :p1 character(s)',
+                ar: 'يجب أن يكون :fn أقل من :p1 محرف'
             },
             'email.range': {
-                en: 'The :fn must be between :p1 and :p2 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 إلى :p2 محرف.'
+                en: 'The :fn must be between :p1 and :p2 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 إلى :p2 محرف'
             },
             'email.in_domain': {
-                en: 'The :fn must be in these domains: :p1.',
-                ar: 'يجب أن يكون :fn ضمن النطاقات التالية: :p1.'
+                en: 'The :fn must be in these domains: :p1',
+                ar: 'يجب أن يكون :fn ضمن النطاقات التالية: :p1'
             },
             'email.not_in_domain': {
-                en: 'The :fn may not be in these domains: :p1.',
-                ar: 'يجب أن يكون :fn خارج النطاقات التالية: :p1.'
+                en: 'The :fn may not be in these domains: :p1',
+                ar: 'يجب أن يكون :fn خارج النطاقات التالية: :p1'
             },
             'email.confirmed': {
-                en: 'The :fn confirmation does not match.',
-                ar: 'تأكيد :fn غير مطابق.'
+                en: 'The :fn confirmation does not match',
+                ar: 'تأكيد :fn غير مطابق'
             },
 
             'url.url': {
-                en: 'The :fn must be a valid url.',
-                ar: ':fn غير صالح.'
+                en: 'The :fn must be a valid url',
+                ar: ':fn غير صالح'
             },
             'url.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
             'url.min_i': {
-                en: 'The :fn must be :p1 character(s) at least.',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأقل.'
+                en: 'The :fn must be :p1 character(s) at least',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأقل'
             },
             'url.min_o': {
-                en: 'The :fn must be more than :p1 character(s).',
-                ar: 'يجب أن يكون :fn أكثر من :p1 محرف.'
+                en: 'The :fn must be more than :p1 character(s)',
+                ar: 'يجب أن يكون :fn أكثر من :p1 محرف'
             },
             'url.max_i': {
-                en: 'The :fn may not contain more than :p1 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأكثر.'
+                en: 'The :fn may not contain more than :p1 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأكثر'
             },
             'url.max_o': {
-                en: 'The :fn must be less than :p1 character(s).',
-                ar: 'يجب أن يكون :fn أقل من :p1 محرف.'
+                en: 'The :fn must be less than :p1 character(s)',
+                ar: 'يجب أن يكون :fn أقل من :p1 محرف'
             },
             'url.range': {
-                en: 'The :fn must be between :p1 and :p2 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 إلى :p2 محرف.'
+                en: 'The :fn must be between :p1 and :p2 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 إلى :p2 محرف'
             },
             'url.in_domain': {
-                en: 'The :fn must be in these domains: :p1.',
-                ar: 'يجب أن يكون :fn ضمن النطاقات التالية: :p1.'
+                en: 'The :fn must be in these domains: :p1',
+                ar: 'يجب أن يكون :fn ضمن النطاقات التالية: :p1'
             },
             'url.not_in_domain': {
-                en: 'The :fn may not be in these domains: :p1.',
-                ar: 'يجب أن يكون :fn خارج النطاقات التالية: :p1.'
+                en: 'The :fn may not be in these domains: :p1',
+                ar: 'يجب أن يكون :fn خارج النطاقات التالية: :p1'
             },
             'url.confirmed': {
-                en: 'The :fn confirmation does not match.',
-                ar: 'تأكيد :fn غير مطابق.'
+                en: 'The :fn confirmation does not match',
+                ar: 'تأكيد :fn غير مطابق'
             },
 
             'in.items': {
-                en: 'The :fn is invalid.',
-                ar: ':fn غير صالح.'
+                en: 'The :fn is invalid',
+                ar: ':fn غير صالح'
             },
             'in.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
 
             'file.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
             'file.min_i': {
-                en: 'The :fn must be at least :p1MB in total.',
-                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn :p1MB على الأقل.'
+                en: 'The :fn must be at least :p1MB in total',
+                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn :p1MB على الأقل'
             },
             'file.min_o': {
-                en: 'The :fn must be larger than :p1MB in total.',
-                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn أكبر من :p1MB.'
+                en: 'The :fn must be larger than :p1MB in total',
+                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn أكبر من :p1MB'
             },
             'file.max_i': {
-                en: 'The :fn may not be greater than :p1MB in total.',
-                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn :p1MB على الأكثر.'
+                en: 'The :fn may not be greater than :p1MB in total',
+                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn :p1MB على الأكثر'
             },
             'file.max_o': {
-                en: 'The :fn may not be greater than :p1MB in total.',
-                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn أقل من :p1MB.'
+                en: 'The :fn may not be greater than :p1MB in total',
+                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn أقل من :p1MB'
             },
             'file.range': {
-                en: 'The :fn must be between :p1MB and :p2MB in total.',
-                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn من :p1MB إلى :p2MB.'
+                en: 'The :fn must be between :p1MB and :p2MB in total',
+                ar: 'يجب أن يكون اجمالي حجم الملفات في :fn من :p1MB إلى :p2MB'
             },
             'file.s_min_i': {
-                en: 'Each file in :fn must be at least :p1MB in total.',
-                ar: 'يجب أن يكون حجم الملف الواحد في :fn :p1MB على الأقل.'
+                en: 'Each file in :fn must be at least :p1MB in total',
+                ar: 'يجب أن يكون حجم الملف الواحد في :fn :p1MB على الأقل'
             },
             'file.s_min_o': {
-                en: 'Each file in :fn must be larger than :p1MB in total.',
-                ar: 'يجب أن يكون حجم الملف الواحد في :fn أكبر من :p1MB.'
+                en: 'Each file in :fn must be larger than :p1MB in total',
+                ar: 'يجب أن يكون حجم الملف الواحد في :fn أكبر من :p1MB'
             },
             'file.s_max_i': {
-                en: 'Each file in :fn may not be greater than :p1MB in total.',
-                ar: 'يجب أن يكون حجم الملف الواحد في :fn :p1MB على الأكثر.'
+                en: 'Each file in :fn may not be greater than :p1MB in total',
+                ar: 'يجب أن يكون حجم الملف الواحد في :fn :p1MB على الأكثر'
             },
             'file.s_max_o': {
-                en: 'The :fn may not be greater than :p1MB in total.',
-                ar: 'يجب أن يكون حجم الملف الواحد في :fn أقل من :p1MB.'
+                en: 'The :fn may not be greater than :p1MB in total',
+                ar: 'يجب أن يكون حجم الملف الواحد في :fn أقل من :p1MB'
             },
             'file.s_range': {
-                en: 'Each file in :fn must be between :p1MB and :p2MB.',
-                ar: 'يجب أن يكون حجم الملف الواحد في :fn من :p1MB إلى :p2MB.'
+                en: 'Each file in :fn must be between :p1MB and :p2MB',
+                ar: 'يجب أن يكون حجم الملف الواحد في :fn من :p1MB إلى :p2MB'
             },
             'file.ext': {
-                en: 'The :fn file(s) must be one of these formats: :p1.',
-                ar: 'يجب أن تكون كل الملفات في :fn بأحد الصيغ التالية: :p1.'
+                en: 'The :fn file(s) must be one of these formats: :p1',
+                ar: 'يجب أن تكون كل الملفات في :fn بأحد الصيغ التالية: :p1'
             },
             'file.len': {
-                en: 'The :fn may have :p1 file(s).',
-                ar: 'يجب أن يحوي :fn على :p1 ملف (ملفات).'
+                en: 'The :fn may have :p1 file(s)',
+                ar: 'يجب أن يحوي :fn على :p1 ملف (ملفات)'
             },
 
             'regex.required': {
-                en: 'The :fn is required.',
-                ar: 'لا يجوز ترك :fn فارغ.'
+                en: 'The :fn is required',
+                ar: 'لا يجوز ترك :fn فارغ'
             },
             'regex.pattern': {
-                en: 'The :fn is not valid.',
-                ar: ':fn غير صالح.'
+                en: 'The :fn is not valid',
+                ar: ':fn غير صالح'
             },
             'regex.min_i': {
-                en: 'The :fn must be :p1 character(s) at least.',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأقل.'
+                en: 'The :fn must be :p1 character(s) at least',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأقل'
             },
             'regex.min_o': {
-                en: 'The :fn must be more than :p1 character(s).',
-                ar: 'يجب أن يكون :fn أكثر من :p1 محرف.'
+                en: 'The :fn must be more than :p1 character(s)',
+                ar: 'يجب أن يكون :fn أكثر من :p1 محرف'
             },
             'regex.max_i': {
-                en: 'The :fn may not contain more than :p1 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأكثر.'
+                en: 'The :fn may not contain more than :p1 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف على الأكثر'
             },
             'regex.max_o': {
-                en: 'The :fn must be less than :p1 character(s).',
-                ar: 'يجب أن يكون :fn أقل من :p1 محرف.'
+                en: 'The :fn must be less than :p1 character(s)',
+                ar: 'يجب أن يكون :fn أقل من :p1 محرف'
             },
             'regex.range': {
-                en: 'The :fn must be between :p1 and :p2 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 إلى :p2 محرف.'
+                en: 'The :fn must be between :p1 and :p2 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 إلى :p2 محرف'
             },
             'regex.len': {
-                en: 'The :fn must be :p1 character(s).',
-                ar: 'يجب أن يكون :fn بطول :p1 محرف.'
+                en: 'The :fn must be :p1 character(s)',
+                ar: 'يجب أن يكون :fn بطول :p1 محرف'
             },
             'regex.confirmed': {
-                en: 'The :fn confirmation does not match.',
-                ar: 'تأكيد :fn غير مطابق.'
+                en: 'The :fn confirmation does not match',
+                ar: 'تأكيد :fn غير مطابق'
             },
 
             //icons
@@ -1015,28 +1013,28 @@ let spa = (function () {
 
             //exceptions
             'ex.usst': {
-                def: 'Spacer Error: Unsupported string type: :p.'
+                def: 'Spacer Error: Unsupported string type: :p'
             },
             'ex.pmr': {
-                def: 'Spacer Error: The validation pattern :p misses a required rule: :r.'
+                def: 'Spacer Error: The validation pattern :p misses a required rule: :r'
             },
             'ex.usp': {
-                def: 'Spacer Error: Unsupported pattern: :p.'
+                def: 'Spacer Error: Unsupported pattern: :p'
             },
             'ex.se': {
-                def: 'Spacer Error: Syntax error: :p.'
+                def: 'Spacer Error: Syntax error: :p'
             },
             'ex.inf': {
-                def: 'Spacer Error: Invalid parameter for :p.:r rule: input with name :n not found.'
+                def: 'Spacer Error: Invalid parameter for :p.:r rule: input with name :n not found'
             },
             'ex.ipc': {
-                def: 'Spacer Error: The validation rule :p.:r misses some parameters.'
+                def: 'Spacer Error: The validation rule :p.:r misses some parameters'
             },
             'ex.ipt': {
-                def: 'Spacer Error: Invalid parameter for :p.:r rule: :a.'
+                def: 'Spacer Error: Invalid parameter for :p.:r rule: :a'
             },
             'ex.pfnf': {
-                def: 'Spacer Error: pre function not found: :p.'
+                def: 'Spacer Error: pre function not found: :p'
             },
             'ex.rnf': {
                 def: 'Spacer Error: No such a rule: :p.:r'
@@ -1045,19 +1043,19 @@ let spa = (function () {
                 def: 'Spacer Error: Error message not found for :p.:r'
             },
             'ex.ddnf': {
-                def: 'Spacer Error: Dialog driver :p or one of its functions not found.'
+                def: 'Spacer Error: Dialog driver :p or one of its functions not found'
             },
             'ex.vdnf': {
-                def: 'Spacer Error: Validation driver :p or one of its functions not found.'
+                def: 'Spacer Error: Validation driver :p or one of its functions not found'
             },
             'ex.fdnf': {
-                def: 'Spacer Error: Flash driver :p or one of its functions not found.'
+                def: 'Spacer Error: Flash driver :p or one of its functions not found'
             },
             'ex.fnf': {
-                def: 'Spacer Error: Form not found.'
+                def: 'Spacer Error: Form not found'
             },
             'ex.fosnf': {
-                def: 'Spacer Error: Form or submitter not found.'
+                def: 'Spacer Error: Form or submitter not found'
             },
 
             //timeline
@@ -1114,7 +1112,7 @@ let spa = (function () {
             if (config.ajaxHeader)
                 config.ajaxHeader['X-CSRF-TOKEN'] = token.attr('content');
             else
-                config.ajaxHeader = { 'X-CSRF-TOKEN': token.attr('content') };
+                config.ajaxHeader = {'X-CSRF-TOKEN': token.attr('content')};
         }
     }
 
@@ -1125,7 +1123,7 @@ let spa = (function () {
             let driverObj = config.dialogDrivers[driver];
 
             if (config.debug && !(driverObj && driverObj.message && driverObj.confirm && driverObj.prompt))
-                throw spa.resource.get('ex.ddnf', { p: driver });
+                throw spa.resource.get('ex.ddnf', {p: driver});
 
             return driverObj;
         }
@@ -1135,7 +1133,7 @@ let spa = (function () {
             let driverObj = config.validationDrivers[driver];
 
             if (config.debug && !(driverObj && driverObj.onError && driverObj.clearError))
-                throw spa.resource.get('ex.vdnf', { p: driver });
+                throw spa.resource.get('ex.vdnf', {p: driver});
 
             return driverObj;
         }
@@ -1145,7 +1143,7 @@ let spa = (function () {
             let driverObj = config.flashDrivers[driver];
 
             if (config.debug && !(driverObj && driverObj.flash))
-                throw spa.resource.get('ex.fdnf', { p: driver });
+                throw spa.resource.get('ex.fdnf', {p: driver});
 
             return driverObj;
         }
@@ -1313,7 +1311,7 @@ let spa = (function () {
                     case RuleTypes.max: {
                         let tempName = rule.name + ((validatorBase.isOut(rule) ? '_o' : '_i'));
                         msg = getErrorMessage(vo.input.jquery, vo.pattern.name, tempName);
-                        msg = spa.resource.replace(msg, { fn: vo.input.friendlyName });
+                        msg = spa.resource.replace(msg, {fn: vo.input.friendlyName});
                         break;
                     }
                     case RuleTypes.in_domain:
@@ -1336,7 +1334,7 @@ let spa = (function () {
                     default:
                         msg = getErrorMessage(vo.input.jquery, vo.pattern.name, rule.name);
                         if (msg)
-                            msg = spa.resource.replace(msg, { fn: vo.input.friendlyName });
+                            msg = spa.resource.replace(msg, {fn: vo.input.friendlyName});
                 }
                 if (msg) {
                     if (replaceParam) {
@@ -1381,7 +1379,7 @@ let spa = (function () {
                 && !(config.validationCustomRules
                     && config.validationCustomRules[rule.name]
                     && spa.validation.isFunction(config.validationCustomRules[rule.name].getErrorMessage)))
-                throw spa.resource.get('ex.mnf', { p: v.pattern.name, r: rule.name });
+                throw spa.resource.get('ex.mnf', {p: v.pattern.name, r: rule.name});
             return config.validationCustomRules[rule.name].getErrorMessage(v, index);
         }
 
@@ -1405,7 +1403,7 @@ let spa = (function () {
                 patternNameAndRules = patternStr.match(/^\s*([A-Za-z]+)\s*(?:\[\s*(.*)]\s*)?$/);
 
             if (!patternNameAndRules)
-                throw spa.resource.get('ex.se', { p: patternStr });
+                throw spa.resource.get('ex.se', {p: patternStr});
 
             //trimmed
             entry.pattern.name = patternNameAndRules[1].toLowerCase();
@@ -1443,7 +1441,7 @@ let spa = (function () {
                     if (tildeExpressions && tildeExpressions.length)
                         ruleParamStr = tildeExpressions.shift().match(/~([^~.]+)~/)[1];
                     else
-                        throw spa.resource.get('ex.ipc', { p: entry.pattern.name, r: ruleName });
+                        throw spa.resource.get('ex.ipc', {p: entry.pattern.name, r: ruleName});
                 }
                 else
                     ruleParamStr = rule[2];
@@ -1490,7 +1488,7 @@ let spa = (function () {
                 let param = paramListStr[i].trim();
 
                 if (param === '')
-                    throw spa.resource.get('ex.se', { p: paramStr });
+                    throw spa.resource.get('ex.se', {p: paramStr});
                 else
                     paramList.push(param);
             }
@@ -1539,14 +1537,14 @@ let spa = (function () {
                 v.input.originalValue = trim(v.input.jquery.val());
                 //confirm input
                 if (v.confirmInput)
-                    //value is one of 3: has a value, '', undefined. ('', undefined evaluated to false in if statement)
+                //value is one of 3: has a value, '', undefined. ('', undefined evaluated to false in if statement)
                     v.confirmInput.originalValue = trim(v.confirmInput.jquery.val());
             }
             //v.input.valueToValidate is to store value after applying pre rule
             v.input.valueToValidate = v.input.originalValue;
 
             if (v.confirmInput)
-                //v.input.valueToValidate is to store value after applying pre rule
+            //v.input.valueToValidate is to store value after applying pre rule
                 v.confirmInput.valueToValidate = v.confirmInput.originalValue;
         }
 
@@ -1667,7 +1665,7 @@ let spa = (function () {
                     validators.check.set(vo);
                     return validators.check;
                 default:
-                    throw spa.resource.get('ex.usp', { p: vo.pattern.name });
+                    throw spa.resource.get('ex.usp', {p: vo.pattern.name});
             }
         }
 
@@ -1740,7 +1738,7 @@ let spa = (function () {
                     if (config.debug
                         && (!config.validationPre
                             || !config.validationPre[pre[i]]))
-                        throw spa.resource.get('ex.pfnf', { p: pre[i] });
+                        throw spa.resource.get('ex.pfnf', {p: pre[i]});
 
                     v.input.valueToValidate = config.validationPre[pre[i]](v.input.valueToValidate);
                     if (v.confirmInput)
@@ -1759,13 +1757,13 @@ let spa = (function () {
                 && (!config.validationCustomRules
                     || !config.validationCustomRules[rule.name]
                     || !spa.validation.isFunction(config.validationCustomRules[rule.name].validate)))
-                throw spa.resource.get('ex.rnf', { p: v.pattern.name, r: rule.name });
+                throw spa.resource.get('ex.rnf', {p: v.pattern.name, r: rule.name});
             return config.validationCustomRules[rule.name].validate(v, index);
         }
 
         function validateParamsCount(count, v, rule) {
             if (rule.params.length < count)
-                throw spa.resource.get('ex.ipc', { p: v.pattern.name, r: rule.name });
+                throw spa.resource.get('ex.ipc', {p: v.pattern.name, r: rule.name});
         }
 
         function getParamValue(param, type, patternName, ruleName, format) {
@@ -1774,20 +1772,20 @@ let spa = (function () {
                 case 'i':
                     value = parseInt(param);
                     if (isNaN(value) && config.debug) {
-                        throw spa.resource.get('ex.ipt', { p: patternName, r: ruleName, a: param });
+                        throw spa.resource.get('ex.ipt', {p: patternName, r: ruleName, a: param});
                     }
                     return value;
                 case 'f':
                     value = parseFloat(param);
                     if (isNaN(value) && config.debug) {
-                        throw spa.resource.get('ex.ipt', { p: patternName, r: ruleName, a: param });
+                        throw spa.resource.get('ex.ipt', {p: patternName, r: ruleName, a: param});
                     }
                     return value;
                 case 't':
                     //only check if value is a valid timeline
                     value = spa.validation.isTimeline(param, format);
                     if (!value)
-                        throw spa.resource.get('ex.ipt', { p: patternName, r: ruleName, a: param });
+                        throw spa.resource.get('ex.ipt', {p: patternName, r: ruleName, a: param});
                     return value;
             }
         }
@@ -2245,7 +2243,7 @@ let spa = (function () {
                         i++;
                     }
                     if (!items)
-                        throw spa.resource.get('ex.pmr', { p: entry.pattern.name, r: 'items' });
+                        throw spa.resource.get('ex.pmr', {p: entry.pattern.name, r: 'items'});
 
                     return invalidRules.length === 0;
                 }
@@ -2524,7 +2522,7 @@ let spa = (function () {
                         i++;
                     }
                     if (!reg)
-                        throw spa.resource.get('ex.pmr', { p: entry.pattern.name, r: 'pattern' });
+                        throw spa.resource.get('ex.pmr', {p: entry.pattern.name, r: 'pattern'});
                     return invalidRules.length === 0;
                 }
             }
@@ -2950,7 +2948,7 @@ let spa = (function () {
                     reg = reg + ',';
                     break;
                 default:
-                    throw spa.resource.get('ex.usst', { p: patternsArray[i] });
+                    throw spa.resource.get('ex.usst', {p: patternsArray[i]});
             }
         }
         if (dash)
@@ -3412,7 +3410,7 @@ let spa = (function () {
                 return $.extend(true, [], array);
             },
             filter: function (array, fn) {
-                var _new = [];
+                let _new = [];
                 if (fn) {
                     for (let i = 0, l = array.length; i < l; i++)
                         if (fn(array[i], i) === true)
@@ -3557,7 +3555,7 @@ let spa = (function () {
                         return;
                     if (elem.is(':checkbox')) {
                         if ($('input[name="' + name + '"]').length === 1)
-                            //single
+                        //single
                             result[name] = spa.input.checkable.isChecked(elem);
                         else {
                             //multiple
@@ -3728,7 +3726,7 @@ let spa = (function () {
 
                 let temp;
                 if (resourcesBank[key])
-                    //exist
+                //exist
                     temp = resourcesBank[key];
                 else {
                     //new
@@ -4101,8 +4099,8 @@ let spa = (function () {
             getQueryStringAsObject: function (url) {
                 if (url === undefined)
                     url = window.location.href;
-                var result = {};
-                for (var pair of (new URL(url, window.location.origin)).searchParams) {
+                let result = {};
+                for (let pair of (new URL(url, window.location.origin)).searchParams) {
                     result[pair[0]] = pair[1];
                 }
                 return result;
@@ -4157,7 +4155,7 @@ let spa = (function () {
                 }
 
                 //query
-                return spa.web.updateQueryString({ [config.localeQueryKey]: locale }, url);
+                return spa.web.updateQueryString({[config.localeQueryKey]: locale}, url);
             },
 
             urlSegments(index, url) {
@@ -4199,7 +4197,7 @@ let spa = (function () {
             select2: function (input, options) {
                 input = sis(input);
                 if (input.length) {
-                    let def = { dir: (config.locale === 'ar' ? 'rtl' : 'ltr') };
+                    let def = {dir: (config.locale === 'ar' ? 'rtl' : 'ltr')};
                     if (options)
                         def = $.extend({}, def, options);
                     input.select2(def);
