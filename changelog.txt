@@ -1,3 +1,12 @@
+3.1.19: no break
+------
+- To config, add
+    - btnLoadingCurrentDriver: 'spin'
+    - btnLoadingDrivers
+- add setBtnLoadingCD(driver) to spacer root
+- In form.submitAjax and form.submit: remove validation on submitter existence
+
+
 3.1.18: no break
 ------
 - fix error messages in resource bank

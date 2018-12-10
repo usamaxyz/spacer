@@ -583,6 +583,43 @@ let spa = (function () {
             localeMethod: 2,
             localeQueryKey: 'lang',
             defaultLocale: 'en',
+            btnLoadingCurrentDriver: 'spin',
+            btnLoadingDrivers: {
+                spin: (function () {
+                    function set(btn, ajax) {
+                        btn = sis(btn);
+                        if (btn.length) {
+                            btn.data(Tags.loadingHtml, btn.html());
+                            //fix the width
+                            btn.css('min-width', btn.css('width'));
+                            btn.html(spa.resource.get('icon.loading'));
+                            spa.dom.setDisable(btn, true);
+
+                            if (ajax) {
+                                ajax.always(function () {
+                                    unset(btn);
+                                });
+                            }
+                            return btn;
+                        }
+                    }
+
+                    function unset(btn, html) {
+                        btn = sis(btn);
+                        if (btn.length) {
+                            btn.html(html ? html : btn.data(Tags.loadingHtml));
+                            spa.dom.setDisable(btn, false);
+                            btn.css('min-width', 'auto');
+                            return btn;
+                        }
+                    }
+
+                    return {
+                        set,
+                        unset,
+                    }
+                })(),
+            }
         },
         resourcesBank = {
             'btn.ok': {
@@ -1051,13 +1088,12 @@ let spa = (function () {
             'ex.fdnf': {
                 def: 'Spacer Error: Flash driver :p or one of its functions not found'
             },
+            'ex.bldnf': {
+                def: 'Spacer Error: Button loading driver :p or one of its functions not found'
+            },
             'ex.fnf': {
                 def: 'Spacer Error: Form not found'
             },
-            'ex.fosnf': {
-                def: 'Spacer Error: Form or submitter not found'
-            },
-
             //timeline
             'year': {
                 en: 'year',
@@ -1148,6 +1184,16 @@ let spa = (function () {
             return driverObj;
         }
 
+        function validateAndGetBtnLoadingDriver(driver) {
+
+            let driverObj = config.btnLoadingDrivers[driver];
+
+            if (config.debug && !(driverObj && driverObj.set && driverObj.unset))
+                throw spa.resource.get('ex.bldnf', {p: driver});
+
+            return driverObj;
+        }
+
         function setDialogCD(d) {
             driversUnit.dialog = validateAndGetDialogDriver(d);
             config.dialogCurrentDriver = d;
@@ -1162,6 +1208,11 @@ let spa = (function () {
             if (driversUnit.validationIsFlash) {
                 setValidationCD(config.validationCurrentDriver)
             }
+        }
+
+        function setBtnLoadingCD(d) {
+            driversUnit.btnLoading = validateAndGetBtnLoadingDriver(d);
+            config.btnLoadingCurrentDriver = d;
         }
 
         function setValidationCD(d) {
@@ -1200,9 +1251,11 @@ let spa = (function () {
             setDialogCD,
             setFlashCD,
             setValidationCD,
+            setBtnLoadingCD,
             dialog: undefined,
             flash: undefined,
             validation: undefined,
+            btnLoading: undefined,
             validationIsDialog: false,
             validationIsFlash: false,
             validationIsDialogOrFlashDriver: false,
@@ -3038,11 +3091,15 @@ let spa = (function () {
             if (o.ajaxLaravelHeader)
                 addLaravelToken();
 
+            if (o.btnLoadingCurrentDriver)
+                driversUnit.setBtnLoadingCD(o.btnLoadingCurrentDriver);
+
             updateMomentLocale();
         },
         setDialogCD: driversUnit.setDialogCD,
         setValidationCD: driversUnit.setValidationCD,
         setFlashCD: driversUnit.setFlashCD,
+        setBtnLoadingCD: driversUnit.setBtnLoadingCD,
         getLocale: function () {
             return config.locale;
         },
@@ -3444,31 +3501,11 @@ let spa = (function () {
                     return item;
                 }
             },
-            setLoadingButton: function (button, ajax = undefined) {
-                button = sis(button);
-                if (button.length) {
-                    button.data(Tags.loadingHtml, button.html());
-                    //fix the width
-                    button.css('min-width', button.css('width'));
-                    button.html(spa.resource.get('icon.loading'));
-                    spa.dom.setDisable(button, true);
-
-                    if (ajax) {
-                        ajax.always(function () {
-                            spa.dom.unsetLoadingButton(button);
-                        });
-                    }
-                    return button;
-                }
+            setLoadingButton: function (btn, ajax) {
+                driversUnit.btnLoading.set(btn, ajax);
             },
-            unsetLoadingButton: function (button, html) {
-                button = sis(button);
-                if (button.length) {
-                    button.html(html ? html : button.data(Tags.loadingHtml));
-                    spa.dom.setDisable(button, false);
-                    button.css('min-width', 'auto');
-                    return button;
-                }
+            unsetLoadingButton: function (btn, html) {
+                driversUnit.btnLoading.unset(btn, html);
             },
             //option is {id: '', class: '', attr: {k1: v1, k2, v2}}
             addHtmlAttr: function (jquery, option) {
@@ -3486,9 +3523,8 @@ let spa = (function () {
         form: {
             submitAjax: function (form, submitter, validate, fn) {
                 form = sis(form);
-                submitter = sis(submitter);
-                if (!form.length || !submitter.length)
-                    throw spa.resource.get('ex.fosnf');
+                if (!form.length)
+                    throw spa.resource.get('ex.fnf');
 
                 if (validate && !validationUnit.validate(form))
                     return false;
@@ -3511,9 +3547,8 @@ let spa = (function () {
             },
             submit: function (form, submitter, validate) {
                 form = sis(form);
-                submitter = sis(submitter);
-                if (!form.length || !submitter.length)
-                    throw spa.resource.get('ex.fosnf');
+                if (!form.length)
+                    throw spa.resource.get('ex.fnf');
 
                 if (validate && !validationUnit.validate(form))
                     return false;
