@@ -1,3 +1,7 @@
+3.1.21: no break
+------
+- remove icon from init.showMsg
+
 3.1.20: no break
 ------
 - bug fix

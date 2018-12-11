@@ -4292,7 +4292,7 @@ let spa = (function () {
                     if (context.length) {
                         context.on('click', selector, function (e) {
                             e.preventDefault();
-                            spa.dialog.message('', $(this).attr(dataAttribute), 'info', 'info');
+                            spa.dialog.message('', $(this).attr(dataAttribute));
                         });
                     }
                 }
@@ -4301,7 +4301,7 @@ let spa = (function () {
                     if (selector.length) {
                         selector.on('click', function (e) {
                             e.preventDefault();
-                            spa.dialog.message('', $(this).attr(dataAttribute), 'info', 'info');
+                            spa.dialog.message('', $(this).attr(dataAttribute));
                         });
                     }
                 }
