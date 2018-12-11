@@ -1267,6 +1267,7 @@ let spa = (function () {
     driversUnit.setDialogCD(config.dialogCurrentDriver);
     //driversUnit.setFlashCD(config.flashCurrentDriver);
     driversUnit.setValidationCD(config.validationCurrentDriver);
+    driversUnit.setBtnLoadingCD(config.btnLoadingCurrentDriver);
 
 
     //form
