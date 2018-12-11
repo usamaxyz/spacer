@@ -1,3 +1,7 @@
+3.1.22: no break
+------
+- add exclude as 3rd param to  spa.validation.validate
+
 3.1.21: no break
 ------
 - remove icon from init.showMsg

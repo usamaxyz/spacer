@@ -1743,7 +1743,7 @@ let spa = (function () {
             return true;
         }
 
-        function validate(form, isSilent) {
+        function validate(form, isSilent, exclude) {
             form = sis(form);
             if (!form.length)
                 throw spa.resource.get('ex.fnf');
@@ -1752,6 +1752,10 @@ let spa = (function () {
                 isDialogDriver = driversUnit.validationIsDialogOrFlashDriver,
                 l = inputs.length,
                 i = 0;
+            if (exclude)
+                inputs = inputs.filter(function (i, item) {
+                    return exclude.indexOf(item.name) === -1;
+                });
             for (; i < l; i++)
                 if (!validateInput($(inputs[i]), isSilent)) {
                     isValid = false;
