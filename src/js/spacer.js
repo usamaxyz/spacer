@@ -1753,9 +1753,7 @@ let spa = (function () {
                 l = inputs.length,
                 i = 0;
             if (exclude)
-                inputs = inputs.filter(function (i, item) {
-                    return exclude.indexOf(item.name) === -1;
-                });
+                inputs = inputs.not(exclude);
             for (; i < l; i++)
                 if (!validateInput($(inputs[i]), isSilent)) {
                     isValid = false;

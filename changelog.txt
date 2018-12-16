@@ -1,3 +1,7 @@
+3.1.23: no break
+------
+- exclude param in spa.validation.validate: using jquery not()
+
 3.1.22: no break
 ------
 - add exclude as 3rd param to  spa.validation.validate

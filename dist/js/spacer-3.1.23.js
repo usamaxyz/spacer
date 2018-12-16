@@ -1661,9 +1661,7 @@ var spa = function () {
                 isDialogDriver = driversUnit.validationIsDialogOrFlashDriver,
                 l = inputs.length,
                 i = 0;
-            if (exclude) inputs = inputs.filter(function (i, item) {
-                return exclude.indexOf(item.name) === -1;
-            });
+            if (exclude) inputs = inputs.not(exclude);
             for (; i < l; i++) {
                 if (!validateInput($(inputs[i]), isSilent)) {
                     isValid = false;
