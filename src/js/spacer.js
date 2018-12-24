@@ -1763,8 +1763,8 @@ let spa = (function () {
             return isValid;
         }
 
-        function isValidInput(input) {
-            return validateInput(sis(input), true);
+        function isValidInput(input, isSilent) {
+            return validateInput(sis(input), isSilent);
         }
 
         function resetValidation(form) {

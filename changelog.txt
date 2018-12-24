@@ -1,3 +1,8 @@
+3.1.24: break!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+------
+- spa.validation.isValidInput now accept isSilent parameter. Before this update: isValidInput() is always silent
+
+
 3.1.23: no break
 ------
 - exclude param in spa.validation.validate: using jquery not()
