@@ -2904,9 +2904,7 @@ var spa = function () {
                 driversUnit.dialog.message(title, msg, 'danger', 'danger', fn);
             },
             confirmDelete: function confirmDelete(fn, title, msg) {
-                title = title ? title : spa.resource.get('delete.title');
-                msg = msg ? msg : spa.resource.get('delete.confirm');
-                spa.dialog.confirm(title, msg, 'warning', 'warning', function () {
+                spa.dialog.confirm(title || spa.resource.get('delete.title'), msg || spa.resource.get('delete.confirm'), 'warning', 'warning', function () {
                     fn();
                 });
             },
@@ -3229,6 +3227,10 @@ var spa = function () {
                     }
                 }
                 return _new;
+            },
+            wrap: function wrap(array) {
+                if (!array) return [];
+                return spa.validation.isArray(array) ? array : [array];
             }
         },
 
@@ -3519,8 +3521,7 @@ var spa = function () {
                         _row = void 0,
                         j = void 0,
                         m = void 0,
-                        col = void 0,
-                        _td = void 0;
+                        col = void 0;
                     if (!l) return;
                     for (; i < l; i++) {
                         _row = rows[i];
@@ -3528,8 +3529,7 @@ var spa = function () {
 
                         for (j = 0, m = _row.columns.length; j < m; j++) {
                             col = _row.columns[j];
-                            _td = spa.dom.addHtmlAttr($('<td>'), col).html(col.data);
-                            singleRow.append(_td);
+                            singleRow.append(spa.dom.addHtmlAttr($('<td>'), col).html(col.data));
                         }
                         rowList.push(singleRow[0]);
                     }
@@ -3538,8 +3538,8 @@ var spa = function () {
 
                     for (var _j2 = 0, _m2 = rows.columns.length; _j2 < _m2; _j2++) {
                         var _col = rows.columns[_j2],
-                            _td2 = spa.dom.addHtmlAttr($('<td>'), _col).html(_col.data);
-                        singleRow.append(_td2);
+                            _td = spa.dom.addHtmlAttr($('<td>'), _col).html(_col.data);
+                        singleRow.append(_td);
                     }
                     rowList.push(singleRow[0]);
                 }
@@ -3964,9 +3964,7 @@ var spa = function () {
                 if (btnSelector.length) {
                     btnSelector.on('click', function (e) {
                         e.preventDefault();
-                        title = title ? title : spa.resource.get('delete.title');
-                        msg = msg ? msg : spa.resource.get('delete.confirm');
-                        spa.dialog.confirm(title, msg, 'warning', 'warning', function () {
+                        spa.dialog.confirm(title || spa.resource.get('delete.title'), msg || spa.resource.get('delete.confirm'), 'warning', 'warning', function () {
                             spa.ajax.delete(deleteUrl, null, function (data) {
                                 spa.dialog.messageSuccess('', data.message, function () {
                                     spa.web.redirect(redirectUrl);
@@ -3977,23 +3975,18 @@ var spa = function () {
                 }
             },
             listDelete: function listDelete(btnSelector, idAttribute, url, tableSelector, title, msg) {
-                btnSelector = sis(btnSelector);
-                if (btnSelector.length) {
-                    btnSelector.on('click', function (e) {
-                        e.preventDefault();
-                        var self = $(this);
-                        var delUrl = url.replace(':id', self.attr(idAttribute));
-                        title = title ? title : spa.resource.get('delete.title');
-                        msg = msg ? msg : spa.resource.get('delete.confirm');
-                        spa.dialog.confirm(title, msg, 'warning', 'warning', function () {
-                            spa.ajax.delete(delUrl, null, function (data) {
-                                spa.dialog.messageSuccess('', data.message, function () {
-                                    spa.table.removeRows(tableSelector, self.closest('tr'));
-                                });
-                            }, self);
-                        });
+                tableSelector.on('click', btnSelector, function (e) {
+                    e.preventDefault();
+                    var self = $(this);
+                    var delUrl = url.replace(':id', self.attr(idAttribute));
+                    spa.dialog.confirm(title || spa.resource.get('delete.title'), msg || spa.resource.get('delete.confirm'), 'warning', 'warning', function () {
+                        spa.ajax.delete(delUrl, null, function (data) {
+                            spa.dialog.messageSuccess('', data.message, function () {
+                                spa.table.removeRows(tableSelector, self.closest('tr'));
+                            });
+                        }, self);
                     });
-                }
+                });
             }
         }
     };

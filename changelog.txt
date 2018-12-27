@@ -1,3 +1,7 @@
+3.1.25: no break
+------
+- add spa.array.wrap
+
 3.1.24: break!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ------
 - spa.validation.isValidInput now accept isSilent parameter. Before this update: isValidInput() is always silent

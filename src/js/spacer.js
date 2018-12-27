@@ -3139,11 +3139,12 @@ let spa = (function () {
                 driversUnit.dialog.message(title, msg, 'danger', 'danger', fn);
             },
             confirmDelete: function (fn, title, msg) {
-                title = title ? title : spa.resource.get('delete.title');
-                msg = msg ? msg : spa.resource.get('delete.confirm');
-                spa.dialog.confirm(title, msg, 'warning', 'warning', function () {
-                    fn();
-                });
+                spa.dialog.confirm(
+                    title || spa.resource.get('delete.title'),
+                    msg || spa.resource.get('delete.confirm'),
+                    'warning', 'warning', function () {
+                        fn();
+                    });
             },
 
             /*
@@ -3482,6 +3483,11 @@ let spa = (function () {
                             _new.push(array[i]);
                 }
                 return _new;
+            },
+            wrap: function (array) {
+                if (!array)
+                    return [];
+                return spa.validation.isArray(array) ? array : [array];
             }
         },
 
@@ -3812,7 +3818,7 @@ let spa = (function () {
                 let rowList = [], singleRow;
                 if (spa.validation.isArray(rows)) {
                     let i = 0, l = rows.length, _row,
-                        j, m, col, _td;
+                        j, m, col;
                     if (!l)
                         return;
                     for (; i < l; i++) {
@@ -3821,8 +3827,7 @@ let spa = (function () {
 
                         for (j = 0, m = _row.columns.length; j < m; j++) {
                             col = _row.columns[j];
-                            _td = spa.dom.addHtmlAttr($('<td>'), col).html(col.data);
-                            singleRow.append(_td);
+                            singleRow.append(spa.dom.addHtmlAttr($('<td>'), col).html(col.data));
                         }
                         rowList.push(singleRow[0]);
                     }
@@ -4313,36 +4318,35 @@ let spa = (function () {
                 if (btnSelector.length) {
                     btnSelector.on('click', function (e) {
                         e.preventDefault();
-                        title = title ? title : spa.resource.get('delete.title');
-                        msg = msg ? msg : spa.resource.get('delete.confirm');
-                        spa.dialog.confirm(title, msg, 'warning', 'warning', function () {
-                            spa.ajax.delete(deleteUrl, null, function (data) {
-                                spa.dialog.messageSuccess('', data.message, function () {
-                                    spa.web.redirect(redirectUrl);
-                                });
-                            }, btnSelector);
-                        });
+                        spa.dialog.confirm(
+                            title || spa.resource.get('delete.title'),
+                            msg || spa.resource.get('delete.confirm'),
+                            'warning', 'warning', function () {
+                                spa.ajax.delete(deleteUrl, null, function (data) {
+                                    spa.dialog.messageSuccess('', data.message, function () {
+                                        spa.web.redirect(redirectUrl);
+                                    });
+                                }, btnSelector);
+                            });
                     });
                 }
             },
             listDelete: function (btnSelector, idAttribute, url, tableSelector, title, msg) {
-                btnSelector = sis(btnSelector);
-                if (btnSelector.length) {
-                    btnSelector.on('click', function (e) {
-                        e.preventDefault();
-                        let self = $(this);
-                        let delUrl = url.replace(':id', self.attr(idAttribute));
-                        title = title ? title : spa.resource.get('delete.title');
-                        msg = msg ? msg : spa.resource.get('delete.confirm');
-                        spa.dialog.confirm(title, msg, 'warning', 'warning', function () {
+                tableSelector.on('click', btnSelector, function (e) {
+                    e.preventDefault();
+                    let self = $(this);
+                    let delUrl = url.replace(':id', self.attr(idAttribute));
+                    spa.dialog.confirm(
+                        title || spa.resource.get('delete.title'),
+                        msg || spa.resource.get('delete.confirm'),
+                        'warning', 'warning', function () {
                             spa.ajax.delete(delUrl, null, function (data) {
                                 spa.dialog.messageSuccess('', data.message, function () {
                                     spa.table.removeRows(tableSelector, self.closest('tr'));
                                 });
                             }, self);
                         });
-                    });
-                }
+                });
             },
         },
     };
