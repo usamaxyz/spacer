@@ -1,3 +1,18 @@
+3.1.28: no break
+------
+- remove old version from dist
+
+3.1.27: break!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+------
+- remove spacerDialogDriver from spacer root, and move it to services files.
+- remove ajax param from btnLoadingDrivers
+- remove ajax param from spa.dom.setLoadingButton
+- remove abstraction from
+    - spa.dialog.message
+    - spa.dialog.confirm
+    - spa.dialog.prompt
+- fix button loading in ajax calls: using deferred interface jquery
+
 3.1.26: no break
 ------
 - bug fix in spa.init.listDelete

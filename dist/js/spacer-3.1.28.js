@@ -561,7 +561,7 @@ var spa = function () {
         btnLoadingCurrentDriver: 'spin',
         btnLoadingDrivers: {
             spin: function () {
-                function set(btn, ajax) {
+                function set(btn) {
                     btn = sis(btn);
                     if (btn.length) {
                         btn.data(Tags.loadingHtml, btn.html());
@@ -569,12 +569,6 @@ var spa = function () {
                         btn.css('min-width', btn.css('width'));
                         btn.html(spa.resource.get('icon.loading'));
                         spa.dom.setDisable(btn, true);
-
-                        if (ajax) {
-                            ajax.always(function () {
-                                unset(btn);
-                            });
-                        }
                         return btn;
                     }
                 }
@@ -2792,64 +2786,6 @@ var spa = function () {
         tags: Tags,
         cachingTags: cachingTags,
 
-        spacerDialogDriver: function spacerDialogDriver(service) {
-            return {
-                message: function message(title, msg, status, icon, fn) {
-                    var b = {
-                        title: title,
-                        message: msg,
-                        status: status,
-                        icon: spa.resource.get('icon.' + icon) || icon,
-                        confirmBtn: {
-                            text: spa.resource.get('btn.ok'),
-                            class: 'btn-default'
-                        },
-                        onConfirm: fn
-                    };
-                    service(b);
-                },
-                confirm: function confirm(title, msg, status, icon, fn1, fn2) {
-                    var b = {
-                        title: title,
-                        message: msg,
-                        status: status,
-                        icon: spa.resource.get('icon.' + icon) || icon,
-                        confirmBtn: {
-                            text: spa.resource.get('btn.yes'),
-                            class: 'btn-default'
-                        },
-                        cancelBtn: {
-                            text: spa.resource.get('btn.no'),
-                            class: 'btn-danger'
-                        },
-                        onConfirm: fn1,
-                        onCancel: fn2
-                    };
-                    service(b);
-                },
-                prompt: function prompt(title, msg, status, icon, fn1, fn2) {
-                    var b = {
-                        title: title,
-                        message: msg,
-                        status: status,
-                        icon: spa.resource.get('icon.' + icon) || icon,
-                        input: '<input name="input" class="form-control" />',
-                        confirmBtn: {
-                            text: spa.resource.get('btn.continue'),
-                            class: 'btn-default'
-                        },
-                        cancelBtn: {
-                            text: spa.resource.get('btn.cancel'),
-                            class: 'btn-danger'
-                        },
-                        onConfirm: fn1,
-                        onCancel: fn2
-                    };
-                    service(b);
-                }
-            };
-        },
-
         setOptions: function setOptions(o) {
             $.extend(true, config, o);
 
@@ -2887,15 +2823,12 @@ var spa = function () {
         },
 
         dialog: {
-            message: function message(title, msg, status, icon, fn) {
-                driversUnit.dialog.message(title, msg, status, icon, fn);
-            },
-            confirm: function confirm(title, msg, status, icon, fn1, fn2) {
-                driversUnit.dialog.confirm(title, msg, status, icon, fn1, fn2);
-            },
-            prompt: function prompt(title, msg, status, icon, fn1, fn2) {
-                driversUnit.dialog.prompt(title, msg, status, icon, fn1, fn2);
-            },
+            //driversUnit.dialog.message(title, msg, status, icon, fn);
+            message: driversUnit.dialog.message,
+            //driversUnit.dialog.confirm(title, msg, status, icon, fn1, fn2);
+            confirm: driversUnit.dialog.confirm,
+            //driversUnit.dialog.prompt(title, msg, status, icon, fn1, fn2);
+            prompt: driversUnit.dialog.prompt,
 
             messageSuccess: function messageSuccess(title, msg, fn) {
                 driversUnit.dialog.message(title, msg, 'success', 'success', fn);
@@ -3051,7 +2984,6 @@ var spa = function () {
                     url: url || spa.web.getUrl(),
                     data: data,
                     // dataType: 'json',
-                    success: fn,
                     error: config.ajaxOnError
                 };
                 if (isUpload) {
@@ -3062,8 +2994,13 @@ var spa = function () {
                 if (options) $.extend(o, options);
 
                 var ajax = $.ajax(o);
-                if (button) spa.dom.setLoadingButton(button, ajax);
-                return ajax;
+                if (button) {
+                    spa.dom.setLoadingButton(button);
+                    ajax.always(function () {
+                        spa.dom.unsetLoadingButton(button);
+                    });
+                }
+                return ajax.done(fn);
             },
             post: function post(url, data, fn, button) {
                 var o = {
@@ -3072,13 +3009,17 @@ var spa = function () {
                     url: url || spa.web.getUrl(),
                     data: data,
                     // dataType: 'json',
-                    success: fn,
                     error: config.ajaxOnError
                 };
 
                 var ajax = $.ajax(o);
-                if (button) spa.dom.setLoadingButton(button, ajax);
-                return ajax;
+                if (button) {
+                    spa.dom.setLoadingButton(button);
+                    ajax.always(function () {
+                        spa.dom.unsetLoadingButton(button);
+                    });
+                }
+                return ajax.done(fn);
             },
             get: function get(url, data, fn, button) {
                 var o = {
@@ -3087,13 +3028,17 @@ var spa = function () {
                     url: url || spa.web.getUrl(),
                     data: data,
                     // dataType: 'json',
-                    success: fn,
                     error: config.ajaxOnError
                 };
 
                 var ajax = $.ajax(o);
-                if (button) spa.dom.setLoadingButton(button, ajax);
-                return ajax;
+                if (button) {
+                    spa.dom.setLoadingButton(button);
+                    ajax.always(function () {
+                        spa.dom.unsetLoadingButton(button);
+                    });
+                }
+                return ajax.done(fn);
             },
             delete: function _delete(url, data, fn, button) {
                 var o = {
@@ -3102,13 +3047,17 @@ var spa = function () {
                     url: url || spa.web.getUrl(),
                     data: data,
                     // dataType: 'json',
-                    success: fn,
                     error: config.ajaxOnError
                 };
 
                 var ajax = $.ajax(o);
-                if (button) spa.dom.setLoadingButton(button, ajax);
-                return ajax;
+                if (button) {
+                    spa.dom.setLoadingButton(button);
+                    ajax.always(function () {
+                        spa.dom.unsetLoadingButton(button);
+                    });
+                }
+                return ajax.done(fn);
             },
             put: function put(url, data, fn, button) {
                 var o = {
@@ -3117,13 +3066,17 @@ var spa = function () {
                     url: url || spa.web.getUrl(),
                     data: data,
                     // dataType: 'json',
-                    success: fn,
                     error: config.ajaxOnError
                 };
 
                 var ajax = $.ajax(o);
-                if (button) spa.dom.setLoadingButton(button, ajax);
-                return ajax;
+                if (button) {
+                    spa.dom.setLoadingButton(button);
+                    ajax.always(function () {
+                        spa.dom.unsetLoadingButton(button);
+                    });
+                }
+                return ajax.done(fn);
             },
             postBtn: function postBtn(button, url, data, fn) {
                 return sis(button).on('click', function (e) {
@@ -3250,8 +3203,8 @@ var spa = function () {
                     return item;
                 }
             },
-            setLoadingButton: function setLoadingButton(btn, ajax) {
-                driversUnit.btnLoading.set(btn, ajax);
+            setLoadingButton: function setLoadingButton(btn) {
+                driversUnit.btnLoading.set(btn);
             },
             unsetLoadingButton: function unsetLoadingButton(btn, html) {
                 driversUnit.btnLoading.unset(btn, html);
