@@ -3056,12 +3056,15 @@ let spa = (function () {
 
 
         dialog: {
-            //driversUnit.dialog.message(title, msg, status, icon, fn);
-            message: driversUnit.dialog.message,
-            //driversUnit.dialog.confirm(title, msg, status, icon, fn1, fn2);
-            confirm: driversUnit.dialog.confirm,
-            //driversUnit.dialog.prompt(title, msg, status, icon, fn1, fn2);
-            prompt: driversUnit.dialog.prompt,
+            message: function (title, msg, status, icon, fn) {
+                driversUnit.dialog.message(title, msg, status, icon, fn);
+            },
+            confirm: function (title, msg, status, icon, fn1, fn2) {
+                driversUnit.dialog.confirm(title, msg, status, icon, fn1, fn2);
+            },
+            prompt: function (title, msg, status, icon, fn1, fn2) {
+                driversUnit.dialog.prompt(title, msg, status, icon, fn1, fn2);
+            },
 
             messageSuccess: function (title, msg, fn) {
                 driversUnit.dialog.message(title, msg, 'success', 'success', fn);
