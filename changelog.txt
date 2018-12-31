@@ -1,6 +1,11 @@
+3.1.29: no break
+------
+- move test files from dist to test
+- compile (forgotten) services files
+
 3.1.28: no break
 ------
-- remove old version from dist
+- remove (forgotten) old version from dist
 
 3.1.27: break!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 ------
