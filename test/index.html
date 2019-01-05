@@ -12,7 +12,11 @@
 </head>
 <body>
 <h1>Spacer Test</h1>
-
+<form id="test">
+    <input name="" value="1" />
+    <input name="test[]" value="2" />
+    <input name="test[]" value="4" />
+</form>
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <!--<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>-->
@@ -27,6 +31,11 @@
 
     $(function() {
         console.log( "ready!" );
+        var test = spa.form.getFormInputsAsObject('#test');
+var all = $('#test').serialize();
+var alllk = $('#test').serializeArray();
+var to = spa.web.getQueryStringAsObject('/?' + all);
+var ss = new FormData($('#test')[0]);
     });
 
 </script>

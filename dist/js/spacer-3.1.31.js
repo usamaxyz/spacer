@@ -3277,7 +3277,7 @@ var spa = function () {
                 for (var i = 0, l = inputs.length; i < l; i++) {
                     var elem = $(inputs[i]);
                     var name = elem.attr('name');
-                    if (!name) return;
+                    if (!name) continue;
                     if (elem.is(':checkbox')) {
                         if ($('input[name="' + name + '"]').length === 1)
                             //single
@@ -3287,7 +3287,14 @@ var spa = function () {
                                 if (result[name]) result[name].push(trim(elem.val()));else result[name] = [trim(elem.val())];
                             }
                         }
-                    } else if (elem.is(':radio')) result[name] = spa.input.getValue('input[name="' + name + '"]:checked');else result[name] = spa.input.getValue(elem);
+                    } else if (elem.is(':radio')) result[name] = spa.input.getValue('input[name="' + name + '"]:checked');else {
+                        if ($('input[name="' + name + '"]').length === 1)
+                            //single
+                            result[name] = spa.input.getValue(elem);else {
+                            //multiple
+                            if (result[name]) result[name].push(trim(elem.val()));else result[name] = [trim(elem.val())];
+                        }
+                    }
                 }
                 return result;
             }
