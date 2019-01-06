@@ -3538,43 +3538,22 @@ let spa = (function () {
                 form = sis(form);
                 if (!form.length)
                     throw spa.resource.get('ex.fnf');
-                let result = {},
-                    inputs = getFormInputs(form);
 
-                for (let i = 0, l = inputs.length; i < l; i++) {
-                    let elem = $(inputs[i]);
-                    let name = elem.attr('name');
-                    if (!name)
-                        continue;
-                    if (elem.is(':checkbox')) {
-                        if ($('input[name="' + name + '"]').length === 1)
-                        //single
-                            result[name] = spa.input.checkable.isChecked(elem);
-                        else {
-                            //multiple
-                            if (spa.input.checkable.isChecked(elem)) {
-                                if (result[name])
-                                    result[name].push(trim(elem.val()));
-                                else
-                                    result[name] = [trim(elem.val())];
-                            }
-                        }
+                let values = form.serializeArray(),
+                    result = {};
+
+                for (let i = 0, l = values.length; i < l; i++) {
+                    let item = values[i];
+
+                    if (result[item.name]) {
+                        if (!spa.validation.isArray(result[item.name]))
+                            result[item.name] = [result[item.name]];
+                        result[item.name].push(trim(item.value));
                     }
-                    else if (elem.is(':radio'))
-                        result[name] = spa.input.getValue('input[name="' + name + '"]:checked');
-                    else {
-                        if ($('input[name="' + name + '"]').length === 1)
-                        //single
-                            result[name] = spa.input.getValue(elem);
-                        else {
-                            //multiple
-                            if (result[name])
-                                result[name].push(trim(elem.val()));
-                            else
-                                result[name] = [trim(elem.val())];
-                        }
-                    }
+                    else
+                        result[item.name] = trim(item.value);
                 }
+
                 return result;
             }
         },

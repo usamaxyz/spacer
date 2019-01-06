@@ -3271,31 +3271,19 @@ var spa = function () {
             getFormInputsAsObject: function getFormInputsAsObject(form) {
                 form = sis(form);
                 if (!form.length) throw spa.resource.get('ex.fnf');
-                var result = {},
-                    inputs = getFormInputs(form);
 
-                for (var i = 0, l = inputs.length; i < l; i++) {
-                    var elem = $(inputs[i]);
-                    var name = elem.attr('name');
-                    if (!name) continue;
-                    if (elem.is(':checkbox')) {
-                        if ($('input[name="' + name + '"]').length === 1)
-                            //single
-                            result[name] = spa.input.checkable.isChecked(elem);else {
-                            //multiple
-                            if (spa.input.checkable.isChecked(elem)) {
-                                if (result[name]) result[name].push(trim(elem.val()));else result[name] = [trim(elem.val())];
-                            }
-                        }
-                    } else if (elem.is(':radio')) result[name] = spa.input.getValue('input[name="' + name + '"]:checked');else {
-                        if ($('input[name="' + name + '"]').length === 1)
-                            //single
-                            result[name] = spa.input.getValue(elem);else {
-                            //multiple
-                            if (result[name]) result[name].push(trim(elem.val()));else result[name] = [trim(elem.val())];
-                        }
-                    }
+                var values = form.serializeArray(),
+                    result = {};
+
+                for (var i = 0, l = values.length; i < l; i++) {
+                    var item = values[i];
+
+                    if (result[item.name]) {
+                        if (!spa.validation.isArray(result[item.name])) result[item.name] = [result[item.name]];
+                        result[item.name].push(trim(item.value));
+                    } else result[item.name] = trim(item.value);
                 }
+
                 return result;
             }
         },
