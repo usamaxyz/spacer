@@ -4025,6 +4025,9 @@ let spa = (function () {
                 }
                 return duration;
             },
+            formatDate: function(date, format) {
+                return moment(date).format(format || spa.getTimelineFormat());
+            },
             token: {
                 addToObj: function (obj) {
                     obj[config.tokenName] = config.tokenValue;

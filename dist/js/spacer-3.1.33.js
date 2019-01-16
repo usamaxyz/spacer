@@ -3687,6 +3687,9 @@ var spa = function () {
                 }
                 return duration;
             },
+            formatDate: function formatDate(date, format) {
+                return moment(date).format(format || spa.getTimelineFormat());
+            },
             token: {
                 addToObj: function addToObj(obj) {
                     obj[config.tokenName] = config.tokenValue;
