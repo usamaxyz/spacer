@@ -1,0 +1,223 @@
+var spa = {
+
+    dialogDefaults,
+    patternTypes,
+    ruleTypes,
+    tags,
+    cachingTags,
+
+    setOptions(o)
+    setDialogCD(d)
+    setValidationCD(d)
+    setFlashCD(d)
+    setBtnLoadingCD(d)
+    getLocale()
+    setLocale(l)
+    isLocale(l)
+    isDebug()
+    getTimelineFormat()
+
+    dialog: {
+        message(title, msg, status, icon, fn)
+        confirm(title, msg, status, icon, fn1, fn2)
+        prompt(title, msg, status, icon, fn1, fn2)
+
+        messageSuccess(title, msg, fn)
+        messageError(title, msg, fn)
+        confirmDelete(fn, title, msg)
+
+        /*
+        *   pos: top-left, top-center, top-right
+        *   pos: bottom-left, bottom-center, bottom-right
+        */
+        flash(title, message, status, icon, timeout, position)
+        flashSuccess(title, message, icon, timeout, position)
+        flashError(title, message, icon, timeout, position)
+    },
+
+    validation: {
+        getErrorList()
+        validate(form, isSilent, exclude),
+        resetValidation(form),
+        isValidInput(input, isSilent),
+
+        //value validators
+        isInteger(value)
+        isFloat(value)
+        isEmail(value)
+        isUrl(value)
+        isPositiveNumber(value)
+        isNegativeNumber(value)
+        isStringOf(value, patternsArray)
+        isStringContainsOneOfRegex(value, patternsArray)
+        isStringContainsOneOfArray(value, array, caseSensitive)
+        isStringIn(value, array, caseSensitive)
+        isTimeline(value, format)
+        isTimelineBeforeOrEqual(value, boundary, format)
+        isTimelineAfterOrEqual(value, boundary, format)
+        isTimelineBefore(value, boundary, format)
+        isTimelineAfter(value, boundary, format)
+        isTimelineBetween(value, min, max, format, boundaries)
+        isRegMatch(value, reg)
+        isFunction(value)
+        isArray(value)
+    },
+
+    ajax: {
+        request(verb, url, data, fn, isUpload, options, button)
+        post(url, data, fn, button)
+        get(url, data, fn, button)
+        delete(url, data, fn, button)
+        put(url, data, fn, button)
+
+        postBtn(button, url, data, fn)
+        getBtn(button, url, data, fn)
+        deleteBtn(button, url, data, fn)
+        putBtn(button, url, data, fn)
+    },
+
+    array: {
+        insertLast(array, item)
+        insertFirst(array, item)
+        insertAt(array, index, item)
+        removeLast(array)
+        removeFirst(array)
+        removeAt(array, index)
+        removeWhere(array, fn)
+        searchGetBool(array, fn)
+        searchGetIndex(array, fn)
+        searchGetItem(array, fn)
+        foreach(enumerable, fn)
+        foreachReversed(array, fn)
+        toString(array)
+        copy(array)
+        filter(array, fn)
+        wrap(array)
+    },
+
+    dom: {
+        click(btn, fn)
+        getFriendlyName(input)
+        setDisable(item, status)
+        setLoadingButton(btn)
+        unsetLoadingButton(btn, html)
+
+        //option is {id: '', class: '', attr: {k1: v1, k2, v2}}
+        addHtmlAttr(jquery, option)
+    },
+
+    form: {
+        submitAjax(form, submitter, validate, fn)
+        submit(form, submitter, validate)
+        registerNormalSubmitter(form, submitter, validate)
+        registerAjaxSubmitter(form, submitter, validate, fn)
+        getFormInputsAsObject(form)
+    },
+
+    input: {
+        getValue(input)
+        getFiles(input)
+        setValue(input, value)
+        select: {
+            getSelectedOption(select)
+            getSelectedValue(select)
+            getSelectedText(select)
+            getSelectedIndex(select)
+            setSelectedIndex(select, index)
+            setSelectedValue(select, value)
+            setFirstOptionSelected(select)
+            clearOptions(select)
+            addOptions(select, options, removeCurrent, firstOptionLabel)
+            addOption(select, option, isSelected)
+        },
+        checkable: {
+            isChecked(input)
+            set(input, status)
+            getRadioGroupValue(name)
+            getCheckboxGroupArray(name)
+        }
+    },
+
+    resource: {
+        //replace: {pa1: 'val2', pa2: 'val2'}
+        get(key, replace)
+
+        //{key: '', en: '', ar: ''}
+        set(resource)
+        setArray(resourceArray)
+
+        //replace: {pa1: 'val2', pa2: 'val2'}
+        replace(str, _replace)
+    },
+
+    table: {
+        /*
+        * row {
+        *   id: '',
+        *   class: '',
+        *   attr: {k1: 'v1', k2: 'v2'},
+        *   columns: [
+        *       {
+        *           id: '',
+        *           class: '',
+        *           attr: {k3: 'v3', k4: 'v4'},
+        *           data: '',
+        *       },
+        *   ],
+        * }
+        */
+        addRows(table, rows)
+        removeRows(table, rows)
+        removeChecked(table, inputName)
+        removeAll(table)
+        moveRows(from, to, rows)
+        moveChecked(from, to, inputName)
+        count(table, rows)
+        updatePaginationTotal(value, rowCountElement)
+    },
+
+    util: {
+        randomString(length, num, small, capital)
+        debounce(delay, fn)
+        timer(interval, fn)
+        cancelTimer(id)
+        executeLater(delay, fn)
+        cancelExecuteLater(id)
+        getTimelineDiff(timeline1, timeline2, format)
+        formatDate(date, format)
+        token: {
+            addToObj(obj)
+            addToForm(form)
+        }
+    },
+
+    web: {
+        reload(ReloadFromServer)
+        redirect(url)
+        newTab(url)
+        getUrl(url)
+        pathHas(key, path)
+        getUrlWithoutQueryString(url)
+        getPath(url)
+        getPathWithoutQueryString(url)
+        getQueryStringAsObject(url)
+        getQueryString(name, url)
+        updateQueryString(obj, url)
+        removeQueryString(key, url)
+        localize(url, locale, method)
+        urlSegments(index, url)
+    },
+
+    init: {
+        datepicker(input, options)
+        datepickerOnChange(s, fn)
+        select2(input, options)
+        dataTable(table, options)
+        createCounter(input, counter, max)
+        autoComplete(input, url, appendTo)
+        showMsg(selector, dataAttribute, context)
+        deleteAndRedirect(btnSelector, deleteUrl, redirectUrl, title, msg)
+        listDelete(btnSelector, idAttribute, url, tableSelector, title, msg)
+    }
+
+};
