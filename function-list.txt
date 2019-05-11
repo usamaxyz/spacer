@@ -1,3 +1,272 @@
+Patterns:
+---------
+integer[required|positive|negative|min:a|max:b|range:a,b|not:n1,n2,n3|confirmed:inputName] 
+float[required|positive|negative|min:a|max:b|range:a,b|not:n1,n2,n3|confirmed:inputName]
+string[required|of:alpha,num,underscore,dash,spaces,comma,dot |not_of:alpha,num,underscore,dash,spaces,comma,dot|min:a|max:b|range:a,b|len:x |not:n1,n2,n3|confirmed:inputName]
+timeline[required|format:~x~|min:a|max:b|range:a,b|confirmed:inputName] 
+email[required|min:a|max:b|range:a,b|in_domain:x,y,z|not_in_domain:m,n,o|confirmed:inputName] 
+url[required|min:a|max:b|range:a,b|in_domain:x,y,z|not_in_domain:m,n,o|confirmed:inputName] 
+in[required|items:n1,n2,n3] 
+check[required] 
+file[required|ext:n1,n2,n3|min:a|max:b|range:a,b|s_min:a|s_max:b|s_range:a,b|len:n] 
+regex[pattern:~exp~|min:a|max:b|range:a,b|len:x|confirmed:inputName] 
+
+
+Extra rules for integer, float and timeline:
+--------------------------------------------
+min_input:inputName,inOut,fn
+max_input:inputName,inOut,fn
+
+
+Error message order:
+--------------------
+data-v-[patternName]-[ruleKey]-[config.locale]
+data-v-[patternName]-[ruleKey]
+spa.resource.get(patternName + '.' + ruleKey)
+
+
+table:
+------
+    {
+        id: '',
+        class: '',
+        attr: {k1: 'v1', k2: 'v2'},
+        columns: [
+            {
+                id: '',
+                class: '',
+                attr: {k3: 'v3', k4: 'v4'},
+                data: '',
+            },
+        ],
+    }
+
+simple spa.setOptions()
+-----------------------
+spa.setOptions({
+    locale: 'en',
+    debug: false,
+    timelineFormat: 'D-M-YYYY',
+    trimValues: true,
+
+    ajaxOnError: function (jqXHR) {
+        //jqXHR, textStatus, errorThrown
+        spa.dialog.messageError(
+            spa.resource.get('ajax.errorTitle'),
+            spa.resource.get('ajax.errorBody') + jqXHR.status);
+    },
+    ajaxLaravelHeader: false,
+    ajaxHeader: undefined,
+
+    //for util.token
+    tokenValue: $('#_token input').val(),
+    tokenName: '__RequestVerificationToken',
+
+    dialogCurrentDriver: 'alert',
+    dialogDrivers: {
+        alert: {},
+        sweetAlert: {},
+        //from services
+        bootstrap3ModalService: bootstrap3ModalService,
+        bootstrap3PanelService: bootstrap3PanelService,
+
+    },
+
+    flashCurrentDriver: '',
+    flashDrivers: {
+        //from services
+        ukNotifyBootstrap3: ukNotifyBootstrap3,
+        ukNotifyRemark: ukNotifyRemark,
+    },
+
+    /*
+        'silent'
+        'listOfErrors'
+        'dialog'
+        'dialog.alert'
+        'dialog.sweetAlert'
+        'flash'
+     */
+    validationCurrentDriver: 'dialog',
+    validationDrivers: {
+        silent: {},
+        listOfErrors: {},
+        //from services
+        bootstrap3ValidationDriver: bootstrap3ValidationDriver,
+        bootstrap4ValidationDriver: bootstrap4ValidationDriver,
+    },
+    reValidationDelay: 500,
+    listOfErrorsSelector: '#spacer-listOfErrors',
+
+    validationCustomRules: {
+        'min_input': {},
+        'max_input': {},
+    },
+    validationPre: undefined,
+    validationIsLite: false,
+
+    //momentLocales without en: because en is loaded by default
+    momentLocales: {},
+    datepickerOptions: {},
+    datatableOptions: {},
+
+    /*
+     * options:
+     *      1 => cookie
+     *      2 => segment
+     *      3 => query
+     */
+    localeMethod: 2,
+    localeQueryKey: 'lang',
+    defaultLocale: 'en',
+    //example var _html = $('html');
+    locale: _html.attr('lang'),
+    localeMethod: _html.data('locale-method'),
+    defaultLocale: _html.data('default-locale'),
+    //end of example
+    btnLoadingCurrentDriver: 'spin',
+    btnLoadingDrivers: {
+        spin: {},
+    }
+});
+
+
+extend config:
+
+    dialogDrivers: {
+        sweetAlert: (function () {
+            function iconMapper(icon) {
+                if (icon === 'danger')
+                    return 'error';
+                return icon;
+            }
+
+            return {
+                message: function (title, msg, status, icon, fn) {
+                    swal({
+                        title: title,
+                        text: msg,
+                        icon: iconMapper(icon),
+                        button: spa.resource.get('btn.ok')
+                    }).then(function () {
+                        if (fn) fn();
+                    });
+                },
+                confirm: function (title, msg, status, icon, fn1, fn2) {
+                    swal({
+                        title: title,
+                        text: msg,
+                        icon: iconMapper(icon),
+                        dangerMode: true,
+                        buttons: [spa.resource.get('btn.no'), spa.resource.get('btn.yes')]
+                    }).then(function (value) {
+                        if (value)
+                            fn1();
+                        else if (fn2)
+                            fn2();
+                    });
+                },
+                prompt: function (title, msg, status, icon, fn1, fn2) {
+                    swal({
+                        title: title,
+                        text: msg,
+                        icon: iconMapper(icon),
+                        content: "input",
+                        buttons: [spa.resource.get('btn.cancel'), spa.resource.get('btn.continue')]
+                    }).then(function (value) {
+                        if (value === null) {
+                            if (fn2) fn2();
+                        }
+                        else fn1(value);
+                    });
+                }
+            }
+        })(),
+    },
+    validationDrivers: {
+        bootstrap4ValidationDriver: {
+            onError: function (vo) {
+                let invalidRules = vo.pattern.invalidRules;
+                let helpBlock = vo.input.jquery.addClass('is-invalid').closest('[class*="form-group"]').addClass('has-error has-danger').find('.invalid-feedback');
+                if (helpBlock.length !== 0) {
+                    let html = '';
+                    if (invalidRules.length === 1)
+                        html = invalidRules[0].message;
+                    else {
+                        html = '<ul>';
+                        for (let i = 0, l = invalidRules.length; i < l; i++)
+                            html = html + '<li>' + invalidRules[i].message + '</li>';
+                        html = html + '</ul>';
+                    }
+                    helpBlock.html(html);
+                }
+                if (vo.confirmInput) {
+                    let found = false;
+                    for (let i = 0, l = invalidRules.length; i < l; i++)
+                        if (invalidRules[i].type === spa.ruleTypes.confirmed) {
+                            found = true;
+                            break;
+                        }
+                    if (found)
+                        vo.confirmInput.jquery.addClass('is-invalid');
+                }
+            },
+            clearError: function (inputJq) {
+                inputJq.removeClass('is-invalid')
+                    .closest('[class*="form-group"]')
+                    .removeClass('has-error has-danger')
+                    .find('.invalid-feedback')
+                    .html('');
+                //confirm input
+                let ci = inputJq.data('_spa-ci');
+                if (ci)
+                    ci.removeClass('is-invalid');
+            }
+        }
+    },
+    btnLoadingDrivers: {
+        spin: (function () {
+            function set(btn) {
+                btn = sis(btn);
+                if (btn.length) {
+                    btn.data(Tags.loadingHtml, btn.html());
+                    //fix the width
+                    //btn.css('min-width', btn.css('width'));
+                    //btn.html(spa.resource.get('icon.loading'));
+                    //spa.dom.setDisable(btn, true);
+                    return btn;
+                }
+            }
+
+            function unset(btn, html) {
+                btn = sis(btn);
+                if (btn.length) {
+                    btn.html(html ? html : btn.data(Tags.loadingHtml));
+                    //spa.dom.setDisable(btn, false);
+                    //btn.css('min-width', 'auto');
+                    return btn;
+                }
+            }
+
+            return {
+                set,
+                unset,
+            }
+        })(),
+    },
+    validationCustomRules: {
+        ruleName: {
+            validate: function (vo, index) {
+                var rule = vo.pattern.rules[index];
+                //return true or false
+            },
+            getErrorMessage: function (vo, index) {
+                var rule = vo.invalidRules[index];
+                //return string
+            },
+        },
+    }
+
 var spa = {
 
     dialogDefaults,

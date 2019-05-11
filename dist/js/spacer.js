@@ -242,18 +242,6 @@ var spa = function () {
         listOfErrorsSelector: '#spacer-listOfErrors',
 
         validationCustomRules: {
-            // validationCustomRules: {
-            //     ruleName: {
-            //         validate: function (vo, index) {
-            //             var rule = vo.pattern.rules[index];
-            //             //return true or false
-            //         },
-            //         getErrorMessage: function (vo, index) {
-            //             var rule = vo.invalidRules[index];
-            //             //return string
-            //         },
-            //     },
-            // },
             'min_input': {
                 /**
                  *  Min than input value. For integer, float and timeline patterns only
@@ -3445,21 +3433,6 @@ var spa = function () {
         },
 
         table: {
-            /*
-            * row {
-            *   id: '',
-            *   class: '',
-            *   attr: {k1: 'v1', k2: 'v2'},
-            *   columns: [
-            *       {
-            *           id: '',
-            *           class: '',
-            *           attr: {k3: 'v3', k4: 'v4'},
-            *           data: '',
-            *       },
-            *   ],
-            * }
-            */
             addRows: function addRows(table, rows) {
                 table = sis(table);
                 if (!table.length) return;
