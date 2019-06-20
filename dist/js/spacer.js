@@ -3902,7 +3902,7 @@ var spa = function () {
                 }
             },
             listDelete: function listDelete(btnSelector, idAttribute, url, tableSelector, title, msg) {
-                sis(btnSelector).on('click', btnSelector, function (e) {
+                sis(tableSelector).on('click', btnSelector, function (e) {
                     e.preventDefault();
                     var self = $(this);
                     var delUrl = url.replace(':id', self.attr(idAttribute));

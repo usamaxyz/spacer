@@ -4246,7 +4246,7 @@ let spa = (function () {
                 }
             },
             listDelete: function (btnSelector, idAttribute, url, tableSelector, title, msg) {
-                sis(btnSelector).on('click', btnSelector, function (e) {
+                sis(tableSelector).on('click', btnSelector, function (e) {
                     e.preventDefault();
                     let self = $(this);
                     let delUrl = url.replace(':id', self.attr(idAttribute));

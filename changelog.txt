@@ -1,3 +1,8 @@
+3.1.36: no break
+------
+- fix bug in listDelete
+
+
 3.1.35: no break
 ------
 - update function-list file
