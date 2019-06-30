@@ -3172,6 +3172,15 @@ var spa = function () {
                 }
                 return _new;
             },
+            map: function map(array, fn) {
+                var _new = [];
+                if (fn) {
+                    for (var i = 0, l = array.length; i < l; i++) {
+                        _new.push(fn(array[i], i));
+                    }
+                }
+                return _new;
+            },
             wrap: function wrap(array) {
                 if (!array) return [];
                 return spa.validation.isArray(array) ? array : [array];

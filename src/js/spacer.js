@@ -81,528 +81,528 @@ let spa = (function () {
 
 
     let config = {
-            locale: 'en',
-            debug: false,
-            timelineFormat: 'D-M-YYYY',
-            trimValues: true,
+        locale: 'en',
+        debug: false,
+        timelineFormat: 'D-M-YYYY',
+        trimValues: true,
 
-            ajaxOnError: function (jqXHR) {
-                //jqXHR, textStatus, errorThrown
-                spa.dialog.messageError(
-                    spa.resource.get('ajax.errorTitle'),
-                    spa.resource.get('ajax.errorBody') + jqXHR.status);
+        ajaxOnError: function (jqXHR) {
+            //jqXHR, textStatus, errorThrown
+            spa.dialog.messageError(
+                spa.resource.get('ajax.errorTitle'),
+                spa.resource.get('ajax.errorBody') + jqXHR.status);
+        },
+        ajaxLaravelHeader: false,
+        ajaxHeader: undefined,
+
+        //for util.token
+        tokenValue: undefined,
+        tokenName: undefined,
+
+        /*
+            'alert'
+            'sweetAlert'
+         */
+        dialogCurrentDriver: 'alert',
+        dialogDrivers: {
+            alert: {
+                message: function (title, msg, status, icon, fn) {
+                    window.alert(title + "\n" + msg);
+                    if (fn) fn();
+                },
+                confirm: function (title, msg, status, icon, fn1, fn2) {
+                    if (window.confirm(title + "\n" + msg))
+                        fn1();
+                    else if (fn2) fn2();
+                },
+                prompt: function (title, msg, status, icon, fn1, fn2) {
+                    let result = window.prompt(title + "\n" + msg);
+                    if (result === null) {
+                        if (fn2) fn2();
+                    }
+                    else fn1(result);
+                }
             },
-            ajaxLaravelHeader: false,
-            ajaxHeader: undefined,
+            sweetAlert: (function () {
+                function iconMapper(icon) {
+                    if (icon === 'danger')
+                        return 'error';
+                    return icon;
+                }
 
-            //for util.token
-            tokenValue: undefined,
-            tokenName: undefined,
-
-            /*
-                'alert'
-                'sweetAlert'
-             */
-            dialogCurrentDriver: 'alert',
-            dialogDrivers: {
-                alert: {
+                return {
                     message: function (title, msg, status, icon, fn) {
-                        window.alert(title + "\n" + msg);
-                        if (fn) fn();
+                        swal({
+                            title: title,
+                            text: msg,
+                            icon: iconMapper(icon),
+                            button: spa.resource.get('btn.ok')
+                        }).then(function () {
+                            if (fn) fn();
+                        });
                     },
                     confirm: function (title, msg, status, icon, fn1, fn2) {
-                        if (window.confirm(title + "\n" + msg))
-                            fn1();
-                        else if (fn2) fn2();
+                        swal({
+                            title: title,
+                            text: msg,
+                            icon: iconMapper(icon),
+                            dangerMode: true,
+                            buttons: [spa.resource.get('btn.no'), spa.resource.get('btn.yes')]
+                        }).then(function (value) {
+                            if (value)
+                                fn1();
+                            else if (fn2)
+                                fn2();
+                        });
                     },
                     prompt: function (title, msg, status, icon, fn1, fn2) {
-                        let result = window.prompt(title + "\n" + msg);
-                        if (result === null) {
-                            if (fn2) fn2();
-                        }
-                        else fn1(result);
+                        swal({
+                            title: title,
+                            text: msg,
+                            icon: iconMapper(icon),
+                            content: "input",
+                            buttons: [spa.resource.get('btn.cancel'), spa.resource.get('btn.continue')]
+                        }).then(function (value) {
+                            if (value === null) {
+                                if (fn2) fn2();
+                            }
+                            else fn1(value);
+                        });
                     }
-                },
-                sweetAlert: (function () {
-                    function iconMapper(icon) {
-                        if (icon === 'danger')
-                            return 'error';
-                        return icon;
-                    }
+                }
+            })(),
+        },
 
-                    return {
-                        message: function (title, msg, status, icon, fn) {
-                            swal({
-                                title: title,
-                                text: msg,
-                                icon: iconMapper(icon),
-                                button: spa.resource.get('btn.ok')
-                            }).then(function () {
-                                if (fn) fn();
-                            });
-                        },
-                        confirm: function (title, msg, status, icon, fn1, fn2) {
-                            swal({
-                                title: title,
-                                text: msg,
-                                icon: iconMapper(icon),
-                                dangerMode: true,
-                                buttons: [spa.resource.get('btn.no'), spa.resource.get('btn.yes')]
-                            }).then(function (value) {
-                                if (value)
-                                    fn1();
-                                else if (fn2)
-                                    fn2();
-                            });
-                        },
-                        prompt: function (title, msg, status, icon, fn1, fn2) {
-                            swal({
-                                title: title,
-                                text: msg,
-                                icon: iconMapper(icon),
-                                content: "input",
-                                buttons: [spa.resource.get('btn.cancel'), spa.resource.get('btn.continue')]
-                            }).then(function (value) {
-                                if (value === null) {
-                                    if (fn2) fn2();
-                                }
-                                else fn1(value);
-                            });
-                        }
-                    }
-                })(),
+        flashCurrentDriver: '',
+        flashDrivers: {},
+
+        /*
+            'silent'
+            'listOfErrors'
+            'dialog'
+            'dialog.alert'
+            'dialog.sweetAlert'
+            'flash'
+         */
+        validationCurrentDriver: 'dialog',
+        validationDrivers: {
+            silent: {
+                onError: function () {
+                },
+                clearError: function () {
+                }
             },
+            listOfErrors: (function () {
+                let validationErrors = [];
 
-            flashCurrentDriver: '',
-            flashDrivers: {},
-
-            /*
-                'silent'
-                'listOfErrors'
-                'dialog'
-                'dialog.alert'
-                'dialog.sweetAlert'
-                'flash'
-             */
-            validationCurrentDriver: 'dialog',
-            validationDrivers: {
-                silent: {
-                    onError: function () {
+                return {
+                    onError: function (vo) {
+                        //add new errors
+                        for (let i = 0, l = vo.pattern.invalidRules.length; i < l; i++)
+                            validationErrors.push({
+                                msg: vo.pattern.invalidRules[i].message,
+                                input: vo.input
+                            });
+                        let ul = $(config.listOfErrorsSelector);
+                        if (ul.length) {
+                            let str = '';
+                            for (let i = 0, l = validationErrors.length; i < l; i++)
+                                str += '<li>' + validationErrors[i].msg + '</li>';
+                            ul.html(str);
+                        }
                     },
-                    clearError: function () {
-                    }
-                },
-                listOfErrors: (function () {
-                    let validationErrors = [];
+                    clearError: function (inputJq) {
+                        for (let i = validationErrors.length - 1; i >= 0; i--)
+                            if (validationErrors[i].input.jquery[0] === inputJq[0])
+                                validationErrors.splice(i, 1);
+                        let ul = $(config.listOfErrorsSelector);
+                        if (ul.length) {
+                            let str = '',
+                                l = validationErrors.length;
+                            for (let i = 0; i < l; i++)
+                                str += '<li>' + validationErrors[i].msg + '</li>';
+                            ul.html(str);
+                        }
+                    },
+                    getErrorList: function () {
+                        let result = [];
+                        for (let i = 0, l = validationErrors.length; i < l; i++) {
+                            let newItem = validationErrors[i];
 
-                    return {
-                        onError: function (vo) {
-                            //add new errors
-                            for (let i = 0, l = vo.pattern.invalidRules.length; i < l; i++)
-                                validationErrors.push({
-                                    msg: vo.pattern.invalidRules[i].message,
-                                    input: vo.input
-                                });
-                            let ul = $(config.listOfErrorsSelector);
-                            if (ul.length) {
-                                let str = '';
-                                for (let i = 0, l = validationErrors.length; i < l; i++)
-                                    str += '<li>' + validationErrors[i].msg + '</li>';
-                                ul.html(str);
-                            }
-                        },
-                        clearError: function (inputJq) {
-                            for (let i = validationErrors.length - 1; i >= 0; i--)
-                                if (validationErrors[i].input.jquery[0] === inputJq[0])
-                                    validationErrors.splice(i, 1);
-                            let ul = $(config.listOfErrorsSelector);
-                            if (ul.length) {
-                                let str = '',
-                                    l = validationErrors.length;
-                                for (let i = 0; i < l; i++)
-                                    str += '<li>' + validationErrors[i].msg + '</li>';
-                                ul.html(str);
-                            }
-                        },
-                        getErrorList: function () {
-                            let result = [];
-                            for (let i = 0, l = validationErrors.length; i < l; i++) {
-                                let newItem = validationErrors[i];
-
-                                let index = -1;
-                                for (let _j = 0, _m = result.length; _j < _m; _j++)
-                                    if (result[_j].input.jquery[0] === newItem.input.jquery[0]) {
-                                        index = _j;
-                                        break;
-                                    }
-                                if (index === -1)
+                            let index = -1;
+                            for (let _j = 0, _m = result.length; _j < _m; _j++)
+                                if (result[_j].input.jquery[0] === newItem.input.jquery[0]) {
+                                    index = _j;
+                                    break;
+                                }
+                            if (index === -1)
                                 //not exist
-                                    result.push({
-                                        input: newItem.input,
-                                        errors: [newItem.msg]
-                                    });
-                                else
+                                result.push({
+                                    input: newItem.input,
+                                    errors: [newItem.msg]
+                                });
+                            else
                                 //exist => add message to error list
-                                    result[index].errors.push(newItem.msg);
-                            }
-                            return result;
+                                result[index].errors.push(newItem.msg);
                         }
-                    };
-                })(),
-            },
-            reValidationDelay: 500,
-            listOfErrorsSelector: '#spacer-listOfErrors',
+                        return result;
+                    }
+                };
+            })(),
+        },
+        reValidationDelay: 500,
+        listOfErrorsSelector: '#spacer-listOfErrors',
 
-            validationCustomRules: {
-                'min_input': {
-                    /**
-                     *  Min than input value. For integer, float and timeline patterns only
-                     */
-                    validate: function (vo, index) {
-                        //return true or false
+        validationCustomRules: {
+            'min_input': {
+                /**
+                 *  Min than input value. For integer, float and timeline patterns only
+                 */
+                validate: function (vo, index) {
+                    //return true or false
 
-                        let valueToValidate = vo.input.valueToValidate,
-                            rule = vo.pattern.rules[index],
+                    let valueToValidate = vo.input.valueToValidate,
+                        rule = vo.pattern.rules[index],
 
-                            minInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
+                        minInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
 
-                            format = vo.pattern.timelineFormat.params[0];
+                        format = vo.pattern.timelineFormat.params[0];
 
-                        if (minInput.length) {
+                    if (minInput.length) {
 
-                            let minInputValue = minInput.val();
+                        let minInputValue = minInput.val();
 
-                            if (minInputValue) {
-                                let isOut = rule.params[1] === 'o';
-                                switch (vo.pattern.type) {
-                                    case PatternTypes.integer:
-                                    case PatternTypes.float: {
-                                        let parsedValue = parseFloat(valueToValidate);
-                                        minInputValue = parseFloat(minInputValue);
+                        if (minInputValue) {
+                            let isOut = rule.params[1] === 'o';
+                            switch (vo.pattern.type) {
+                                case PatternTypes.integer:
+                                case PatternTypes.float: {
+                                    let parsedValue = parseFloat(valueToValidate);
+                                    minInputValue = parseFloat(minInputValue);
 
-                                        if (isNaN(minInputValue)) {
-                                            return false;
-                                        }
-                                        if (isOut) {
-                                            //isOut
-                                            if (parsedValue <= minInputValue)
-                                                return false;
-                                        }
-                                        else {
-                                            //in
-                                            if (parsedValue < minInputValue)
-                                                return false
-                                        }
-                                        break;
+                                    if (isNaN(minInputValue)) {
+                                        return false;
                                     }
-                                    case PatternTypes.timeline:
-                                        if (isOut) {
-                                            //isOut
-                                            if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format))
-                                                return false;
-                                        }
-                                        else {
-                                            //in
-                                            if (!spa.validation.isTimelineAfterOrEqual(valueToValidate, minInputValue, format))
-                                                return false;
-                                        }
-                                        break;
-                                }
-                            }
-                        }
-                        return true;
-                    },
-                    getErrorMessage: function (vo, index) {
-                        //return string
-
-                        let rule = vo.pattern.invalidRules[index];
-
-                        let ruleName = 'min' + ((rule.params[1] === 'o' ? '_o' : '_i'));
-
-                        /**
-                         * get p1 from:
-                         *  1. rule 3rd parameter
-                         *  2. related input friendly name
-                         *  3. related input value
-                         */
-
-                            //rule 3rd parameter
-                        let p1 = rule.params[2];
-
-                        let relatedInput;
-
-                        //related input friendly name
-                        if (!p1) {
-                            relatedInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
-                            p1 = relatedInput.attr(Tags.friendlyName);
-                        }
-
-                        //related input value
-                        if (!p1) {
-                            //no from-min tag is provided => get the value which is existed for sure
-                            p1 = relatedInput.val();
-                        }
-
-                        return spa.resource.get(vo.pattern.name + '.' + ruleName, {
-                            fn: vo.input.friendlyName,
-                            p1: p1,
-                        });
-                    },
-                },
-                'max_input': {
-                    /**
-                     *  Max than input value. For integer, float and timeline patterns only
-                     */
-                    validate: function (vo, index) {
-                        //return true or false
-
-                        let valueToValidate = vo.input.valueToValidate,
-                            rule = vo.pattern.rules[index],
-                            maxInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
-
-                            format = vo.pattern.timelineFormat.params[0];
-
-                        if (maxInput.length) {
-
-                            let maxInputValue = maxInput.val();
-
-                            if (maxInputValue) {
-                                let isOut = rule.params[1] === 'o';
-                                switch (vo.pattern.type) {
-                                    case PatternTypes.integer:
-                                    case PatternTypes.float: {
-                                        let parsedValue = parseFloat(valueToValidate);
-                                        maxInputValue = parseFloat(maxInputValue);
-
-                                        if (isNaN(maxInputValue)) {
+                                    if (isOut) {
+                                        //isOut
+                                        if (parsedValue <= minInputValue)
                                             return false;
-                                        }
-                                        if (isOut) {
-                                            //isOut
-                                            if (parsedValue >= maxInputValue)
-                                                return false;
-                                        }
-                                        else {
-                                            //in
-                                            if (parsedValue > maxInputValue)
-                                                return false
-                                        }
-                                        break;
                                     }
-                                    case PatternTypes.timeline:
-                                        if (isOut) {
-                                            //isOut
-                                            if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format))
-                                                return false;
-                                        }
-                                        else {
-                                            //in
-                                            if (!spa.validation.isTimelineBeforeOrEqual(valueToValidate, maxInputValue, format))
-                                                return false;
-                                        }
-                                        break;
+                                    else {
+                                        //in
+                                        if (parsedValue < minInputValue)
+                                            return false
+                                    }
+                                    break;
                                 }
+                                case PatternTypes.timeline:
+                                    if (isOut) {
+                                        //isOut
+                                        if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format))
+                                            return false;
+                                    }
+                                    else {
+                                        //in
+                                        if (!spa.validation.isTimelineAfterOrEqual(valueToValidate, minInputValue, format))
+                                            return false;
+                                    }
+                                    break;
                             }
                         }
-                        return true;
-                    },
-                    getErrorMessage: function (vo, index) {
-                        //return string
+                    }
+                    return true;
+                },
+                getErrorMessage: function (vo, index) {
+                    //return string
 
-                        let rule = vo.pattern.invalidRules[index];
+                    let rule = vo.pattern.invalidRules[index];
 
-                        let ruleName = 'max' + ((rule.params[1] === 'o' ? '_o' : '_i'));
+                    let ruleName = 'min' + ((rule.params[1] === 'o' ? '_o' : '_i'));
 
-                        /**
-                         * get p1 from:
-                         *  1. rule 3rd parameter
-                         *  2. related input friendly name
-                         *  3. related input value
-                         */
+                    /**
+                     * get p1 from:
+                     *  1. rule 3rd parameter
+                     *  2. related input friendly name
+                     *  3. related input value
+                     */
 
-                            //rule 3rd parameter
-                        let p1 = rule.params[2];
+                    //rule 3rd parameter
+                    let p1 = rule.params[2];
 
-                        let relatedInput;
+                    let relatedInput;
 
-                        //related input friendly name
-                        if (!p1) {
-                            relatedInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
-                            p1 = relatedInput.attr(Tags.friendlyName);
-                        }
+                    //related input friendly name
+                    if (!p1) {
+                        relatedInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
+                        p1 = relatedInput.attr(Tags.friendlyName);
+                    }
 
-                        //related input value
-                        if (!p1) {
-                            //no from-min tag is provided => get the value which is existed for sure
-                            p1 = relatedInput.val();
-                        }
+                    //related input value
+                    if (!p1) {
+                        //no from-min tag is provided => get the value which is existed for sure
+                        p1 = relatedInput.val();
+                    }
 
-                        return spa.resource.get(vo.pattern.name + '.' + ruleName, {
-                            fn: vo.input.friendlyName,
-                            p1: p1,
-                        });
-                    },
+                    return spa.resource.get(vo.pattern.name + '.' + ruleName, {
+                        fn: vo.input.friendlyName,
+                        p1: p1,
+                    });
                 },
             },
-            validationPre: undefined,
-            validationIsLite: false,
+            'max_input': {
+                /**
+                 *  Max than input value. For integer, float and timeline patterns only
+                 */
+                validate: function (vo, index) {
+                    //return true or false
 
-            //momentLocales without en: because en is loaded by default
-            momentLocales: {
-                ar: {
-                    months: months,
-                    monthsShort: monthsShort,
-                    weekdays: days,
-                    weekdaysShort: daysShort,
-                    weekdaysMin: daysMin,
-                    weekdaysParseExact: true,
-                    longDateFormat: {
-                        LT: 'HH:mm',
-                        LTS: 'HH:mm:ss',
-                        L: 'DD/MM/YYYY',
-                        LL: 'D MMMM YYYY',
-                        LLL: 'D MMMM YYYY HH:mm',
-                        LLLL: 'dddd D MMMM YYYY HH:mm'
-                    },
-                    calendar: {
-                        sameDay: '[اليوم على الساعة] LT',
-                        nextDay: '[غدا على الساعة] LT',
-                        nextWeek: 'dddd [على الساعة] LT',
-                        lastDay: '[أمس على الساعة] LT',
-                        lastWeek: 'dddd [على الساعة] LT',
-                        sameElse: 'L'
-                    },
-                    relativeTime: {
-                        future: 'في %s',
-                        past: 'منذ %s',
-                        s: 'ثوان',
-                        ss: '%d ثانية',
-                        m: 'دقيقة',
-                        mm: '%d دقائق',
-                        h: 'ساعة',
-                        hh: '%d ساعات',
-                        d: 'يوم',
-                        dd: '%d أيام',
-                        M: 'شهر',
-                        MM: '%d أشهر',
-                        y: 'سنة',
-                        yy: '%d سنوات'
-                    },
-                    week: {
-                        dow: 0, // Sunday is the first day of the week.
-                        doy: 12  // The week that contains Jan 1st is the first week of the year.
+                    let valueToValidate = vo.input.valueToValidate,
+                        rule = vo.pattern.rules[index],
+                        maxInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
+
+                        format = vo.pattern.timelineFormat.params[0];
+
+                    if (maxInput.length) {
+
+                        let maxInputValue = maxInput.val();
+
+                        if (maxInputValue) {
+                            let isOut = rule.params[1] === 'o';
+                            switch (vo.pattern.type) {
+                                case PatternTypes.integer:
+                                case PatternTypes.float: {
+                                    let parsedValue = parseFloat(valueToValidate);
+                                    maxInputValue = parseFloat(maxInputValue);
+
+                                    if (isNaN(maxInputValue)) {
+                                        return false;
+                                    }
+                                    if (isOut) {
+                                        //isOut
+                                        if (parsedValue >= maxInputValue)
+                                            return false;
+                                    }
+                                    else {
+                                        //in
+                                        if (parsedValue > maxInputValue)
+                                            return false
+                                    }
+                                    break;
+                                }
+                                case PatternTypes.timeline:
+                                    if (isOut) {
+                                        //isOut
+                                        if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format))
+                                            return false;
+                                    }
+                                    else {
+                                        //in
+                                        if (!spa.validation.isTimelineBeforeOrEqual(valueToValidate, maxInputValue, format))
+                                            return false;
+                                    }
+                                    break;
+                            }
+                        }
                     }
-                }
-            },
-            datepickerOptions: {
-                ar: {
-                    closeText: "إغلاق",
-                    prevText: "&#x3C;السابق",
-                    nextText: "التالي&#x3E;",
-                    currentText: "اليوم",
-                    monthNames: months,
-                    monthNamesShort: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
-                    dayNames: days,
-                    dayNamesShort: daysShort,
-                    dayNamesMin: daysMin,
-                    weekHeader: "أسبوع",
-                    firstDay: 1,
-                    isRTL: true,
-                    showMonthAfterYear: false,
-                    yearSuffix: '',
-
-                    dateFormat: 'dd-mm-yy',
-                    changeMonth: true,
-                    changeYear: true,
-                    showButtonPanel: true
+                    return true;
                 },
-                en: {
-                    dateFormat: 'dd-mm-yy',
-                    changeMonth: true,
-                    changeYear: true,
-                    showButtonPanel: true
-                }
-            },
-            datatableOptions: {
-                ar: {
-                    paging: false,
-                    info: false,
-                    searching: false,
-                    order: [],
-                    language: {
-                        decimal: "",
-                        emptyTable: "لا توجد بيانات",
-                        info: "عرض _START_ إلى _END_. الاجمالي _TOTAL_ عنصر",
-                        infoEmpty: "لا توجد بيانات",
-                        infoFiltered: "(filtered from _MAX_ total entries)",
-                        infoPostFix: "",
-                        thousands: ",",
-                        lengthMenu: "عدد المداخل في كل صفحة  _MENU_",
-                        loadingRecords: "جاري التحميل...",
-                        processing: "جاري المعالجة...",
-                        search: "فلترة: ",
-                        zeroRecords: "لا توجد بيانات مطابقة",
-                        paginate: {
-                            first: "البداية",
-                            last: "النهاية",
-                            next: "التالي",
-                            previous: "السابق"
-                        },
-                        aria: {
-                            sortAscending: ": activate to sort column ascending",
-                            sortDescending: ": activate to sort column descending"
-                        }
+                getErrorMessage: function (vo, index) {
+                    //return string
+
+                    let rule = vo.pattern.invalidRules[index];
+
+                    let ruleName = 'max' + ((rule.params[1] === 'o' ? '_o' : '_i'));
+
+                    /**
+                     * get p1 from:
+                     *  1. rule 3rd parameter
+                     *  2. related input friendly name
+                     *  3. related input value
+                     */
+
+                    //rule 3rd parameter
+                    let p1 = rule.params[2];
+
+                    let relatedInput;
+
+                    //related input friendly name
+                    if (!p1) {
+                        relatedInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
+                        p1 = relatedInput.attr(Tags.friendlyName);
                     }
+
+                    //related input value
+                    if (!p1) {
+                        //no from-min tag is provided => get the value which is existed for sure
+                        p1 = relatedInput.val();
+                    }
+
+                    return spa.resource.get(vo.pattern.name + '.' + ruleName, {
+                        fn: vo.input.friendlyName,
+                        p1: p1,
+                    });
                 },
-                en: {
-                    paging: false,
-                    info: false,
-                    searching: false,
-                    order: []
-                }
             },
+        },
+        validationPre: undefined,
+        validationIsLite: false,
 
-            /*
-             * options:
-             *      1 => cookie
-             *      2 => segment
-             *      3 => query
-             */
-            localeMethod: 2,
-            localeQueryKey: 'lang',
-            defaultLocale: 'en',
-            btnLoadingCurrentDriver: 'spin',
-            btnLoadingDrivers: {
-                spin: (function () {
-                    function set(btn) {
-                        btn = sis(btn);
-                        if (btn.length) {
-                            btn.data(Tags.loadingHtml, btn.html());
-                            //fix the width
-                            btn.css('min-width', btn.css('width'));
-                            btn.html(spa.resource.get('icon.loading'));
-                            spa.dom.setDisable(btn, true);
-                            return btn;
-                        }
-                    }
-
-                    function unset(btn, html) {
-                        btn = sis(btn);
-                        if (btn.length) {
-                            btn.html(html ? html : btn.data(Tags.loadingHtml));
-                            spa.dom.setDisable(btn, false);
-                            btn.css('min-width', 'auto');
-                            return btn;
-                        }
-                    }
-
-                    return {
-                        set,
-                        unset,
-                    }
-                })(),
+        //momentLocales without en: because en is loaded by default
+        momentLocales: {
+            ar: {
+                months: months,
+                monthsShort: monthsShort,
+                weekdays: days,
+                weekdaysShort: daysShort,
+                weekdaysMin: daysMin,
+                weekdaysParseExact: true,
+                longDateFormat: {
+                    LT: 'HH:mm',
+                    LTS: 'HH:mm:ss',
+                    L: 'DD/MM/YYYY',
+                    LL: 'D MMMM YYYY',
+                    LLL: 'D MMMM YYYY HH:mm',
+                    LLLL: 'dddd D MMMM YYYY HH:mm'
+                },
+                calendar: {
+                    sameDay: '[اليوم على الساعة] LT',
+                    nextDay: '[غدا على الساعة] LT',
+                    nextWeek: 'dddd [على الساعة] LT',
+                    lastDay: '[أمس على الساعة] LT',
+                    lastWeek: 'dddd [على الساعة] LT',
+                    sameElse: 'L'
+                },
+                relativeTime: {
+                    future: 'في %s',
+                    past: 'منذ %s',
+                    s: 'ثوان',
+                    ss: '%d ثانية',
+                    m: 'دقيقة',
+                    mm: '%d دقائق',
+                    h: 'ساعة',
+                    hh: '%d ساعات',
+                    d: 'يوم',
+                    dd: '%d أيام',
+                    M: 'شهر',
+                    MM: '%d أشهر',
+                    y: 'سنة',
+                    yy: '%d سنوات'
+                },
+                week: {
+                    dow: 0, // Sunday is the first day of the week.
+                    doy: 12  // The week that contains Jan 1st is the first week of the year.
+                }
             }
         },
+        datepickerOptions: {
+            ar: {
+                closeText: "إغلاق",
+                prevText: "&#x3C;السابق",
+                nextText: "التالي&#x3E;",
+                currentText: "اليوم",
+                monthNames: months,
+                monthNamesShort: ["1", "2", "3", "4", "5", "6", "7", "8", "9", "10", "11", "12"],
+                dayNames: days,
+                dayNamesShort: daysShort,
+                dayNamesMin: daysMin,
+                weekHeader: "أسبوع",
+                firstDay: 1,
+                isRTL: true,
+                showMonthAfterYear: false,
+                yearSuffix: '',
+
+                dateFormat: 'dd-mm-yy',
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true
+            },
+            en: {
+                dateFormat: 'dd-mm-yy',
+                changeMonth: true,
+                changeYear: true,
+                showButtonPanel: true
+            }
+        },
+        datatableOptions: {
+            ar: {
+                paging: false,
+                info: false,
+                searching: false,
+                order: [],
+                language: {
+                    decimal: "",
+                    emptyTable: "لا توجد بيانات",
+                    info: "عرض _START_ إلى _END_. الاجمالي _TOTAL_ عنصر",
+                    infoEmpty: "لا توجد بيانات",
+                    infoFiltered: "(filtered from _MAX_ total entries)",
+                    infoPostFix: "",
+                    thousands: ",",
+                    lengthMenu: "عدد المداخل في كل صفحة  _MENU_",
+                    loadingRecords: "جاري التحميل...",
+                    processing: "جاري المعالجة...",
+                    search: "فلترة: ",
+                    zeroRecords: "لا توجد بيانات مطابقة",
+                    paginate: {
+                        first: "البداية",
+                        last: "النهاية",
+                        next: "التالي",
+                        previous: "السابق"
+                    },
+                    aria: {
+                        sortAscending: ": activate to sort column ascending",
+                        sortDescending: ": activate to sort column descending"
+                    }
+                }
+            },
+            en: {
+                paging: false,
+                info: false,
+                searching: false,
+                order: []
+            }
+        },
+
+        /*
+         * options:
+         *      1 => cookie
+         *      2 => segment
+         *      3 => query
+         */
+        localeMethod: 2,
+        localeQueryKey: 'lang',
+        defaultLocale: 'en',
+        btnLoadingCurrentDriver: 'spin',
+        btnLoadingDrivers: {
+            spin: (function () {
+                function set(btn) {
+                    btn = sis(btn);
+                    if (btn.length) {
+                        btn.data(Tags.loadingHtml, btn.html());
+                        //fix the width
+                        btn.css('min-width', btn.css('width'));
+                        btn.html(spa.resource.get('icon.loading'));
+                        spa.dom.setDisable(btn, true);
+                        return btn;
+                    }
+                }
+
+                function unset(btn, html) {
+                    btn = sis(btn);
+                    if (btn.length) {
+                        btn.html(html ? html : btn.data(Tags.loadingHtml));
+                        spa.dom.setDisable(btn, false);
+                        btn.css('min-width', 'auto');
+                        return btn;
+                    }
+                }
+
+                return {
+                    set,
+                    unset,
+                }
+            })(),
+        }
+    },
         resourcesBank = {
             'btn.ok': {
                 en: 'Ok',
@@ -1130,7 +1130,7 @@ let spa = (function () {
             if (config.ajaxHeader)
                 config.ajaxHeader['X-CSRF-TOKEN'] = token.attr('content');
             else
-                config.ajaxHeader = {'X-CSRF-TOKEN': token.attr('content')};
+                config.ajaxHeader = { 'X-CSRF-TOKEN': token.attr('content') };
         }
     }
 
@@ -1141,7 +1141,7 @@ let spa = (function () {
             let driverObj = config.dialogDrivers[driver];
 
             if (config.debug && !(driverObj && driverObj.message && driverObj.confirm && driverObj.prompt))
-                throw spa.resource.get('ex.ddnf', {p: driver});
+                throw spa.resource.get('ex.ddnf', { p: driver });
 
             return driverObj;
         }
@@ -1151,7 +1151,7 @@ let spa = (function () {
             let driverObj = config.validationDrivers[driver];
 
             if (config.debug && !(driverObj && driverObj.onError && driverObj.clearError))
-                throw spa.resource.get('ex.vdnf', {p: driver});
+                throw spa.resource.get('ex.vdnf', { p: driver });
 
             return driverObj;
         }
@@ -1161,7 +1161,7 @@ let spa = (function () {
             let driverObj = config.flashDrivers[driver];
 
             if (config.debug && !(driverObj && driverObj.flash))
-                throw spa.resource.get('ex.fdnf', {p: driver});
+                throw spa.resource.get('ex.fdnf', { p: driver });
 
             return driverObj;
         }
@@ -1171,7 +1171,7 @@ let spa = (function () {
             let driverObj = config.btnLoadingDrivers[driver];
 
             if (config.debug && !(driverObj && driverObj.set && driverObj.unset))
-                throw spa.resource.get('ex.bldnf', {p: driver});
+                throw spa.resource.get('ex.bldnf', { p: driver });
 
             return driverObj;
         }
@@ -1347,7 +1347,7 @@ let spa = (function () {
                     case RuleTypes.max: {
                         let tempName = rule.name + ((validatorBase.isOut(rule) ? '_o' : '_i'));
                         msg = getErrorMessage(vo.input.jquery, vo.pattern.name, tempName);
-                        msg = spa.resource.replace(msg, {fn: vo.input.friendlyName});
+                        msg = spa.resource.replace(msg, { fn: vo.input.friendlyName });
                         break;
                     }
                     case RuleTypes.in_domain:
@@ -1370,7 +1370,7 @@ let spa = (function () {
                     default:
                         msg = getErrorMessage(vo.input.jquery, vo.pattern.name, rule.name);
                         if (msg)
-                            msg = spa.resource.replace(msg, {fn: vo.input.friendlyName});
+                            msg = spa.resource.replace(msg, { fn: vo.input.friendlyName });
                 }
                 if (msg) {
                     if (replaceParam) {
@@ -1415,7 +1415,7 @@ let spa = (function () {
                 && !(config.validationCustomRules
                     && config.validationCustomRules[rule.name]
                     && spa.validation.isFunction(config.validationCustomRules[rule.name].getErrorMessage)))
-                throw spa.resource.get('ex.mnf', {p: v.pattern.name, r: rule.name});
+                throw spa.resource.get('ex.mnf', { p: v.pattern.name, r: rule.name });
             return config.validationCustomRules[rule.name].getErrorMessage(v, index);
         }
 
@@ -1439,7 +1439,7 @@ let spa = (function () {
                 patternNameAndRules = patternStr.match(/^\s*([A-Za-z]+)\s*(?:\[\s*(.*)]\s*)?$/);
 
             if (!patternNameAndRules)
-                throw spa.resource.get('ex.se', {p: patternStr});
+                throw spa.resource.get('ex.se', { p: patternStr });
 
             //trimmed
             entry.pattern.name = patternNameAndRules[1].toLowerCase();
@@ -1477,7 +1477,7 @@ let spa = (function () {
                     if (tildeExpressions && tildeExpressions.length)
                         ruleParamStr = tildeExpressions.shift().match(/~([^~.]+)~/)[1];
                     else
-                        throw spa.resource.get('ex.ipc', {p: entry.pattern.name, r: ruleName});
+                        throw spa.resource.get('ex.ipc', { p: entry.pattern.name, r: ruleName });
                 }
                 else
                     ruleParamStr = rule[2];
@@ -1524,7 +1524,7 @@ let spa = (function () {
                 let param = paramListStr[i].trim();
 
                 if (param === '')
-                    throw spa.resource.get('ex.se', {p: paramStr});
+                    throw spa.resource.get('ex.se', { p: paramStr });
                 else
                     paramList.push(param);
             }
@@ -1573,14 +1573,14 @@ let spa = (function () {
                 v.input.originalValue = trim(v.input.jquery.val());
                 //confirm input
                 if (v.confirmInput)
-                //value is one of 3: has a value, '', undefined. ('', undefined evaluated to false in if statement)
+                    //value is one of 3: has a value, '', undefined. ('', undefined evaluated to false in if statement)
                     v.confirmInput.originalValue = trim(v.confirmInput.jquery.val());
             }
             //v.input.valueToValidate is to store value after applying pre rule
             v.input.valueToValidate = v.input.originalValue;
 
             if (v.confirmInput)
-            //v.input.valueToValidate is to store value after applying pre rule
+                //v.input.valueToValidate is to store value after applying pre rule
                 v.confirmInput.valueToValidate = v.confirmInput.originalValue;
         }
 
@@ -1701,7 +1701,7 @@ let spa = (function () {
                     validators.check.set(vo);
                     return validators.check;
                 default:
-                    throw spa.resource.get('ex.usp', {p: vo.pattern.name});
+                    throw spa.resource.get('ex.usp', { p: vo.pattern.name });
             }
         }
 
@@ -1776,7 +1776,7 @@ let spa = (function () {
                     if (config.debug
                         && (!config.validationPre
                             || !config.validationPre[pre[i]]))
-                        throw spa.resource.get('ex.pfnf', {p: pre[i]});
+                        throw spa.resource.get('ex.pfnf', { p: pre[i] });
 
                     v.input.valueToValidate = config.validationPre[pre[i]](v.input.valueToValidate);
                     if (v.confirmInput)
@@ -1795,13 +1795,13 @@ let spa = (function () {
                 && (!config.validationCustomRules
                     || !config.validationCustomRules[rule.name]
                     || !spa.validation.isFunction(config.validationCustomRules[rule.name].validate)))
-                throw spa.resource.get('ex.rnf', {p: v.pattern.name, r: rule.name});
+                throw spa.resource.get('ex.rnf', { p: v.pattern.name, r: rule.name });
             return config.validationCustomRules[rule.name].validate(v, index);
         }
 
         function validateParamsCount(count, v, rule) {
             if (rule.params.length < count)
-                throw spa.resource.get('ex.ipc', {p: v.pattern.name, r: rule.name});
+                throw spa.resource.get('ex.ipc', { p: v.pattern.name, r: rule.name });
         }
 
         function getParamValue(param, type, patternName, ruleName, format) {
@@ -1810,20 +1810,20 @@ let spa = (function () {
                 case 'i':
                     value = parseInt(param);
                     if (isNaN(value) && config.debug) {
-                        throw spa.resource.get('ex.ipt', {p: patternName, r: ruleName, a: param});
+                        throw spa.resource.get('ex.ipt', { p: patternName, r: ruleName, a: param });
                     }
                     return value;
                 case 'f':
                     value = parseFloat(param);
                     if (isNaN(value) && config.debug) {
-                        throw spa.resource.get('ex.ipt', {p: patternName, r: ruleName, a: param});
+                        throw spa.resource.get('ex.ipt', { p: patternName, r: ruleName, a: param });
                     }
                     return value;
                 case 't':
                     //only check if value is a valid timeline
                     value = spa.validation.isTimeline(param, format);
                     if (!value)
-                        throw spa.resource.get('ex.ipt', {p: patternName, r: ruleName, a: param});
+                        throw spa.resource.get('ex.ipt', { p: patternName, r: ruleName, a: param });
                     return value;
             }
         }
@@ -2281,7 +2281,7 @@ let spa = (function () {
                         i++;
                     }
                     if (!items)
-                        throw spa.resource.get('ex.pmr', {p: entry.pattern.name, r: 'items'});
+                        throw spa.resource.get('ex.pmr', { p: entry.pattern.name, r: 'items' });
 
                     return invalidRules.length === 0;
                 }
@@ -2560,7 +2560,7 @@ let spa = (function () {
                         i++;
                     }
                     if (!reg)
-                        throw spa.resource.get('ex.pmr', {p: entry.pattern.name, r: 'pattern'});
+                        throw spa.resource.get('ex.pmr', { p: entry.pattern.name, r: 'pattern' });
                     return invalidRules.length === 0;
                 }
             }
@@ -2986,7 +2986,7 @@ let spa = (function () {
                     reg = reg + ',';
                     break;
                 default:
-                    throw spa.resource.get('ex.usst', {p: patternsArray[i]});
+                    throw spa.resource.get('ex.usst', { p: patternsArray[i] });
             }
         }
         if (dash)
@@ -3421,6 +3421,14 @@ let spa = (function () {
                 }
                 return _new;
             },
+            map: function (array, fn) {
+                let _new = [];
+                if (fn) {
+                    for (let i = 0, l = array.length; i < l; i++)
+                        _new.push(fn(array[i], i));
+                }
+                return _new;
+            },
             wrap: function (array) {
                 if (!array)
                     return [];
@@ -3696,7 +3704,7 @@ let spa = (function () {
 
                 let temp;
                 if (resourcesBank[key])
-                //exist
+                    //exist
                     temp = resourcesBank[key];
                 else {
                     //new
@@ -3998,7 +4006,7 @@ let spa = (function () {
                 }
                 return duration;
             },
-            formatDate: function(date, format) {
+            formatDate: function (date, format) {
                 return moment(date).format(format || spa.getTimelineFormat());
             },
             token: {
@@ -4112,7 +4120,7 @@ let spa = (function () {
                 }
 
                 //query
-                return spa.web.updateQueryString({[config.localeQueryKey]: locale}, url);
+                return spa.web.updateQueryString({ [config.localeQueryKey]: locale }, url);
             },
 
             urlSegments(index, url) {
@@ -4154,7 +4162,7 @@ let spa = (function () {
             select2: function (input, options) {
                 input = sis(input);
                 if (input.length) {
-                    let def = {dir: (config.locale === 'ar' ? 'rtl' : 'ltr')};
+                    let def = { dir: (config.locale === 'ar' ? 'rtl' : 'ltr') };
                     if (options)
                         def = $.extend({}, def, options);
                     input.select2(def);

@@ -361,6 +361,7 @@ var spa = {
         toString(array)
         copy(array)
         filter(array, fn)
+        map(array, fn)
         wrap(array)
     },
 
