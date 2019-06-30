@@ -3422,10 +3422,14 @@ let spa = (function () {
                 return _new;
             },
             map: function (array, fn) {
-                let _new = [];
+                let _new = [],
+                    temp = undefined;
                 if (fn) {
-                    for (let i = 0, l = array.length; i < l; i++)
-                        _new.push(fn(array[i], i));
+                    for (let i = 0, l = array.length; i < l; i++) {
+                        temp = fn(array[i], i);
+                        if (temp)
+                            _new.push(temp);
+                    }
                 }
                 return _new;
             },

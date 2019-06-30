@@ -3173,10 +3173,12 @@ var spa = function () {
                 return _new;
             },
             map: function map(array, fn) {
-                var _new = [];
+                var _new = [],
+                    temp = undefined;
                 if (fn) {
                     for (var i = 0, l = array.length; i < l; i++) {
-                        _new.push(fn(array[i], i));
+                        temp = fn(array[i], i);
+                        if (temp) _new.push(temp);
                     }
                 }
                 return _new;
