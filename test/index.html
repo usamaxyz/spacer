@@ -56,18 +56,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
 
+<script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script src="vendors/moment-2.23.0.js"></script>
 <script src="../dist/js/spacer.js"></script>
 <script src="test.js"></script>
 <script>
 
     $(function() {
-        console.log( "ready!" );
-        var test = spa.form.getFormInputsAsObject('#test');
-var all = $('#test').serialize();
-var alllk = $('#test').serializeArray();
-var to = spa.web.getQueryStringAsObject('/?' + all);
-var ss = new FormData($('#test')[0]);
+        spa.setOptions({
+            dialogCurrentDriver: 'sweetAlert',
+        });
     });
 
 </script>

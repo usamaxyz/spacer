@@ -115,8 +115,8 @@ let spa = (function () {
                         fn1();
                     else if (fn2) fn2();
                 },
-                prompt: function (title, msg, status, icon, fn1, fn2) {
-                    let result = window.prompt(title + "\n" + msg);
+                prompt: function (title, msg, status, icon, fn1, fn2, defaultValue) {
+                    let result = window.prompt(title + "\n" + msg, defaultValue);
                     if (result === null) {
                         if (fn2) fn2();
                     }
@@ -155,12 +155,17 @@ let spa = (function () {
                                 fn2();
                         });
                     },
-                    prompt: function (title, msg, status, icon, fn1, fn2) {
+                    prompt: function (title, msg, status, icon, fn1, fn2, defaultValue) {
                         swal({
                             title: title,
                             text: msg,
                             icon: iconMapper(icon),
-                            content: "input",
+                            content: {
+                                element: 'input',
+                                attributes: {
+                                    defaultValue: defaultValue,
+                                }
+                            },
                             buttons: [spa.resource.get('btn.cancel'), spa.resource.get('btn.continue')]
                         }).then(function (value) {
                             if (value === null) {
@@ -3050,8 +3055,8 @@ let spa = (function () {
             confirm: function (title, msg, status, icon, fn1, fn2) {
                 driversUnit.dialog.confirm(title, msg, status, icon, fn1, fn2);
             },
-            prompt: function (title, msg, status, icon, fn1, fn2) {
-                driversUnit.dialog.prompt(title, msg, status, icon, fn1, fn2);
+            prompt: function (title, msg, status, icon, fn1, fn2, defaultValue) {
+                driversUnit.dialog.prompt(title, msg, status, icon, fn1, fn2, defaultValue);
             },
 
             messageSuccess: function (title, msg, fn) {

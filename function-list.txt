@@ -289,7 +289,7 @@ var spa = {
     dialog: {
         message(title, msg, status, icon, fn)
         confirm(title, msg, status, icon, fn1, fn2)
-        prompt(title, msg, status, icon, fn1, fn2)
+        prompt(title, msg, status, icon, fn1, fn2, defaultValue)
 
         messageSuccess(title, msg, fn)
         messageError(title, msg, fn)

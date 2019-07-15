@@ -1,3 +1,8 @@
+3.1.41: no break
+------
+- add default value for dialog.prompt
+
+
 3.1.40: no break
 ------
 - update version
