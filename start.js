@@ -20,7 +20,7 @@ vinus
     // .babel('src/js/services/bootstrap4-validation-driver.js', `dist/js/services/bootstrap4-validation-driver.js`)
     // .babel('src/js/services/storage.js', `dist/js/services/storage.js`)
     // .babel('src/js/services/uk-notify-remark.js', `dist/js/services/uk-notify-remark.js`)
-    // .babel('src/js/services/uk-notify-metronic.js', `dist/js/services/uk-notify-metronic.js`)
+    .babel('src/js/services/uk-notify-metronic.js', `dist/js/services/uk-notify-metronic.js`)
     // .babel('src/js/services/uk-notify-bootstrap3.js', `dist/js/services/uk-notify-bootstrap3.js`)
 
 
