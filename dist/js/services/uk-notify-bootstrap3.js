@@ -31,7 +31,7 @@ var ukNotifyBootstrap3 = function () {
             if (this.options.status) this.element.addClass('alert alert-' + this.options.status);
 
             messages[this.uuid] = this;
-            if (!containers[this.options.pos]) containers[this.options.pos] = $('<div class="uk-notify uk-notify-' + this.options.pos + '"></div>').appendTo('body').on("click", ".uk-notify-message", function () {
+            if (!containers[this.options.pos]) containers[this.options.pos] = $('<div class="uk-notify uk-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".uk-notify-message", function () {
                 $(this).data("notifyMessage").close();
             });
         };
@@ -45,7 +45,11 @@ var ukNotifyBootstrap3 = function () {
                     "opacity": 0,
                     "margin-top": -1 * this.element.outerHeight(),
                     "margin-bottom": 0
-                }).animate({ "opacity": 1, "margin-top": 0, "margin-bottom": marginbottom }, function () {
+                }).animate({
+                    "opacity": 1,
+                    "margin-top": 0,
+                    "margin-bottom": marginbottom
+                }, function () {
                     if ($this.options.timeout) {
                         var closefn = function closefn() {
                             $this.close();

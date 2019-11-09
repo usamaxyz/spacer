@@ -1,16 +1,16 @@
 let ukNotifyBootstrap3 = (function () {
     let ukNotifyService = (function () {
-        let containers = {},
+        var containers = {},
             messages = {},
             notify = function (options) {
                 //{title:title, message:message, status:status, icon:icon, pos:pos, timeout:timeout}
                 return (new Message(options)).show();
             },
             closeAll = function (instantly) {
-                for (let id in messages)
+                for (var id in messages)
                     messages[id].close(instantly);
             };
-        let Message = function (options) {
+        var Message = function (options) {
             this.options = {
                 title: options.title ? options.title : Message.defaults.title,
                 message: options.message ? options.message : Message.defaults.message,
@@ -36,23 +36,27 @@ let ukNotifyBootstrap3 = (function () {
 
             messages[this.uuid] = this;
             if (!containers[this.options.pos])
-                containers[this.options.pos] = $('<div class="uk-notify uk-notify-' + this.options.pos + '"></div>').appendTo('body').on("click", ".uk-notify-message", function () {
+                containers[this.options.pos] = $('<div class="uk-notify uk-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".uk-notify-message", function () {
                     $(this).data("notifyMessage").close();
                 });
         };
         $.extend(Message.prototype, {
             show: function () {
                 if (this.element.is(":visible")) return;
-                let $this = this;
+                var $this = this;
                 containers[this.options.pos].show().prepend(this.element);
-                let marginbottom = parseInt(this.element.css("margin-bottom"), 10);
+                var marginbottom = parseInt(this.element.css("margin-bottom"), 10);
                 this.element.css({
                     "opacity": 0,
                     "margin-top": -1 * this.element.outerHeight(),
                     "margin-bottom": 0
-                }).animate({ "opacity": 1, "margin-top": 0, "margin-bottom": marginbottom }, function () {
+                }).animate({
+                    "opacity": 1,
+                    "margin-top": 0,
+                    "margin-bottom": marginbottom
+                }, function () {
                     if ($this.options.timeout) {
-                        let closefn = function () {
+                        var closefn = function () {
                             $this.close();
                         };
                         $this.timeout = setTimeout(closefn, $this.options.timeout);
@@ -69,7 +73,7 @@ let ukNotifyBootstrap3 = (function () {
                 return this;
             },
             close: function (instantly) {
-                let $this = this,
+                var $this = this,
                     finalize = function () {
                         $this.element.remove();
                         if (!containers[$this.options.pos].children().length)
