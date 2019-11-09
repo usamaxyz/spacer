@@ -1,3 +1,7 @@
+3.1.42: no break
+------
+- add flash service for metronic theme
+
 3.1.41: no break
 ------
 - add default value for dialog.prompt
