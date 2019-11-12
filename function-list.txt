@@ -484,7 +484,7 @@ var spa = {
         select2(input, options)
         dataTable(table, options)
         createCounter(input, counter, max)
-        autoComplete(input, url, appendTo)
+        autoComplete(input, url, extraData)
         showMsg(selector, dataAttribute, context)
         deleteAndRedirect(btnSelector, deleteUrl, redirectUrl, title, msg)
         listDelete(btnSelector, idAttribute, url, tableSelector, title, msg)

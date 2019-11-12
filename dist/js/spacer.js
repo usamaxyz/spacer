@@ -474,6 +474,36 @@ var spa = function () {
                 }
             }
         },
+        select2Ar: {
+            errorLoading: function errorLoading() {
+                return 'لا يمكن تحميل النتائج';
+            },
+            inputTooLong: function inputTooLong(args) {
+                var overChars = args.input.length - args.maximum;
+
+                return 'الرجاء حذف ' + overChars + ' عناصر';
+            },
+            inputTooShort: function inputTooShort(args) {
+                var remainingChars = args.minimum - args.input.length;
+
+                return 'الرجاء إضافة ' + remainingChars + ' عناصر';
+            },
+            loadingMore: function loadingMore() {
+                return 'جاري تحميل نتائج إضافية...';
+            },
+            maximumSelected: function maximumSelected(args) {
+                return 'تستطيع إختيار ' + args.maximum + ' بنود فقط';
+            },
+            noResults: function noResults() {
+                return 'لم يتم العثور على أي نتائج';
+            },
+            searching: function searching() {
+                return 'جاري البحث…';
+            },
+            removeAllItems: function removeAllItems() {
+                return 'قم بإزالة كل العناصر';
+            }
+        },
         datepickerOptions: {
             ar: {
                 closeText: "إغلاق",
@@ -3833,7 +3863,9 @@ var spa = function () {
             select2: function select2(input, options) {
                 input = sis(input);
                 if (input.length) {
-                    var def = { dir: config.locale === 'ar' ? 'rtl' : 'ltr' };
+                    var def = void 0;
+                    if (config.locale === 'ar') def = { dir: 'rtl', language: config.select2Ar };else def = { dir: 'ltr' };
+
                     if (options) def = $.extend({}, def, options);
                     input.select2(def);
                 }
@@ -3859,28 +3891,32 @@ var spa = function () {
                     input.trigger('keyup');
                 }
             },
-            autoComplete: function autoComplete(input, url, appendTo) {
+            autoComplete: function autoComplete(input, url, extraData) {
                 input = sis(input);
                 if (input.length) {
-                    input.autocomplete({
-                        source: function source(request, response) {
-                            $.ajax({
-                                url: url,
-                                dataType: "json",
-                                data: {
-                                    term: request.term
-                                },
-                                success: function success(data) {
-                                    response(data);
-                                }
-                            });
+                    spa.init.select2(input, {
+                        ajax: {
+                            url: url,
+                            dataType: 'json',
+                            data: function data(params) {
+                                if (extraData) return $.extend({}, extraData, { search: params.term });else return { search: params.term };
+                            },
+                            processResults: function processResults(data) {
+                                var result = [];
+                                spa.array.foreach(data, function (item) {
+                                    result.push({
+                                        id: item.value,
+                                        text: item.text
+                                    });
+                                });
+                                return {
+                                    results: result
+                                };
+                            }
                         },
-                        minLength: 2
+                        minimumInputLength: 2,
+                        delay: 250
                     });
-                    if (appendTo) {
-                        //set appendTo option to appendTo variable
-                        input.autocomplete("option", "appendTo", appendTo);
-                    }
                 }
             },
             showMsg: function showMsg(selector, dataAttribute, context) {
