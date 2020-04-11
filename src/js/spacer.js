@@ -183,7 +183,6 @@ let spa = (function () {
 
         /*
             'silent'
-            'listOfErrors'
             'dialog'
             'dialog.alert'
             'dialog.sweetAlert'
@@ -197,66 +196,8 @@ let spa = (function () {
                 clearError: function () {
                 }
             },
-            listOfErrors: (function () {
-                let validationErrors = [];
-
-                return {
-                    onError: function (vo) {
-                        //add new errors
-                        for (let i = 0, l = vo.pattern.invalidRules.length; i < l; i++)
-                            validationErrors.push({
-                                msg: vo.pattern.invalidRules[i].message,
-                                input: vo.input
-                            });
-                        let ul = $(config.listOfErrorsSelector);
-                        if (ul.length) {
-                            let str = '';
-                            for (let i = 0, l = validationErrors.length; i < l; i++)
-                                str += '<li>' + validationErrors[i].msg + '</li>';
-                            ul.html(str);
-                        }
-                    },
-                    clearError: function (inputJq) {
-                        for (let i = validationErrors.length - 1; i >= 0; i--)
-                            if (validationErrors[i].input.jquery[0] === inputJq[0])
-                                validationErrors.splice(i, 1);
-                        let ul = $(config.listOfErrorsSelector);
-                        if (ul.length) {
-                            let str = '',
-                                l = validationErrors.length;
-                            for (let i = 0; i < l; i++)
-                                str += '<li>' + validationErrors[i].msg + '</li>';
-                            ul.html(str);
-                        }
-                    },
-                    getErrorList: function () {
-                        let result = [];
-                        for (let i = 0, l = validationErrors.length; i < l; i++) {
-                            let newItem = validationErrors[i];
-
-                            let index = -1;
-                            for (let _j = 0, _m = result.length; _j < _m; _j++)
-                                if (result[_j].input.jquery[0] === newItem.input.jquery[0]) {
-                                    index = _j;
-                                    break;
-                                }
-                            if (index === -1)
-                                //not exist
-                                result.push({
-                                    input: newItem.input,
-                                    errors: [newItem.msg]
-                                });
-                            else
-                                //exist => add message to error list
-                                result[index].errors.push(newItem.msg);
-                        }
-                        return result;
-                    }
-                };
-            })(),
         },
         reValidationDelay: 500,
-        listOfErrorsSelector: '#spacer-listOfErrors',
 
         validationCustomRules: {
             'min_input': {
@@ -273,46 +214,41 @@ let spa = (function () {
 
                         format = vo.pattern.timelineFormat.params[0];
 
-                    if (minInput.length) {
+                    let minInputValue = minInput.val();
 
-                        let minInputValue = minInput.val();
+                    if (minInputValue) {
+                        let isOut = rule.params[1] === 'o';
+                        switch (vo.pattern.type) {
+                            case PatternTypes.integer:
+                            case PatternTypes.float: {
+                                let parsedValue = parseFloat(valueToValidate);
+                                minInputValue = parseFloat(minInputValue);
 
-                        if (minInputValue) {
-                            let isOut = rule.params[1] === 'o';
-                            switch (vo.pattern.type) {
-                                case PatternTypes.integer:
-                                case PatternTypes.float: {
-                                    let parsedValue = parseFloat(valueToValidate);
-                                    minInputValue = parseFloat(minInputValue);
-
-                                    if (isNaN(minInputValue)) {
-                                        return false;
-                                    }
-                                    if (isOut) {
-                                        //isOut
-                                        if (parsedValue <= minInputValue)
-                                            return false;
-                                    }
-                                    else {
-                                        //in
-                                        if (parsedValue < minInputValue)
-                                            return false
-                                    }
-                                    break;
+                                if (isNaN(minInputValue)) {
+                                    return false;
                                 }
-                                case PatternTypes.timeline:
-                                    if (isOut) {
-                                        //isOut
-                                        if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format))
-                                            return false;
-                                    }
-                                    else {
-                                        //in
-                                        if (!spa.validation.isTimelineAfterOrEqual(valueToValidate, minInputValue, format))
-                                            return false;
-                                    }
-                                    break;
+                                if (isOut) {
+                                    //isOut
+                                    if (parsedValue <= minInputValue)
+                                        return false;
+                                } else {
+                                    //in
+                                    if (parsedValue < minInputValue)
+                                        return false
+                                }
+                                break;
                             }
+                            case PatternTypes.timeline:
+                                if (isOut) {
+                                    //isOut
+                                    if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format))
+                                        return false;
+                                } else {
+                                    //in
+                                    if (!spa.validation.isTimelineAfterOrEqual(valueToValidate, minInputValue, format))
+                                        return false;
+                                }
+                                break;
                         }
                     }
                     return true;
@@ -367,46 +303,41 @@ let spa = (function () {
 
                         format = vo.pattern.timelineFormat.params[0];
 
-                    if (maxInput.length) {
+                    let maxInputValue = maxInput.val();
 
-                        let maxInputValue = maxInput.val();
+                    if (maxInputValue) {
+                        let isOut = rule.params[1] === 'o';
+                        switch (vo.pattern.type) {
+                            case PatternTypes.integer:
+                            case PatternTypes.float: {
+                                let parsedValue = parseFloat(valueToValidate);
+                                maxInputValue = parseFloat(maxInputValue);
 
-                        if (maxInputValue) {
-                            let isOut = rule.params[1] === 'o';
-                            switch (vo.pattern.type) {
-                                case PatternTypes.integer:
-                                case PatternTypes.float: {
-                                    let parsedValue = parseFloat(valueToValidate);
-                                    maxInputValue = parseFloat(maxInputValue);
-
-                                    if (isNaN(maxInputValue)) {
-                                        return false;
-                                    }
-                                    if (isOut) {
-                                        //isOut
-                                        if (parsedValue >= maxInputValue)
-                                            return false;
-                                    }
-                                    else {
-                                        //in
-                                        if (parsedValue > maxInputValue)
-                                            return false
-                                    }
-                                    break;
+                                if (isNaN(maxInputValue)) {
+                                    return false;
                                 }
-                                case PatternTypes.timeline:
-                                    if (isOut) {
-                                        //isOut
-                                        if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format))
-                                            return false;
-                                    }
-                                    else {
-                                        //in
-                                        if (!spa.validation.isTimelineBeforeOrEqual(valueToValidate, maxInputValue, format))
-                                            return false;
-                                    }
-                                    break;
+                                if (isOut) {
+                                    //isOut
+                                    if (parsedValue >= maxInputValue)
+                                        return false;
+                                } else {
+                                    //in
+                                    if (parsedValue > maxInputValue)
+                                        return false
+                                }
+                                break;
                             }
+                            case PatternTypes.timeline:
+                                if (isOut) {
+                                    //isOut
+                                    if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format))
+                                        return false;
+                                } else {
+                                    //in
+                                    if (!spa.validation.isTimelineBeforeOrEqual(valueToValidate, maxInputValue, format))
+                                        return false;
+                                }
+                                break;
                         }
                     }
                     return true;
@@ -610,25 +541,19 @@ let spa = (function () {
         btnLoadingDrivers: {
             spin: (function () {
                 function set(btn) {
-                    btn = sis(btn);
-                    if (btn.length) {
                         btn.data(Tags.loadingHtml, btn.html());
                         //fix the width
                         btn.css('min-width', btn.css('width'));
                         btn.html(spa.resource.get('icon.loading'));
                         spa.dom.setDisable(btn, true);
                         return btn;
-                    }
                 }
 
                 function unset(btn, html) {
-                    btn = sis(btn);
-                    if (btn.length) {
                         btn.html(html ? html : btn.data(Tags.loadingHtml));
                         spa.dom.setDisable(btn, false);
                         btn.css('min-width', 'auto');
                         return btn;
-                    }
                 }
 
                 return {
@@ -1108,9 +1033,6 @@ let spa = (function () {
             'ex.bldnf': {
                 def: 'Spacer Error: Button loading driver :p or one of its functions not found'
             },
-            'ex.fnf': {
-                def: 'Spacer Error: Form not found'
-            },
             //timeline
             'year': {
                 en: 'year',
@@ -1142,10 +1064,6 @@ let spa = (function () {
 
 
     //basic functions
-    function sis(s) {
-        return (s instanceof $) ? s : $(s);
-    }
-
     function trim(v, force) {
         if (config.trimValues || force)
             return v ? v.trim() : '';
@@ -1161,12 +1079,10 @@ let spa = (function () {
     //shared
     function addLaravelToken() {
         let token = $('meta[name="csrf-token"]');
-        if (token.length) {
             if (config.ajaxHeader)
                 config.ajaxHeader['X-CSRF-TOKEN'] = token.attr('content');
             else
                 config.ajaxHeader = { 'X-CSRF-TOKEN': token.attr('content') };
-        }
     }
 
     let driversUnit = (function () {
@@ -1577,12 +1493,10 @@ let spa = (function () {
 
             let confirmInput = vo.input.jquery.closest('form').find('input[name="' + confirmInputName + '"]');
 
-            if (confirmInput.length) {
-                vo.confirmInput = newInput(confirmInput);
+            vo.confirmInput = newInput(confirmInput);
 
-                //add reference to confirm input to input: used in onError to remove error
-                vo.input.jquery.data(Tags.confirmInput, confirmInput);
-            }
+            //add reference to confirm input to input: used in onError to remove error
+            vo.input.jquery.data(Tags.confirmInput, confirmInput);
         }
 
         function cacheValidationObject(v) {
@@ -1761,9 +1675,6 @@ let spa = (function () {
         }
 
         function validate(form, isSilent, exclude) {
-            form = sis(form);
-            if (!form.length)
-                throw spa.resource.get('ex.fnf');
             let inputs = getFormInputs(form),
                 isValid = true,
                 isDialogDriver = driversUnit.validationIsDialogOrFlashDriver,
@@ -1781,13 +1692,10 @@ let spa = (function () {
         }
 
         function isValidInput(input, isSilent) {
-            return validateInput(sis(input), isSilent);
+            return validateInput(input, isSilent);
         }
 
         function resetValidation(form) {
-            form = sis(form);
-            if (!form.length)
-                throw spa.resource.get('ex.fnf');
             let inputs = getFormInputs(form).off('.spa').removeData(cachingTags);
             for (let i = 0, l = inputs.length; i < l; i++)
                 errorUnit.clearErrorProxy($(inputs[i]));
@@ -3120,7 +3028,6 @@ let spa = (function () {
         },
 
         validation: {
-            getErrorList: config.validationDrivers.listOfErrors.getErrorList,
             validate: validationUnit.validate,
             resetValidation: validationUnit.resetValidation,
             isValidInput: validationUnit.isValidInput,
@@ -3347,25 +3254,25 @@ let spa = (function () {
                 return ajax.done(fn);
             },
             postBtn: function postBtn(button, url, data, fn) {
-                return sis(button).on('click', function (e) {
+                return button.on('click', function (e) {
                     e.preventDefault();
                     spa.ajax.post(url, data, fn, $(this));
                 });
             },
             getBtn: function getBtn(button, url, data, fn) {
-                return sis(button).on('click', function (e) {
+                return button.on('click', function (e) {
                     e.preventDefault();
                     spa.ajax.get(url, data, fn, $(this));
                 });
             },
             deleteBtn: function (button, url, data, fn) {
-                return sis(button).on('click', function (e) {
+                return button.on('click', function (e) {
                     e.preventDefault();
                     spa.ajax.delete(url, data, fn, $(this));
                 });
             },
             putBtn: function (button, url, data, fn) {
-                return sis(button).on('click', function (e) {
+                return button.on('click', function (e) {
                     e.preventDefault();
                     spa.ajax.put(url, data, fn, $(this));
                 });
@@ -3476,23 +3383,17 @@ let spa = (function () {
         },
 
         dom: {
-            click: function (btn, fn) {
-                return sis(btn).on('click', fn);
-            },
             getFriendlyName: function (input) {
                 //get friendly name
                 let name = input.attr(Tags.friendlyName);
                 return (name === undefined) ? spa.resource.get('validation.defaultFriendlyName') : name;
             },
             setDisable: function (item, status) {
-                item = sis(item);
-                if (item.length) {
                     if (item.is(':input'))
                         item.prop('disabled', status);
                     else
                         status ? item.addClass('disabled') : item.removeClass('disabled');
                     return item;
-                }
             },
             setLoadingButton: function (btn) {
                 driversUnit.btnLoading.set(btn);
@@ -3515,10 +3416,6 @@ let spa = (function () {
 
         form: {
             submitAjax: function (form, submitter, validate, fn) {
-                form = sis(form);
-                if (!form.length)
-                    throw spa.resource.get('ex.fnf');
-
                 if (validate && !validationUnit.validate(form))
                     return false;
 
@@ -3539,10 +3436,6 @@ let spa = (function () {
                     return spa.ajax.get(url, form.serialize(), fn, submitter);
             },
             submit: function (form, submitter, validate) {
-                form = sis(form);
-                if (!form.length)
-                    throw spa.resource.get('ex.fnf');
-
                 if (validate && !validationUnit.validate(form))
                     return false;
 
@@ -3550,30 +3443,18 @@ let spa = (function () {
                 form.submit();
             },
             registerNormalSubmitter: function (form, submitter, validate) {
-                form = sis(form);
-                submitter = sis(submitter);
-                if (!form.length || !submitter.length)
-                    return;
                 submitter.on('click', function (e) {
                     e.preventDefault();
                     spa.form.submit(form, submitter, validate);
                 });
             },
             registerAjaxSubmitter: function (form, submitter, validate, fn) {
-                form = sis(form);
-                submitter = sis(submitter);
-                if (!form.length || !submitter.length)
-                    return;
                 submitter.on('click', function (e) {
                     e.preventDefault();
                     spa.form.submitAjax(form, submitter, validate, fn);
                 });
             },
             getFormInputsAsObject: function (form) {
-                form = sis(form);
-                if (!form.length)
-                    throw spa.resource.get('ex.fnf');
-
                 let values = form.serializeArray(),
                     result = {};
 
@@ -3594,33 +3475,14 @@ let spa = (function () {
         },
 
         input: {
-            getValue: function (input) {
-                input = sis(input);
-                if (input.length)
-                    return trim(input.val());
-            },
             getFiles: function (input) {
-                input = sis(input);
-                if (input.length)
                     return input[0].files;
-            },
-            setValue: function (input, value) {
-                input = sis(input);
-                if (input.length)
-                    return input.val(value).trigger('change');
-                return input;
             },
             select: {
                 getSelectedOption: function (select) {
-                    select = sis(select);
-                    if (select.length) {
                         let o = select.find(':selected');
                         if (o.length)
                             return o;
-                    }
-                },
-                getSelectedValue: function (select) {
-                    return spa.input.getValue(select);
                 },
                 getSelectedText: function (select) {
                     let o = spa.input.select.getSelectedOption(select);
@@ -3628,46 +3490,26 @@ let spa = (function () {
                         return trim(o.text());
                 },
                 getSelectedIndex: function (select) {
-                    select = sis(select);
-                    if (select.length)
                         return select.prop('selectedIndex');
-                    return -1;
                 },
                 setSelectedIndex: function (select, index) {
-                    if (index >= 0) {
-                        select = sis(select);
-                        if (select.length) {
                             let o = select.find('option:nth-child(' + (index + 1) + ')');
                             if (o.length) {
                                 o.prop('selected', true);
                                 select.trigger('change');
                                 return select;
                             }
-                        }
-                    }
-                },
-                setSelectedValue: function (select, value) {
-                    return spa.input.setValue(select, value);
                 },
                 setFirstOptionSelected: function (select) {
-                    select = sis(select);
-                    if (select.length) {
                         let ops = select.find('option:first-child');
-                        if (ops.length) {
                             ops.prop('selected', true);
                             select.trigger('change');
                             return select;
-                        }
-                    }
                 },
                 clearOptions: function (select) {
-                    select = sis(select);
-                    if (select.length)
                         return select.empty().trigger('change');
                 },
                 addOptions: function (select, options, removeCurrent, firstOptionLabel) {
-                    select = sis(select);
-                    if (select.length) {
                         let ops = [];
                         if (firstOptionLabel)
                             ops.push($('<option selected disabled value>' + firstOptionLabel + '</option>'));
@@ -3680,11 +3522,8 @@ let spa = (function () {
                         else
                             select.append(ops);
                         return select.trigger('change');
-                    }
                 },
                 addOption: function (select, option, isSelected) {
-                    select = sis(select);
-                    if (select.length) {
                         let o = spa.dom.addHtmlAttr($('<option value="' + option.value + '">' + option.text + '</option>'), option);
 
                         select.append(o);
@@ -3692,29 +3531,23 @@ let spa = (function () {
                         if (isSelected)
                             o.prop('selected', true);
                         return select.trigger('change');
-                    }
                 }
             },
             checkable: {
                 // used in web production
                 isChecked: function (input) {
-                    input = sis(input);
-                    if (input.length)
                         return input.is(':checked');
                 },
                 set: function (input, status) {
-                    input = sis(input);
-                    if (input.length)
                         return input.prop("checked", status).trigger('change');
                 },
                 getRadioGroupValue: function (name) {
-                    return spa.input.getValue('input[name="' + name + '"]:checked');
+                    return $('input[name="' + name + '"]:checked').val();
                 },
                 getCheckboxGroupArray: function (name) {
                     let value = [],
                         g = $('input[name="' + name + '"]:checked');
                     let l = g.length;
-                    if (l)
                         for (let i = 0; i < l; i++)
                             value.push(trim($(g[i]).val()));
                     return value;
@@ -3769,10 +3602,6 @@ let spa = (function () {
 
         table: {
             addRows: function (table, rows) {
-                table = sis(table);
-                if (!table.length)
-                    return;
-
                 let rowList = [], singleRow;
                 if (spa.validation.isArray(rows)) {
                     let i = 0, l = rows.length, _row,
@@ -3817,11 +3646,6 @@ let spa = (function () {
                 return rowList.length === 1 ? rowList[0] : rowList;
             },
             removeRows: function (table, rows) {
-                table = sis(table);
-
-                if (!table.length)
-                    return;
-
                 rows = table.find('tbody').find(rows);
 
                 if (!rows.length)
@@ -3840,20 +3664,12 @@ let spa = (function () {
                 return rows;
             },
             removeChecked: function (table, inputName) {
-                table = sis(table);
-
-                if (!table.length)
-                    return;
-
                 let r = table.find('input[name="' + inputName + '"]:checked').closest('tr');
                 if (!r.length)
                     return;
                 return spa.table.removeRows(table, r);
             },
             removeAll: function (table) {
-                table = sis(table);
-                if (!table.length)
-                    return;
                 let result = table.find('tbody').find('tr');
                 if ($.fn.DataTable && $.fn.DataTable.isDataTable(table))
                     table.DataTable().rows(result).remove().draw();
@@ -3866,9 +3682,6 @@ let spa = (function () {
             moveRows: function (from, to, rows) {
                 let r = spa.table.removeRows(from, rows);
                 if (!r.length)
-                    return;
-                to = sis(to);
-                if (!to.length)
                     return;
                 if ($.fn.DataTable && $.fn.DataTable.isDataTable(to)) {
                     if (r.length > 1)
@@ -3884,9 +3697,6 @@ let spa = (function () {
                 let r = spa.table.removeChecked(from, inputName);
                 if (!r.length)
                     return;
-                to = sis(to);
-                if (!to.length)
-                    return;
                 if ($.fn.DataTable && $.fn.DataTable.isDataTable(to)) {
                     if (r.length > 1)
                         to.DataTable().rows.add(r).draw();
@@ -3899,9 +3709,6 @@ let spa = (function () {
                 return r;
             },
             count: function (table, rows) {
-                table = sis(table);
-                if (!table.length)
-                    return;
                 if ($.fn.DataTable && $.fn.DataTable.isDataTable(table))
                     return rows
                         ? table.DataTable().rows(rows).count()
@@ -3913,8 +3720,7 @@ let spa = (function () {
             },
 
             updatePaginationTotal: function (value, rowCountElement) {
-                rowCountElement = rowCountElement ? sis(rowCountElement) : $('#pagination').find('.total');
-                if (rowCountElement.length) {
+                rowCountElement = rowCountElement ? rowCountElement : $('#pagination').find('.total');
                     let oldCount = 0;
                     try {
                         oldCount = parseInt(rowCountElement.text());
@@ -3924,8 +3730,6 @@ let spa = (function () {
                     let newCount = oldCount + value;
                     rowCountElement.text(newCount);
                     return newCount;
-                }
-                return -1;
             }
         },
 
@@ -4176,16 +3980,13 @@ let spa = (function () {
 
         init: {
             datepicker: function (input, options) {
-                input = sis(input);
-                if (input.length) {
                     let def = config.datepickerOptions[config.locale];
                     if (options)
                         def = $.extend({}, def, options);
                     input.datepicker(def);
-                }
             },
             datepickerOnChange: function (s, fn) {
-                return sis(s).each(function (index, item) {
+                return s.each(function (index, item) {
                     item = $(item);
                     let oldVal = item.val();
                     item.on('change', function () {
@@ -4199,8 +4000,6 @@ let spa = (function () {
 
             },
             select2: function (input, options) {
-                input = sis(input);
-                if (input.length) {
                     let def;
                     if (config.locale === 'ar')
                         def = { dir: 'rtl', language: config.select2Ar };
@@ -4210,21 +4009,14 @@ let spa = (function () {
                     if (options)
                         def = $.extend({}, def, options);
                     input.select2(def);
-                }
             },
             dataTable: function (table, options) {
-                table = sis(table);
-                if (table.length) {
                     let def = config.datatableOptions[config.locale];
                     if (options)
                         def = $.extend({}, def, options);
                     table.DataTable(def);
-                }
             },
             createCounter: function (input, counter, max) {
-                input = sis(input);
-                counter = sis(counter);
-                if (input.length && counter.length) {
                     input.on('keyup', function () {
                         let targetObjLength = input.val().length;
                         let delta = max - targetObjLength;
@@ -4233,11 +4025,8 @@ let spa = (function () {
                         counter.html(delta < 0 ? 0 : delta);
                     });
                     input.trigger('keyup');
-                }
             },
             autoComplete: function (input, url, extraData) {
-                input = sis(input);
-                if (input.length) {
                     spa.init.select2(input, {
                         ajax: {
                             url: url,
@@ -4264,31 +4053,22 @@ let spa = (function () {
                         minimumInputLength: 2,
                         delay: 250,
                     });
-                }
             },
             showMsg: function (selector, dataAttribute, context) {
                 if (context) {
-                    context = sis(context);
-                    if (context.length) {
                         context.on('click', selector, function (e) {
                             e.preventDefault();
                             spa.dialog.message('', $(this).attr(dataAttribute));
                         });
-                    }
                 }
                 else {
-                    selector = sis(selector);
-                    if (selector.length) {
                         selector.on('click', function (e) {
                             e.preventDefault();
                             spa.dialog.message('', $(this).attr(dataAttribute));
                         });
-                    }
                 }
             },
             deleteAndRedirect: function (btnSelector, deleteUrl, redirectUrl, title, msg) {
-                btnSelector = sis(btnSelector);
-                if (btnSelector.length) {
                     btnSelector.on('click', function (e) {
                         e.preventDefault();
                         spa.dialog.confirm(
@@ -4302,10 +4082,9 @@ let spa = (function () {
                                 }, btnSelector);
                             });
                     });
-                }
             },
             listDelete: function (btnSelector, idAttribute, url, tableSelector, title, msg) {
-                sis(tableSelector).on('click', btnSelector, function (e) {
+                tableSelector.on('click', btnSelector, function (e) {
                     e.preventDefault();
                     let self = $(this);
                     let delUrl = url.replace(':id', self.attr(idAttribute));
