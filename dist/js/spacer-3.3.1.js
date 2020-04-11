@@ -175,7 +175,6 @@ var spa = function () {
 
         /*
             'silent'
-            'listOfErrors'
             'dialog'
             'dialog.alert'
             'dialog.sweetAlert'
@@ -186,65 +185,9 @@ var spa = function () {
             silent: {
                 onError: function onError() {},
                 clearError: function clearError() {}
-            },
-            listOfErrors: function () {
-                var validationErrors = [];
-
-                return {
-                    onError: function onError(vo) {
-                        //add new errors
-                        for (var i = 0, l = vo.pattern.invalidRules.length; i < l; i++) {
-                            validationErrors.push({
-                                msg: vo.pattern.invalidRules[i].message,
-                                input: vo.input
-                            });
-                        }var ul = $(config.listOfErrorsSelector);
-                        if (ul.length) {
-                            var str = '';
-                            for (var _i = 0, _l = validationErrors.length; _i < _l; _i++) {
-                                str += '<li>' + validationErrors[_i].msg + '</li>';
-                            }ul.html(str);
-                        }
-                    },
-                    clearError: function clearError(inputJq) {
-                        for (var i = validationErrors.length - 1; i >= 0; i--) {
-                            if (validationErrors[i].input.jquery[0] === inputJq[0]) validationErrors.splice(i, 1);
-                        }var ul = $(config.listOfErrorsSelector);
-                        if (ul.length) {
-                            var str = '',
-                                l = validationErrors.length;
-                            for (var _i2 = 0; _i2 < l; _i2++) {
-                                str += '<li>' + validationErrors[_i2].msg + '</li>';
-                            }ul.html(str);
-                        }
-                    },
-                    getErrorList: function getErrorList() {
-                        var result = [];
-                        for (var i = 0, l = validationErrors.length; i < l; i++) {
-                            var newItem = validationErrors[i];
-
-                            var index = -1;
-                            for (var _j = 0, _m = result.length; _j < _m; _j++) {
-                                if (result[_j].input.jquery[0] === newItem.input.jquery[0]) {
-                                    index = _j;
-                                    break;
-                                }
-                            }if (index === -1)
-                                //not exist
-                                result.push({
-                                    input: newItem.input,
-                                    errors: [newItem.msg]
-                                });else
-                                //exist => add message to error list
-                                result[index].errors.push(newItem.msg);
-                        }
-                        return result;
-                    }
-                };
-            }()
+            }
         },
         reValidationDelay: 500,
-        listOfErrorsSelector: '#spacer-listOfErrors',
 
         validationCustomRules: {
             'min_input': {
@@ -259,41 +202,38 @@ var spa = function () {
                         minInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
                         format = vo.pattern.timelineFormat.params[0];
 
-                    if (minInput.length) {
+                    var minInputValue = minInput.val();
 
-                        var minInputValue = minInput.val();
+                    if (minInputValue) {
+                        var isOut = rule.params[1] === 'o';
+                        switch (vo.pattern.type) {
+                            case PatternTypes.integer:
+                            case PatternTypes.float:
+                                {
+                                    var parsedValue = parseFloat(valueToValidate);
+                                    minInputValue = parseFloat(minInputValue);
 
-                        if (minInputValue) {
-                            var isOut = rule.params[1] === 'o';
-                            switch (vo.pattern.type) {
-                                case PatternTypes.integer:
-                                case PatternTypes.float:
-                                    {
-                                        var parsedValue = parseFloat(valueToValidate);
-                                        minInputValue = parseFloat(minInputValue);
-
-                                        if (isNaN(minInputValue)) {
-                                            return false;
-                                        }
-                                        if (isOut) {
-                                            //isOut
-                                            if (parsedValue <= minInputValue) return false;
-                                        } else {
-                                            //in
-                                            if (parsedValue < minInputValue) return false;
-                                        }
-                                        break;
+                                    if (isNaN(minInputValue)) {
+                                        return false;
                                     }
-                                case PatternTypes.timeline:
                                     if (isOut) {
                                         //isOut
-                                        if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format)) return false;
+                                        if (parsedValue <= minInputValue) return false;
                                     } else {
                                         //in
-                                        if (!spa.validation.isTimelineAfterOrEqual(valueToValidate, minInputValue, format)) return false;
+                                        if (parsedValue < minInputValue) return false;
                                     }
                                     break;
-                            }
+                                }
+                            case PatternTypes.timeline:
+                                if (isOut) {
+                                    //isOut
+                                    if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format)) return false;
+                                } else {
+                                    //in
+                                    if (!spa.validation.isTimelineAfterOrEqual(valueToValidate, minInputValue, format)) return false;
+                                }
+                                break;
                         }
                     }
                     return true;
@@ -347,41 +287,38 @@ var spa = function () {
                         maxInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
                         format = vo.pattern.timelineFormat.params[0];
 
-                    if (maxInput.length) {
+                    var maxInputValue = maxInput.val();
 
-                        var maxInputValue = maxInput.val();
+                    if (maxInputValue) {
+                        var isOut = rule.params[1] === 'o';
+                        switch (vo.pattern.type) {
+                            case PatternTypes.integer:
+                            case PatternTypes.float:
+                                {
+                                    var parsedValue = parseFloat(valueToValidate);
+                                    maxInputValue = parseFloat(maxInputValue);
 
-                        if (maxInputValue) {
-                            var isOut = rule.params[1] === 'o';
-                            switch (vo.pattern.type) {
-                                case PatternTypes.integer:
-                                case PatternTypes.float:
-                                    {
-                                        var parsedValue = parseFloat(valueToValidate);
-                                        maxInputValue = parseFloat(maxInputValue);
-
-                                        if (isNaN(maxInputValue)) {
-                                            return false;
-                                        }
-                                        if (isOut) {
-                                            //isOut
-                                            if (parsedValue >= maxInputValue) return false;
-                                        } else {
-                                            //in
-                                            if (parsedValue > maxInputValue) return false;
-                                        }
-                                        break;
+                                    if (isNaN(maxInputValue)) {
+                                        return false;
                                     }
-                                case PatternTypes.timeline:
                                     if (isOut) {
                                         //isOut
-                                        if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format)) return false;
+                                        if (parsedValue >= maxInputValue) return false;
                                     } else {
                                         //in
-                                        if (!spa.validation.isTimelineBeforeOrEqual(valueToValidate, maxInputValue, format)) return false;
+                                        if (parsedValue > maxInputValue) return false;
                                     }
                                     break;
-                            }
+                                }
+                            case PatternTypes.timeline:
+                                if (isOut) {
+                                    //isOut
+                                    if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format)) return false;
+                                } else {
+                                    //in
+                                    if (!spa.validation.isTimelineBeforeOrEqual(valueToValidate, maxInputValue, format)) return false;
+                                }
+                                break;
                         }
                     }
                     return true;
@@ -585,25 +522,19 @@ var spa = function () {
         btnLoadingDrivers: {
             spin: function () {
                 function set(btn) {
-                    btn = sis(btn);
-                    if (btn.length) {
-                        btn.data(Tags.loadingHtml, btn.html());
-                        //fix the width
-                        btn.css('min-width', btn.css('width'));
-                        btn.html(spa.resource.get('icon.loading'));
-                        spa.dom.setDisable(btn, true);
-                        return btn;
-                    }
+                    btn.data(Tags.loadingHtml, btn.html());
+                    //fix the width
+                    btn.css('min-width', btn.css('width'));
+                    btn.html(spa.resource.get('icon.loading'));
+                    spa.dom.setDisable(btn, true);
+                    return btn;
                 }
 
                 function unset(btn, html) {
-                    btn = sis(btn);
-                    if (btn.length) {
-                        btn.html(html ? html : btn.data(Tags.loadingHtml));
-                        spa.dom.setDisable(btn, false);
-                        btn.css('min-width', 'auto');
-                        return btn;
-                    }
+                    btn.html(html ? html : btn.data(Tags.loadingHtml));
+                    spa.dom.setDisable(btn, false);
+                    btn.css('min-width', 'auto');
+                    return btn;
                 }
 
                 return {
@@ -1081,9 +1012,6 @@ var spa = function () {
         'ex.bldnf': {
             def: 'Spacer Error: Button loading driver :p or one of its functions not found'
         },
-        'ex.fnf': {
-            def: 'Spacer Error: Form not found'
-        },
         //timeline
         'year': {
             en: 'year',
@@ -1114,10 +1042,6 @@ var spa = function () {
     };
 
     //basic functions
-    function sis(s) {
-        return s instanceof $ ? s : $(s);
-    }
-
     function trim(v, force) {
         if (config.trimValues || force) return v ? v.trim() : '';
 
@@ -1131,9 +1055,7 @@ var spa = function () {
     //shared
     function addLaravelToken() {
         var token = $('meta[name="csrf-token"]');
-        if (token.length) {
-            if (config.ajaxHeader) config.ajaxHeader['X-CSRF-TOKEN'] = token.attr('content');else config.ajaxHeader = { 'X-CSRF-TOKEN': token.attr('content') };
-        }
+        if (config.ajaxHeader) config.ajaxHeader['X-CSRF-TOKEN'] = token.attr('content');else config.ajaxHeader = { 'X-CSRF-TOKEN': token.attr('content') };
     }
 
     var driversUnit = function () {
@@ -1436,13 +1358,13 @@ var spa = function () {
                 rulesStr = rulesStr.replace(tildeExpressions[i], 'r');
             }var allRules = rulesStr.split('|');
 
-            for (var _i3 = 0, _l2 = allRules.length; _i3 < _l2; _i3++) {
+            for (var _i = 0, _l = allRules.length; _i < _l; _i++) {
 
                 //divide rule into: name and params
-                var rule = allRules[_i3].match(/^\s*([a-zA-Z_]+)\s*(?::\s*(.+))?$/);
+                var rule = allRules[_i].match(/^\s*([a-zA-Z_]+)\s*(?::\s*(.+))?$/);
                 if (!rule) throw spa.resource.get('ex.rnf', {
                     p: entry.pattern.name,
-                    r: allRules[_i3]
+                    r: allRules[_i]
                 });
                 var ruleName = rule[1],
                     ruleParamStr = void 0;
@@ -1505,12 +1427,10 @@ var spa = function () {
 
             var confirmInput = vo.input.jquery.closest('form').find('input[name="' + confirmInputName + '"]');
 
-            if (confirmInput.length) {
-                vo.confirmInput = newInput(confirmInput);
+            vo.confirmInput = newInput(confirmInput);
 
-                //add reference to confirm input to input: used in onError to remove error
-                vo.input.jquery.data(Tags.confirmInput, confirmInput);
-            }
+            //add reference to confirm input to input: used in onError to remove error
+            vo.input.jquery.data(Tags.confirmInput, confirmInput);
         }
 
         function cacheValidationObject(v) {
@@ -1671,8 +1591,6 @@ var spa = function () {
         }
 
         function validate(form, isSilent, exclude) {
-            form = sis(form);
-            if (!form.length) throw spa.resource.get('ex.fnf');
             var inputs = getFormInputs(form),
                 isValid = true,
                 isDialogDriver = driversUnit.validationIsDialogOrFlashDriver,
@@ -1688,12 +1606,10 @@ var spa = function () {
         }
 
         function isValidInput(input, isSilent) {
-            return validateInput(sis(input), isSilent);
+            return validateInput(input, isSilent);
         }
 
         function resetValidation(form) {
-            form = sis(form);
-            if (!form.length) throw spa.resource.get('ex.fnf');
             var inputs = getFormInputs(form).off('.spa').removeData(cachingTags);
             for (var i = 0, l = inputs.length; i < l; i++) {
                 errorUnit.clearErrorProxy($(inputs[i]));
@@ -2884,7 +2800,6 @@ var spa = function () {
         },
 
         validation: {
-            getErrorList: config.validationDrivers.listOfErrors.getErrorList,
             validate: validationUnit.validate,
             resetValidation: validationUnit.resetValidation,
             isValidInput: validationUnit.isValidInput,
@@ -3105,25 +3020,25 @@ var spa = function () {
                 return ajax.done(fn);
             },
             postBtn: function postBtn(button, url, data, fn) {
-                return sis(button).on('click', function (e) {
+                return button.on('click', function (e) {
                     e.preventDefault();
                     spa.ajax.post(url, data, fn, $(this));
                 });
             },
             getBtn: function getBtn(button, url, data, fn) {
-                return sis(button).on('click', function (e) {
+                return button.on('click', function (e) {
                     e.preventDefault();
                     spa.ajax.get(url, data, fn, $(this));
                 });
             },
             deleteBtn: function deleteBtn(button, url, data, fn) {
-                return sis(button).on('click', function (e) {
+                return button.on('click', function (e) {
                     e.preventDefault();
                     spa.ajax.delete(url, data, fn, $(this));
                 });
             },
             putBtn: function putBtn(button, url, data, fn) {
-                return sis(button).on('click', function (e) {
+                return button.on('click', function (e) {
                     e.preventDefault();
                     spa.ajax.put(url, data, fn, $(this));
                 });
@@ -3201,8 +3116,8 @@ var spa = function () {
                         if (fn(array[i], i) === true) _new.push(array[i]);
                     }
                 } else {
-                    for (var _i4 = 0, _l3 = array.length; _i4 < _l3; _i4++) {
-                        if (array[_i4]) _new.push(array[_i4]);
+                    for (var _i2 = 0, _l2 = array.length; _i2 < _l2; _i2++) {
+                        if (array[_i2]) _new.push(array[_i2]);
                     }
                 }
                 return _new;
@@ -3225,20 +3140,14 @@ var spa = function () {
         },
 
         dom: {
-            click: function click(btn, fn) {
-                return sis(btn).on('click', fn);
-            },
             getFriendlyName: function getFriendlyName(input) {
                 //get friendly name
                 var name = input.attr(Tags.friendlyName);
                 return name === undefined ? spa.resource.get('validation.defaultFriendlyName') : name;
             },
             setDisable: function setDisable(item, status) {
-                item = sis(item);
-                if (item.length) {
-                    if (item.is(':input')) item.prop('disabled', status);else status ? item.addClass('disabled') : item.removeClass('disabled');
-                    return item;
-                }
+                if (item.is(':input')) item.prop('disabled', status);else status ? item.addClass('disabled') : item.removeClass('disabled');
+                return item;
             },
             setLoadingButton: function setLoadingButton(btn) {
                 driversUnit.btnLoading.set(btn);
@@ -3258,9 +3167,6 @@ var spa = function () {
 
         form: {
             submitAjax: function submitAjax(form, submitter, validate, fn) {
-                form = sis(form);
-                if (!form.length) throw spa.resource.get('ex.fnf');
-
                 if (validate && !validationUnit.validate(form)) return false;
 
                 var url = form.attr('action') || spa.web.getUrl();
@@ -3276,36 +3182,24 @@ var spa = function () {
                 } else return spa.ajax.get(url, form.serialize(), fn, submitter);
             },
             submit: function submit(form, submitter, validate) {
-                form = sis(form);
-                if (!form.length) throw spa.resource.get('ex.fnf');
-
                 if (validate && !validationUnit.validate(form)) return false;
 
                 spa.dom.setLoadingButton(submitter);
                 form.submit();
             },
             registerNormalSubmitter: function registerNormalSubmitter(form, submitter, validate) {
-                form = sis(form);
-                submitter = sis(submitter);
-                if (!form.length || !submitter.length) return;
                 submitter.on('click', function (e) {
                     e.preventDefault();
                     spa.form.submit(form, submitter, validate);
                 });
             },
             registerAjaxSubmitter: function registerAjaxSubmitter(form, submitter, validate, fn) {
-                form = sis(form);
-                submitter = sis(submitter);
-                if (!form.length || !submitter.length) return;
                 submitter.on('click', function (e) {
                     e.preventDefault();
                     spa.form.submitAjax(form, submitter, validate, fn);
                 });
             },
             getFormInputsAsObject: function getFormInputsAsObject(form) {
-                form = sis(form);
-                if (!form.length) throw spa.resource.get('ex.fnf');
-
                 var values = form.serializeArray(),
                     result = {};
 
@@ -3323,111 +3217,71 @@ var spa = function () {
         },
 
         input: {
-            getValue: function getValue(input) {
-                input = sis(input);
-                if (input.length) return trim(input.val());
-            },
             getFiles: function getFiles(input) {
-                input = sis(input);
-                if (input.length) return input[0].files;
-            },
-            setValue: function setValue(input, value) {
-                input = sis(input);
-                if (input.length) return input.val(value).trigger('change');
-                return input;
+                return input[0].files;
             },
             select: {
                 getSelectedOption: function getSelectedOption(select) {
-                    select = sis(select);
-                    if (select.length) {
-                        var o = select.find(':selected');
-                        if (o.length) return o;
-                    }
-                },
-                getSelectedValue: function getSelectedValue(select) {
-                    return spa.input.getValue(select);
+                    var o = select.find(':selected');
+                    if (o.length) return o;
                 },
                 getSelectedText: function getSelectedText(select) {
                     var o = spa.input.select.getSelectedOption(select);
                     if (o) return trim(o.text());
                 },
                 getSelectedIndex: function getSelectedIndex(select) {
-                    select = sis(select);
-                    if (select.length) return select.prop('selectedIndex');
-                    return -1;
+                    return select.prop('selectedIndex');
                 },
                 setSelectedIndex: function setSelectedIndex(select, index) {
-                    if (index >= 0) {
-                        select = sis(select);
-                        if (select.length) {
-                            var o = select.find('option:nth-child(' + (index + 1) + ')');
-                            if (o.length) {
-                                o.prop('selected', true);
-                                select.trigger('change');
-                                return select;
-                            }
-                        }
+                    var o = select.find('option:nth-child(' + (index + 1) + ')');
+                    if (o.length) {
+                        o.prop('selected', true);
+                        select.trigger('change');
+                        return select;
                     }
-                },
-                setSelectedValue: function setSelectedValue(select, value) {
-                    return spa.input.setValue(select, value);
                 },
                 setFirstOptionSelected: function setFirstOptionSelected(select) {
-                    select = sis(select);
-                    if (select.length) {
-                        var ops = select.find('option:first-child');
-                        if (ops.length) {
-                            ops.prop('selected', true);
-                            select.trigger('change');
-                            return select;
-                        }
-                    }
+                    var ops = select.find('option:first-child');
+                    ops.prop('selected', true);
+                    select.trigger('change');
+                    return select;
                 },
                 clearOptions: function clearOptions(select) {
-                    select = sis(select);
-                    if (select.length) return select.empty().trigger('change');
+                    return select.empty().trigger('change');
                 },
                 addOptions: function addOptions(select, options, removeCurrent, firstOptionLabel) {
-                    select = sis(select);
-                    if (select.length) {
-                        var ops = [];
-                        if (firstOptionLabel) ops.push($('<option selected disabled value>' + firstOptionLabel + '</option>'));
-                        for (var i = 0, l = options.length; i < l; i++) {
-                            ops.push(spa.dom.addHtmlAttr($('<option value="' + options[i].value + '">' + options[i].text + '</option>'), options[i]));
-                        }if (removeCurrent) select.empty().html(ops);else select.append(ops);
-                        return select.trigger('change');
-                    }
+                    var ops = [];
+                    if (firstOptionLabel) ops.push($('<option selected disabled value>' + firstOptionLabel + '</option>'));
+                    for (var i = 0, l = options.length; i < l; i++) {
+                        ops.push(spa.dom.addHtmlAttr($('<option value="' + options[i].value + '">' + options[i].text + '</option>'), options[i]));
+                    }if (removeCurrent) select.empty().html(ops);else select.append(ops);
+                    return select.trigger('change');
                 },
                 addOption: function addOption(select, option, isSelected) {
-                    select = sis(select);
-                    if (select.length) {
-                        var o = spa.dom.addHtmlAttr($('<option value="' + option.value + '">' + option.text + '</option>'), option);
+                    var o = spa.dom.addHtmlAttr($('<option value="' + option.value + '">' + option.text + '</option>'), option);
 
-                        select.append(o);
+                    select.append(o);
 
-                        if (isSelected) o.prop('selected', true);
-                        return select.trigger('change');
-                    }
+                    if (isSelected) o.prop('selected', true);
+                    return select.trigger('change');
                 }
             },
             checkable: {
                 // used in web production
                 isChecked: function isChecked(input) {
-                    input = sis(input);
-                    if (input.length) return input.is(':checked');
+                    return input.is(':checked');
                 },
                 set: function set(input, status) {
-                    input = sis(input);
-                    if (input.length) return input.prop("checked", status).trigger('change');
+                    return input.prop("checked", status).trigger('change');
                 },
                 getRadioGroupValue: function getRadioGroupValue(name) {
-                    return spa.input.getValue('input[name="' + name + '"]:checked');
+                    return $('input[name="' + name + '"]:checked').val();
                 },
                 getCheckboxGroupArray: function getCheckboxGroupArray(name) {
                     var value = [],
                         g = $('input[name="' + name + '"]:checked');
                     var l = g.length;
-                    if (l) for (var i = 0; i < l; i++) {
+                    for (var i = 0; i < l; i++) {
                         value.push(trim($(g[i]).val()));
                     }return value;
                 }
@@ -3480,9 +3334,6 @@ var spa = function () {
 
         table: {
             addRows: function addRows(table, rows) {
-                table = sis(table);
-                if (!table.length) return;
-
                 var rowList = [],
                     singleRow = void 0;
                 if (spa.validation.isArray(rows)) {
@@ -3506,8 +3357,8 @@ var spa = function () {
                 } else {
                     singleRow = spa.dom.addHtmlAttr($('<tr>'), rows);
 
-                    for (var _j2 = 0, _m2 = rows.columns.length; _j2 < _m2; _j2++) {
-                        var _col = rows.columns[_j2],
+                    for (var _j = 0, _m = rows.columns.length; _j < _m; _j++) {
+                        var _col = rows.columns[_j],
                             _td = spa.dom.addHtmlAttr($('<td>'), _col).html(_col.data);
                         singleRow.append(_td);
                     }
@@ -3524,10 +3375,6 @@ var spa = function () {
                 return rowList.length === 1 ? rowList[0] : rowList;
             },
             removeRows: function removeRows(table, rows) {
-                table = sis(table);
-
-                if (!table.length) return;
-
                 rows = table.find('tbody').find(rows);
 
                 if (!rows.length) return;
@@ -3540,17 +3387,11 @@ var spa = function () {
                 return rows;
             },
             removeChecked: function removeChecked(table, inputName) {
-                table = sis(table);
-
-                if (!table.length) return;
-
                 var r = table.find('input[name="' + inputName + '"]:checked').closest('tr');
                 if (!r.length) return;
                 return spa.table.removeRows(table, r);
             },
             removeAll: function removeAll(table) {
-                table = sis(table);
-                if (!table.length) return;
                 var result = table.find('tbody').find('tr');
                 if ($.fn.DataTable && $.fn.DataTable.isDataTable(table)) table.DataTable().rows(result).remove().draw();else result.remove();
 
@@ -3560,8 +3401,6 @@ var spa = function () {
             moveRows: function moveRows(from, to, rows) {
                 var r = spa.table.removeRows(from, rows);
                 if (!r.length) return;
-                to = sis(to);
-                if (!to.length) return;
                 if ($.fn.DataTable && $.fn.DataTable.isDataTable(to)) {
                     if (r.length > 1) to.DataTable().rows.add(r).draw();else to.DataTable().row.add(r).draw();
                 } else to.find('tbody').append(r);
@@ -3570,8 +3409,6 @@ var spa = function () {
             moveChecked: function moveChecked(from, to, inputName) {
                 var r = spa.table.removeChecked(from, inputName);
                 if (!r.length) return;
-                to = sis(to);
-                if (!to.length) return;
                 if ($.fn.DataTable && $.fn.DataTable.isDataTable(to)) {
                     if (r.length > 1) to.DataTable().rows.add(r).draw();else to.DataTable().row.add(r).draw();
                 } else to.find('tbody').append(r);
@@ -3579,23 +3416,18 @@ var spa = function () {
                 return r;
             },
             count: function count(table, rows) {
-                table = sis(table);
-                if (!table.length) return;
                 if ($.fn.DataTable && $.fn.DataTable.isDataTable(table)) return rows ? table.DataTable().rows(rows).count() : table.DataTable().data().count();else return rows ? table.find('tbody').find(rows).length : table.find('tbody').find('tr').length;
             },
 
             updatePaginationTotal: function updatePaginationTotal(value, rowCountElement) {
-                rowCountElement = rowCountElement ? sis(rowCountElement) : $('#pagination').find('.total');
-                if (rowCountElement.length) {
-                    var oldCount = 0;
-                    try {
-                        oldCount = parseInt(rowCountElement.text());
-                    } catch (ex) {}
-                    var newCount = oldCount + value;
-                    rowCountElement.text(newCount);
-                    return newCount;
-                }
-                return -1;
+                rowCountElement = rowCountElement ? rowCountElement : $('#pagination').find('.total');
+                var oldCount = 0;
+                try {
+                    oldCount = parseInt(rowCountElement.text());
+                } catch (ex) {}
+                var newCount = oldCount + value;
+                rowCountElement.text(newCount);
+                return newCount;
             }
         },
 
@@ -3840,15 +3672,12 @@ var spa = function () {
 
         init: {
             datepicker: function datepicker(input, options) {
-                input = sis(input);
-                if (input.length) {
-                    var def = config.datepickerOptions[config.locale];
-                    if (options) def = $.extend({}, def, options);
-                    input.datepicker(def);
-                }
+                var def = config.datepickerOptions[config.locale];
+                if (options) def = $.extend({}, def, options);
+                input.datepicker(def);
             },
             datepickerOnChange: function datepickerOnChange(s, fn) {
-                return sis(s).each(function (index, item) {
+                return s.each(function (index, item) {
                     item = $(item);
                     var oldVal = item.val();
                     item.on('change', function () {
@@ -3861,100 +3690,78 @@ var spa = function () {
                 });
             },
             select2: function select2(input, options) {
-                input = sis(input);
-                if (input.length) {
-                    var def = void 0;
-                    if (config.locale === 'ar') def = { dir: 'rtl', language: config.select2Ar };else def = { dir: 'ltr' };
+                var def = void 0;
+                if (config.locale === 'ar') def = { dir: 'rtl', language: config.select2Ar };else def = { dir: 'ltr' };
 
-                    if (options) def = $.extend({}, def, options);
-                    input.select2(def);
-                }
+                if (options) def = $.extend({}, def, options);
+                input.select2(def);
             },
             dataTable: function dataTable(table, options) {
-                table = sis(table);
-                if (table.length) {
-                    var def = config.datatableOptions[config.locale];
-                    if (options) def = $.extend({}, def, options);
-                    table.DataTable(def);
-                }
+                var def = config.datatableOptions[config.locale];
+                if (options) def = $.extend({}, def, options);
+                table.DataTable(def);
             },
             createCounter: function createCounter(input, counter, max) {
-                input = sis(input);
-                counter = sis(counter);
-                if (input.length && counter.length) {
-                    input.on('keyup', function () {
-                        var targetObjLength = input.val().length;
-                        var delta = max - targetObjLength;
-                        if (delta < 0) input.val(input.val().substring(0, max));
-                        counter.html(delta < 0 ? 0 : delta);
-                    });
-                    input.trigger('keyup');
-                }
+                input.on('keyup', function () {
+                    var targetObjLength = input.val().length;
+                    var delta = max - targetObjLength;
+                    if (delta < 0) input.val(input.val().substring(0, max));
+                    counter.html(delta < 0 ? 0 : delta);
+                });
+                input.trigger('keyup');
             },
             autoComplete: function autoComplete(input, url, extraData) {
-                input = sis(input);
-                if (input.length) {
-                    spa.init.select2(input, {
-                        ajax: {
-                            url: url,
-                            dataType: 'json',
-                            data: function data(params) {
-                                if (extraData) return $.extend({}, extraData, { search: params.term });else return { search: params.term };
-                            },
-                            processResults: function processResults(data) {
-                                var result = [];
-                                spa.array.foreach(data, function (item) {
-                                    result.push({
-                                        id: item.value,
-                                        text: item.text
-                                    });
-                                });
-                                return {
-                                    results: result
-                                };
-                            }
+                spa.init.select2(input, {
+                    ajax: {
+                        url: url,
+                        dataType: 'json',
+                        data: function data(params) {
+                            if (extraData) return $.extend({}, extraData, { search: params.term });else return { search: params.term };
                         },
-                        minimumInputLength: 2,
-                        delay: 250
-                    });
-                }
+                        processResults: function processResults(data) {
+                            var result = [];
+                            spa.array.foreach(data, function (item) {
+                                result.push({
+                                    id: item.value,
+                                    text: item.text
+                                });
+                            });
+                            return {
+                                results: result
+                            };
+                        }
+                    },
+                    minimumInputLength: 2,
+                    delay: 250
+                });
             },
             showMsg: function showMsg(selector, dataAttribute, context) {
                 if (context) {
-                    context = sis(context);
-                    if (context.length) {
-                        context.on('click', selector, function (e) {
-                            e.preventDefault();
-                            spa.dialog.message('', $(this).attr(dataAttribute));
-                        });
-                    }
-                } else {
-                    selector = sis(selector);
-                    if (selector.length) {
-                        selector.on('click', function (e) {
-                            e.preventDefault();
-                            spa.dialog.message('', $(this).attr(dataAttribute));
-                        });
-                    }
-                }
-            },
-            deleteAndRedirect: function deleteAndRedirect(btnSelector, deleteUrl, redirectUrl, title, msg) {
-                btnSelector = sis(btnSelector);
-                if (btnSelector.length) {
-                    btnSelector.on('click', function (e) {
+                    context.on('click', selector, function (e) {
                         e.preventDefault();
-                        spa.dialog.confirm(title || spa.resource.get('delete.title'), msg || spa.resource.get('delete.confirm'), 'warning', 'warning', function () {
-                            spa.ajax.delete(deleteUrl, null, function (data) {
-                                spa.dialog.messageSuccess('', data.message, function () {
-                                    spa.web.redirect(redirectUrl);
-                                });
-                            }, btnSelector);
-                        });
+                        spa.dialog.message('', $(this).attr(dataAttribute));
+                    });
+                } else {
+                    selector.on('click', function (e) {
+                        e.preventDefault();
+                        spa.dialog.message('', $(this).attr(dataAttribute));
                     });
                 }
             },
+            deleteAndRedirect: function deleteAndRedirect(btnSelector, deleteUrl, redirectUrl, title, msg) {
+                btnSelector.on('click', function (e) {
+                    e.preventDefault();
+                    spa.dialog.confirm(title || spa.resource.get('delete.title'), msg || spa.resource.get('delete.confirm'), 'warning', 'warning', function () {
+                        spa.ajax.delete(deleteUrl, null, function (data) {
+                            spa.dialog.messageSuccess('', data.message, function () {
+                                spa.web.redirect(redirectUrl);
+                            });
+                        }, btnSelector);
+                    });
+                });
+            },
             listDelete: function listDelete(btnSelector, idAttribute, url, tableSelector, title, msg) {
-                sis(tableSelector).on('click', btnSelector, function (e) {
+                tableSelector.on('click', btnSelector, function (e) {
                     e.preventDefault();
                     var self = $(this);
                     var delUrl = url.replace(':id', self.attr(idAttribute));
