@@ -1,7 +1,13 @@
-3.3.1: break!!!!!!!!!!!!!!!!!!!!!
+3.3.2:
+- revert to 3.2.1
 - separate validation drive validationDrivers.listOfErrors into external file
 - remove config.listOfErrorsSelector
-- remove spa.validation.validation
+- remove spa.validation.getErrorList
+
+3.3.1: (reverted) break!!!!!!!!!!!!!!!!!!!!!
+- separate validation drive validationDrivers.listOfErrors into external file
+- remove config.listOfErrorsSelector
+- remove spa.validation.getErrorList
 - remove unnecessary validations to check if jquery object length is > 0
 - remove base sis() function
 - remove dom.click
