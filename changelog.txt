@@ -1,3 +1,6 @@
+3.3.3:
+- remove dist spacer-3.3.1.js and spacer-3.3.2.js
+
 3.3.2:
 - revert to 3.2.1
 - separate validation drive validationDrivers.listOfErrors into external file
