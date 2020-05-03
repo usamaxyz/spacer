@@ -3755,19 +3755,24 @@ var spa = function () {
             localize: function localize(url, locale, method) {
                 if (url === undefined) url = window.location.href;
                 locale = locale || config.locale;
-                if (locale === config.defaultLocale) return url;
                 method = method || config.localeMethod;
-                if (method == '1') {
-                    //cookie
-                    return url;
-                }
                 if (method == '2') {
-                    url = new URL(url, window.location.origin);
                     //segment
-                    url.pathname = '/' + locale + url.pathname;
+                    var seg = spa.web.urlSegments(1, url);
+                    url = new URL(url, window.location.origin);
+                    if (seg.length === 2) {
+                        //locale exist
+                        url.pathname = url.pathname.replace('/' + seg, locale === config.defaultLocale ? '' : locale);
+                    } else {
+                        //locale not exist
+                        if (locale !== config.defaultLocale) url.pathname = '/' + locale + url.pathname;
+                    }
                     return url.href;
                 }
-
+                if (method == '1') {
+                    // cookie
+                    return url;
+                }
                 //query
                 return spa.web.updateQueryString(_defineProperty({}, config.localeQueryKey, locale), url);
             },

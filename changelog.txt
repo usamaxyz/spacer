@@ -1,3 +1,6 @@
+3.3.4:
+- fix spa.web.localize
+
 3.3.3:
 - remove dist spacer-3.3.1.js and spacer-3.3.2.js
 
