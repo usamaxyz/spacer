@@ -1,60 +1,60 @@
-.uk-notify {
+.spa-notify {
     position: fixed;
     top: 50px;
-    right: 50px;
+    left: 50px;
     z-index: 100000;
     -moz-box-sizing: border-box;
     box-sizing: border-box;
     width: 350px;
 }
 
-.uk-notify-top-right,
-.uk-notify-bottom-right {
-    right: auto;
-    left: 50px;
+.spa-notify-top-right,
+.spa-notify-bottom-right {
+    left: auto;
+    right: 50px;
 }
 
-.uk-notify-top-center,
-.uk-notify-bottom-center {
-    right: 50%;
-    margin-right: -175px;
+.spa-notify-top-center,
+.spa-notify-bottom-center {
+    left: 50%;
+    margin-left: -175px;
 }
 
-.uk-notify-bottom-left,
-.uk-notify-bottom-right,
-.uk-notify-bottom-center {
+.spa-notify-bottom-left,
+.spa-notify-bottom-right,
+.spa-notify-bottom-center {
     top: auto;
     bottom: 50px;
 }
 
 @media (max-width: 480px) {
-    .uk-notify {
-        right: 10px;
+    .spa-notify {
         left: 10px;
+        right: 10px;
         width: auto;
         margin: 0;
     }
 }
 
-.uk-notify-message {
+.spa-notify-message {
     position: relative;
     margin-bottom: 10px;
     padding: 15px;
     font-size: 16px;
     line-height: 22px;
-    padding-left: 35px;
+    padding-right: 35px;
     cursor: pointer;
 }
 
-.uk-notify-message.alert.alert-normal {
+.spa-notify-message.alert.alert-normal {
     background: #444;
     color: #fff;
 }
 
-.uk-notify-message > .close {
+.spa-notify-message > .close {
     visibility: hidden;
 }
 
-.uk-notify-message:hover > .close {
+.spa-notify-message:hover > .close {
     visibility: visible;
 }

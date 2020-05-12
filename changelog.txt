@@ -1,3 +1,7 @@
+3.3.5: break!!!!!!!!!!!!!!!!!!!!!
+- change listOfErrorsSelector to #spa-listOfErrors
+- change uk- to spa- in notify driver
+
 3.3.4:
 - fix spa.web.localize
 

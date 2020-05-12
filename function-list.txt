@@ -75,8 +75,8 @@ spa.setOptions({
     flashCurrentDriver: '',
     flashDrivers: {
         //from services
-        ukNotifyBootstrap3: ukNotifyBootstrap3,
-        ukNotifyRemark: ukNotifyRemark,
+        spaNotifyBootstrap3: spaNotifyBootstrap3,
+        spaNotifyRemark: spaNotifyRemark,
     },
 
     /*

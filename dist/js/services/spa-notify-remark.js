@@ -1,7 +1,7 @@
 "use strict";
 
-var ukNotifyBootstrap3 = function () {
-    var ukNotifyService = function () {
+var spaNotifyRemark = function () {
+    var spaNotifyService = function () {
         var containers = {},
             messages = {},
             notify = function notify(options) {
@@ -25,13 +25,13 @@ var ukNotifyBootstrap3 = function () {
             this.uuid = "ID" + new Date().getTime() + "RAND" + Math.ceil(Math.random() * 100000);
             this.element = $([
             // alert-dismissable enables bs close icon
-            '<div class="uk-notify-message alert-dismissable">', '<a class="close">&times;</a>', options.title ? '<strong>' + options.title + '</strong><br>' : '', '<div>' + (options.icon ? options.icon + ' ' : '') + this.options.message + '</div>', '</div>'].join('')).data("notifyMessage", this);
+            '<div class="spa-notify-message alert-dismissable">', '<a class="close">&times;</a>', options.title ? '<strong>' + options.title + '</strong><br>' : '', '<div>' + (options.icon ? options.icon + ' ' : '') + this.options.message + '</div>', '</div>'].join('')).data("notifyMessage", this);
 
             // status
-            if (this.options.status) this.element.addClass('alert alert-' + this.options.status);
+            if (this.options.status) this.element.addClass('alert alert-alt alert-' + this.options.status);
 
             messages[this.uuid] = this;
-            if (!containers[this.options.pos]) containers[this.options.pos] = $('<div class="uk-notify uk-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".uk-notify-message", function () {
+            if (!containers[this.options.pos]) containers[this.options.pos] = $('<div class="spa-notify spa-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".spa-notify-message", function () {
                 $(this).data("notifyMessage").close();
             });
         };
@@ -45,11 +45,7 @@ var ukNotifyBootstrap3 = function () {
                     "opacity": 0,
                     "margin-top": -1 * this.element.outerHeight(),
                     "margin-bottom": 0
-                }).animate({
-                    "opacity": 1,
-                    "margin-top": 0,
-                    "margin-bottom": marginbottom
-                }, function () {
+                }).animate({ "opacity": 1, "margin-top": 0, "margin-bottom": marginbottom }, function () {
                     if ($this.options.timeout) {
                         var closefn = function closefn() {
                             $this.close();
@@ -98,7 +94,7 @@ var ukNotifyBootstrap3 = function () {
     return {
         //by default, spacer support 4 status and 4 icons: success, danger, warning, info
         flash: function flash(title, message, status, icon, timeout, pos) {
-            ukNotifyService.notify({
+            spaNotifyService.notify({
                 title: title,
                 message: message,
                 status: status,

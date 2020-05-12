@@ -5,24 +5,24 @@ let spacerVersion = '-' + require('./package.json').version;
 
 vinus
 
-    //notify css
-    // .css('src/css/ukNotify.css', 'dist/css/ukNotify.css')
-    // .withRtl()
+    //spa notify css
+    .css('src/css/spa-notify.css', 'dist/css/spa-notify.css')
+    .withRtl()
 
     //spacer
     .babel('src/js/spacer.js', `dist/js/spacer.js`)
     .babel('src/js/spacer.js', `dist/js/spacer${spacerVersion}.js`)
 
     //services  => uncomment changed
-    // .babel('src/js/services/bootstrap3-modal-service.js', `dist/js/services/bootstrap3-modal-service.js`)
-    // .babel('src/js/services/bootstrap3-panel-service.js', `dist/js/services/bootstrap3-panel-service.js`)
-    // .babel('src/js/services/bootstrap3-validation-driver.js', `dist/js/services/bootstrap3-validation-driver.js`)
-    // .babel('src/js/services/bootstrap4-validation-driver.js', `dist/js/services/bootstrap4-validation-driver.js`)
-    // .babel('src/js/services/listOfErrors-validation-driver.js', `dist/js/services/listOfErrors-validation-driver.js`)
-    // .babel('src/js/services/storage.js', `dist/js/services/storage.js`)
-    // .babel('src/js/services/uk-notify-remark.js', `dist/js/services/uk-notify-remark.js`)
-    // .babel('src/js/services/uk-notify-metronic.js', `dist/js/services/uk-notify-metronic.js`)
-    // .babel('src/js/services/uk-notify-bootstrap3.js', `dist/js/services/uk-notify-bootstrap3.js`)
+    .babel('src/js/services/bootstrap3-modal-service.js', `dist/js/services/bootstrap3-modal-service.js`)
+    .babel('src/js/services/bootstrap3-panel-service.js', `dist/js/services/bootstrap3-panel-service.js`)
+    .babel('src/js/services/bootstrap3-validation-driver.js', `dist/js/services/bootstrap3-validation-driver.js`)
+    .babel('src/js/services/bootstrap4-validation-driver.js', `dist/js/services/bootstrap4-validation-driver.js`)
+    .babel('src/js/services/listOfErrors-validation-driver.js', `dist/js/services/listOfErrors-validation-driver.js`)
+    .babel('src/js/services/storage.js', `dist/js/services/storage.js`)
+    .babel('src/js/services/spa-notify-remark.js', `dist/js/services/spa-notify-remark.js`)
+    .babel('src/js/services/spa-notify-metronic.js', `dist/js/services/spa-notify-metronic.js`)
+    .babel('src/js/services/spa-notify-bootstrap3.js', `dist/js/services/spa-notify-bootstrap3.js`)
 
 
 /*

@@ -1,6 +1,6 @@
 let listOfErrors = (function () {
     let validationErrors = [],
-        listOfErrorsSelector = '#spacer-listOfErrors';
+        listOfErrorsSelector = '#spa-listOfErrors';
 
     return {
         setListOfErrorsSelector: function(v) {

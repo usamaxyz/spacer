@@ -2,7 +2,7 @@
 
 var listOfErrors = function () {
     var validationErrors = [],
-        listOfErrorsSelector = '#spacer-listOfErrors';
+        listOfErrorsSelector = '#spa-listOfErrors';
 
     return {
         setListOfErrorsSelector: function setListOfErrorsSelector(v) {

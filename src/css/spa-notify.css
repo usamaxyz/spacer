@@ -1,4 +1,4 @@
-.uk-notify {
+.spa-notify {
     position: fixed;
     top: 50px;
     left: 50px;
@@ -8,27 +8,27 @@
     width: 350px;
 }
 
-.uk-notify-top-right,
-.uk-notify-bottom-right {
+.spa-notify-top-right,
+.spa-notify-bottom-right {
     left: auto;
     right: 50px;
 }
 
-.uk-notify-top-center,
-.uk-notify-bottom-center {
+.spa-notify-top-center,
+.spa-notify-bottom-center {
     left: 50%;
     margin-left: -175px;
 }
 
-.uk-notify-bottom-left,
-.uk-notify-bottom-right,
-.uk-notify-bottom-center {
+.spa-notify-bottom-left,
+.spa-notify-bottom-right,
+.spa-notify-bottom-center {
     top: auto;
     bottom: 50px;
 }
 
 @media (max-width: 480px) {
-    .uk-notify {
+    .spa-notify {
         left: 10px;
         right: 10px;
         width: auto;
@@ -36,7 +36,7 @@
     }
 }
 
-.uk-notify-message {
+.spa-notify-message {
     position: relative;
     margin-bottom: 10px;
     padding: 15px;
@@ -46,15 +46,15 @@
     cursor: pointer;
 }
 
-.uk-notify-message.alert.alert-normal {
+.spa-notify-message.alert.alert-normal {
     background: #444;
     color: #fff;
 }
 
-.uk-notify-message > .close {
+.spa-notify-message > .close {
     visibility: hidden;
 }
 
-.uk-notify-message:hover > .close {
+.spa-notify-message:hover > .close {
     visibility: visible;
 }

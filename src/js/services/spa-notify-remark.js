@@ -1,5 +1,5 @@
-let ukNotifyRemark = (function () {
-    let ukNotifyService = (function () {
+let spaNotifyRemark = (function () {
+    let spaNotifyService = (function () {
         var containers = {},
             messages = {},
             notify = function (options) {
@@ -22,7 +22,7 @@ let ukNotifyRemark = (function () {
             this.uuid = "ID" + (new Date().getTime()) + "RAND" + (Math.ceil(Math.random() * 100000));
             this.element = $([
                 // alert-dismissable enables bs close icon
-                '<div class="uk-notify-message alert-dismissable">',
+                '<div class="spa-notify-message alert-dismissable">',
                 '<a class="close">&times;</a>',
                 options.title ? '<strong>' + options.title + '</strong><br>' : '',
                 '<div>' + (options.icon ? options.icon + ' ' : '') + this.options.message + '</div>',
@@ -36,7 +36,7 @@ let ukNotifyRemark = (function () {
 
             messages[this.uuid] = this;
             if (!containers[this.options.pos])
-                containers[this.options.pos] = $('<div class="uk-notify uk-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".uk-notify-message", function () {
+                containers[this.options.pos] = $('<div class="spa-notify spa-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".spa-notify-message", function () {
                     $(this).data("notifyMessage").close();
                 });
         };
@@ -106,7 +106,7 @@ let ukNotifyRemark = (function () {
     return {
         //by default, spacer support 4 status and 4 icons: success, danger, warning, info
         flash: function (title, message, status, icon, timeout, pos) {
-            ukNotifyService.notify({
+            spaNotifyService.notify({
                 title: title,
                 message: message,
                 status: status,

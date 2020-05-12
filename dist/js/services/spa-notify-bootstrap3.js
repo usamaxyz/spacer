@@ -1,7 +1,7 @@
 "use strict";
 
-var ukNotifyMetronic = function () {
-    var ukNotifyService = function () {
+var spaNotifyBootstrap3 = function () {
+    var spaNotifyService = function () {
         var containers = {},
             messages = {},
             notify = function notify(options) {
@@ -23,13 +23,15 @@ var ukNotifyMetronic = function () {
                 timeout: options.timeout != null ? options.timeout : Message.defaults.timeout
             };
             this.uuid = "ID" + new Date().getTime() + "RAND" + Math.ceil(Math.random() * 100000);
-            this.element = $(['<div class="uk-notify-message">', options.icon ? '<div class="alert-icon">' + options.icon + '</div>' : '', '<div class="alert-text">', options.title ? '<h4 class="alert-heading">' + options.title + '</h4>' : '', this.options.message, '</div>', '<div class="alert-close">', '<button type="button" class="close" data-dismiss="alert" aria-label="Close">', '<span aria-hidden="true"><i class="la la-close"></i></span>', '</button>', '</div>', '</div>'].join('')).data("notifyMessage", this);
+            this.element = $([
+            // alert-dismissable enables bs close icon
+            '<div class="spa-notify-message alert-dismissable">', '<a class="close">&times;</a>', options.title ? '<strong>' + options.title + '</strong><br>' : '', '<div>' + (options.icon ? options.icon + ' ' : '') + this.options.message + '</div>', '</div>'].join('')).data("notifyMessage", this);
 
             // status
             if (this.options.status) this.element.addClass('alert alert-' + this.options.status);
 
             messages[this.uuid] = this;
-            if (!containers[this.options.pos]) containers[this.options.pos] = $('<div class="uk-notify uk-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".uk-notify-message", function () {
+            if (!containers[this.options.pos]) containers[this.options.pos] = $('<div class="spa-notify spa-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".spa-notify-message", function () {
                 $(this).data("notifyMessage").close();
             });
         };
@@ -96,7 +98,7 @@ var ukNotifyMetronic = function () {
     return {
         //by default, spacer support 4 status and 4 icons: success, danger, warning, info
         flash: function flash(title, message, status, icon, timeout, pos) {
-            ukNotifyService.notify({
+            spaNotifyService.notify({
                 title: title,
                 message: message,
                 status: status,
