@@ -23,6 +23,7 @@ vinus
     .babel('src/js/services/spa-notify-remark.js', `dist/js/services/spa-notify-remark.js`)
     .babel('src/js/services/spa-notify-metronic.js', `dist/js/services/spa-notify-metronic.js`)
     .babel('src/js/services/spa-notify-bootstrap3.js', `dist/js/services/spa-notify-bootstrap3.js`)
+    .babel('src/js/services/spa-notify-bootstrap4.js', `dist/js/services/spa-notify-bootstrap4.js`)
 
 
 /*
