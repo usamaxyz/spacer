@@ -18,6 +18,7 @@ vinus
     .babel('src/js/services/bootstrap3-panel-service.js', `dist/js/services/bootstrap3-panel-service.js`)
     .babel('src/js/services/bootstrap3-validation-driver.js', `dist/js/services/bootstrap3-validation-driver.js`)
     .babel('src/js/services/bootstrap4-validation-driver.js', `dist/js/services/bootstrap4-validation-driver.js`)
+    .babel('src/js/services/bootstrap4-3-hybrid-validation-driver.js', `dist/js/services/bootstrap4-3-hybrid-validation-driver.js`)
     .babel('src/js/services/listOfErrors-validation-driver.js', `dist/js/services/listOfErrors-validation-driver.js`)
     .babel('src/js/services/storage.js', `dist/js/services/storage.js`)
     .babel('src/js/services/spa-notify-remark.js', `dist/js/services/spa-notify-remark.js`)

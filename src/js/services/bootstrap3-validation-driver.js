@@ -5,7 +5,7 @@ let bootstrap3ValidationDriver = {
         if (helpBlock.length !== 0) {
             let html = '';
             if (invalidRules.length === 1)
-                html = vo.pattern.invalidRules[0].message;
+                html = invalidRules[0].message;
             else {
                 html = '<ul>';
                 for (let i = 0, l = invalidRules.length; i < l; i++)

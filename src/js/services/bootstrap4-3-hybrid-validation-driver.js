@@ -1,7 +1,7 @@
-let bootstrap4ValidationDriver = {
+let bootstrap43HybridValidationDriver = {
     onError: function (vo) {
         let invalidRules = vo.pattern.invalidRules;
-        let helpBlock = vo.input.jquery.addClass('is-invalid').closest('[class*="form-group"]').find('.invalid-feedback');
+        let helpBlock = vo.input.jquery.addClass('is-invalid').closest('[class*="form-group"]').addClass('has-error has-danger').find('.invalid-feedback');
         if (helpBlock.length !== 0) {
             let html = '';
             if (invalidRules.length === 1)
@@ -12,7 +12,7 @@ let bootstrap4ValidationDriver = {
                     html = html + '<li>' + invalidRules[i].message + '</li>';
                 html = html + '</ul>';
             }
-            helpBlock.html(html).addClass('d-block');
+            helpBlock.html(html);
         }
         if (vo.confirmInput) {
             let found = false;
@@ -28,8 +28,8 @@ let bootstrap4ValidationDriver = {
     clearError: function (inputJq) {
         inputJq.removeClass('is-invalid')
             .closest('[class*="form-group"]')
+            .removeClass('has-error has-danger')
             .find('.invalid-feedback')
-            .removeClass('d-block')
             .html('');
         //confirm input
         let ci = inputJq.data('_spa-ci');

@@ -6,7 +6,7 @@ var bootstrap3ValidationDriver = {
         var helpBlock = vo.input.jquery.closest('[class*="form-group"]').addClass('has-error').find('.help-block');
         if (helpBlock.length !== 0) {
             var html = '';
-            if (invalidRules.length === 1) html = vo.pattern.invalidRules[0].message;else {
+            if (invalidRules.length === 1) html = invalidRules[0].message;else {
                 html = '<ul>';
                 for (var i = 0, l = invalidRules.length; i < l; i++) {
                     html = html + '<li>' + invalidRules[i].message + '</li>';

@@ -93,7 +93,7 @@ spa.setOptions({
         listOfErrors: {},
         //from services
         bootstrap3ValidationDriver: bootstrap3ValidationDriver,
-        bootstrap4ValidationDriver: bootstrap4ValidationDriver,
+        bootstrap43HybridValidationDriver: bootstrap43HybridValidationDriver,
     },
     reValidationDelay: 500,
     listOfErrorsSelector: '#spacer-listOfErrors',
@@ -184,7 +184,7 @@ extend config:
         })(),
     },
     validationDrivers: {
-        bootstrap4ValidationDriver: {
+        bootstrap43HybridValidationDriver: {
             onError: function (vo) {
                 let invalidRules = vo.pattern.invalidRules;
                 let helpBlock = vo.input.jquery.addClass('is-invalid').closest('[class*="form-group"]').addClass('has-error has-danger').find('.invalid-feedback');

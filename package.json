@@ -1,6 +1,6 @@
 {
   "name": "spacer",
-  "version": "3.3.6",
+  "version": "3.3.7",
   "description": "A powerful realtime client-side validation for input fields based on JQuery, simple dialog API and extra helpful tools for: inputs, form submission, ajax, web navigation, tables and arrays",
   "main": "src/js/spacer.js",
   "repository": {

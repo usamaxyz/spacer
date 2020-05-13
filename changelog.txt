@@ -1,3 +1,7 @@
+3.3.7: break!!!!!!!!!!!!!!!!!!!!!
+- change existing bootstrap4-validation-driver to bootstrap4-3-hybrid-validation-driver
+- add new native boostrap4 validation driver: bootstrap3-validation-driver
+
 3.3.6:
 - add spa-notify-boostrap4
 
