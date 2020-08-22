@@ -4115,10 +4115,10 @@ let spa = (function () {
                     input.trigger('keyup');
                 }
             },
-            autoComplete: function (input, url, extraData) {
+            autoComplete: function (input, url, extraData, extraSelect2Options) {
                 input = sis(input);
                 if (input.length) {
-                    spa.init.select2(input, {
+                    let options = {
                         ajax: {
                             url: url,
                             dataType: 'json',
@@ -4143,7 +4143,10 @@ let spa = (function () {
                         },
                         minimumInputLength: 2,
                         delay: 250,
-                    });
+                    };
+                    if (extraSelect2Options)
+                        options = $.extend({}, options, extraSelect2Options);
+                    spa.init.select2(input, options);
                 }
             },
             showMsg: function (selector, dataAttribute, context) {

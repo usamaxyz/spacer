@@ -1,3 +1,6 @@
+3.3.8:
+- add extraSelect2Otions to spa.init.autoComplete
+
 3.3.7: break!!!!!!!!!!!!!!!!!!!!!
 - change existing bootstrap4-validation-driver to bootstrap4-3-hybrid-validation-driver
 - add new native boostrap4 validation driver: bootstrap3-validation-driver

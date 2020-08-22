@@ -3838,10 +3838,10 @@ var spa = function () {
                     input.trigger('keyup');
                 }
             },
-            autoComplete: function autoComplete(input, url, extraData) {
+            autoComplete: function autoComplete(input, url, extraData, extraSelect2Options) {
                 input = sis(input);
                 if (input.length) {
-                    spa.init.select2(input, {
+                    var options = {
                         ajax: {
                             url: url,
                             dataType: 'json',
@@ -3863,7 +3863,9 @@ var spa = function () {
                         },
                         minimumInputLength: 2,
                         delay: 250
-                    });
+                    };
+                    if (extraSelect2Options) options = $.extend({}, options, extraSelect2Options);
+                    spa.init.select2(input, options);
                 }
             },
             showMsg: function showMsg(selector, dataAttribute, context) {
