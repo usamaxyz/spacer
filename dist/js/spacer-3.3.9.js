@@ -199,8 +199,7 @@ var spa = function () {
 
                     var valueToValidate = vo.input.valueToValidate,
                         rule = vo.pattern.rules[index],
-                        minInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
-                        format = vo.pattern.timelineFormat.params[0];
+                        minInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
 
                     if (minInput.length) {
 
@@ -228,6 +227,7 @@ var spa = function () {
                                         break;
                                     }
                                 case PatternTypes.timeline:
+                                    var format = vo.pattern.timelineFormat.params[0];
                                     if (isOut) {
                                         //isOut
                                         if (!spa.validation.isTimelineAfter(valueToValidate, minInputValue, format)) return false;
@@ -287,8 +287,7 @@ var spa = function () {
 
                     var valueToValidate = vo.input.valueToValidate,
                         rule = vo.pattern.rules[index],
-                        maxInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]'),
-                        format = vo.pattern.timelineFormat.params[0];
+                        maxInput = vo.input.jquery.closest('form').find('input[name="' + rule.params[0] + '"]');
 
                     if (maxInput.length) {
 
@@ -316,6 +315,7 @@ var spa = function () {
                                         break;
                                     }
                                 case PatternTypes.timeline:
+                                    var format = vo.pattern.timelineFormat.params[0];
                                     if (isOut) {
                                         //isOut
                                         if (!spa.validation.isTimelineBefore(valueToValidate, maxInputValue, format)) return false;
