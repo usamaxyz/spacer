@@ -3096,7 +3096,7 @@ var spa = function () {
             },
             removeWhere: function removeWhere(array, fn) {
                 for (var i = array.length - 1; i >= 0; i--) {
-                    if (fn(array[i], i) === true) spa.array.removeAt(array, i);
+                    if (fn(array[i], i) === true) return spa.array.removeAt(array, i);
                 }
             },
             searchGetBool: function searchGetBool(array, fn) {
