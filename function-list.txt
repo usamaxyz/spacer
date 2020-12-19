@@ -10,6 +10,7 @@ in[required|items:n1,n2,n3]
 check[required] 
 file[required|ext:n1,n2,n3|min:a|max:b|range:a,b|s_min:a|s_max:b|s_range:a,b|len:n] 
 regex[pattern:~exp~|min:a|max:b|range:a,b|len:x|confirmed:inputName] 
+array[required|min:a|max:b|range:a,b|len:x]
 
 
 Extra rules for integer, float and timeline:
