@@ -1,13 +1,13 @@
 #!/usr/bin/env node
-let gulp = require('gulp'),
-    less = require('gulp-less'),
+const { series, parallel, src, dest, watch } = require('gulp'),
     sass = require('gulp-sass'),
     rtl = require('gulp-rtlcss'),
     concat = require('gulp-concat'),
     uglify = require('gulp-uglify'),
     cleanCss = require('gulp-clean-css'),
     args = require('yargs').argv,
-    es = require('event-stream'),
+    mergeStream = require('merge-stream'),
+
 
     //sourcemaps = require('gulp-sourcemaps'),
 
@@ -17,10 +17,12 @@ let gulp = require('gulp'),
     source = require('vinyl-source-stream'),
     buffer = require('vinyl-buffer'),
 
+
     //browserify plugins
     babelify = require('babelify'),
     tsify = require("tsify"),
     vueify = require('vueify'),
+
 
     //typescript
     gulpTypescript = require("gulp-typescript"),
@@ -31,6 +33,11 @@ let gulp = require('gulp'),
     gulpif = require('gulp-if'),
     rename = require('gulp-rename'),
     logger = require('./node_modules/vinus/logger');
+
+
+;
+
+
 
 
 /*
@@ -46,6 +53,7 @@ if (isProduction) {
     logger.warning('Production mode...');
     process.env.NODE_ENV = 'production';
 }
+
 
 //start file
 try {
@@ -76,6 +84,7 @@ try {
 }
 
 
+
 if (vinusObj.scripts)
     vinusObj.scripts.forEach(element => {
         //init browserify
@@ -99,15 +108,16 @@ if (vinusObj.scripts)
         element.browserifySrc = browserifySrc;
     });
 
+
+
 /*
  * core tasks
  */
-function styles() {
+function styles(cb) {
     let notUsed = 'not.used',
         tasks = vinusObj.styles.map(function (element) {
-            return gulp.src(element.src)
+            return src(element.src)
                 .pipe(gulpif(element.isSass, sass()))
-                .pipe(gulpif(element.isLess, less()))
                 .pipe(gulpif(element.concat, concat(element.concat ? element.filename : notUsed)))
                 .pipe(gulpif(isProduction, cleanCss()))
                 //if element.concat => it is already renamed
@@ -118,7 +128,7 @@ function styles() {
                     suffix: vinusGlobals.prodSuffix
                 })))
                 //save
-                .pipe(gulpif(element.generateRtl, gulp.dest(element.dist)))
+                .pipe(gulpif(element.generateRtl, dest(element.dist)))
                 //remove .min suffix
                 .pipe(gulpif(element.generateRtl && isProduction, rename(function (path) {
                     path.basename = path.basename.substring(0, path.basename.length - vinusGlobals.prodSuffix.length);
@@ -131,18 +141,20 @@ function styles() {
                 .pipe(gulpif(isProduction, rename({
                     suffix: vinusGlobals.prodSuffix
                 })))
-                .pipe(gulp.dest(element.dist));
+                .pipe(dest(element.dist));
         });
     // create a merged stream
     if (tasks.length)
-        return es.merge.apply(null, tasks);
+        return mergeStream(tasks);
+    else
+        cb();
 }
 
-function scripts() {
+function scripts(cb) {
     let notUsed = 'not.used',
         tasks = vinusObj.scripts.map(function (element) {
             let browserifyStatus = element.browserify.status;
-            return (browserifyStatus ? element.browserifySrc.bundle() : gulp.src(element.src))
+            return (browserifyStatus ? element.browserifySrc.bundle() : src(element.src))
                 .pipe(gulpif(!browserifyStatus && element.typescript.status, gulpTypescript()))
                 .pipe(gulpif(!browserifyStatus && element.babel.status, gulpBabel()))
                 .pipe(gulpif(browserifyStatus, source(element.browserify.sourceName)))
@@ -157,22 +169,23 @@ function scripts() {
                 .pipe(gulpif(isProduction, rename({
                     suffix: vinusGlobals.prodSuffix
                 })))
-                .pipe(gulp.dest(element.dist));
+                .pipe(dest(element.dist));
         });
 
 
     // create a merged stream
     if (tasks.length)
-        return es.merge.apply(null, tasks);
+        return mergeStream(tasks);
+    else
+        cb();
 }
 
-function watch() {
+function watchTask() {
     styles();
     scripts();
-
     vinusObj.scripts.map(function (element) {
         if (!element.browserify.status) {
-            gulp.watch(element.src, ['scripts']).on('change', function (event) {
+            watch(element.src, scripts).on('change', function (event) {
                 logger.info('File ' + event.path + ' was ' + event.type + ', running tasks...');
             });
         }
@@ -183,7 +196,7 @@ function watch() {
         }
     });
     vinusObj.styles.map(function (element) {
-        gulp.watch(element.src, ['styles']).on('change', function (event) {
+        watch(element.src, styles).on('change', function (event) {
             logger.info('File ' + event.path + ' was ' + event.type + ', running tasks...');
         });
     });
@@ -191,23 +204,25 @@ function watch() {
     logger.info('Watching...');
 }
 
-function copy() {
+function copy(cb) {
     let tasks = vinusObj.copies.map(function (element) {
-        return gulp.src(element.src)
+        return src(element.src)
             .pipe(gulpif(!!element.filename, rename(element.filename)))
-            .pipe(gulp.dest(element.dist));
+            .pipe(dest(element.dist));
     });
     // create a merged stream
     if (tasks.length)
-        return es.merge.apply(null, tasks);
+        return mergeStream(tasks);
+    else
+        cb();
 }
 
 /*
  * end of core tasks
  */
 
-gulp.task('styles', styles);
-gulp.task('scripts', scripts);
-gulp.task('copy', copy);
-gulp.task('default', ['styles', 'scripts', 'copy']);
-gulp.task('watch', watch);
+exports.styles = styles;
+exports.scripts = scripts;
+exports.copy = copy;
+exports.default = series(parallel(styles, scripts), copy);
+exports.watch = watchTask;

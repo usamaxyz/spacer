@@ -1,3 +1,7 @@
+3.3.11:
+- add array validation pattern
+
+
 3.3.10:
 - fix bug in array.removeWhere
 

@@ -39,7 +39,8 @@ var spa = function () {
         in: 7,
         check: 8,
         file: 9,
-        regex: 10
+        regex: 10,
+        array: 11
     },
         RuleTypes = {
         required: 1,
@@ -697,6 +698,36 @@ var spa = function () {
             en: 'The :fn is invalid',
             ar: ':fn غير صالح'
         },
+
+        'array.required': {
+            en: 'The :fn is required',
+            ar: 'لا يجوز ترك :fn فارغ'
+        },
+        'array.min_i': {
+            en: 'The :fn must contain :p1 item(s) at least',
+            ar: 'يجب أن يحوي :fn :p1 عنصر على الأقل'
+        },
+        'array.min_o': {
+            en: 'The :fn must contain more than :p1 item(s)',
+            ar: 'يجب أن يحوي :fn أكثر من :p1 عنصر'
+        },
+        'array.max_i': {
+            en: 'The :fn may not contain more than :p1 item(s)',
+            ar: 'يجب أن يحوي :fn :p1 عنصر على الأكثر'
+        },
+        'array.max_o': {
+            en: 'The :fn must contain less than :p1 item(s)',
+            ar: 'يجب أن يحوي :fn أقل من :p1 عنصر'
+        },
+        'array.range': {
+            en: 'The :fn must conatin between :p1 and :p2 item(s)',
+            ar: 'يجب أن يحوي :fn :p1 إلى :p2 عنصر'
+        },
+        'array.len': {
+            en: 'The :fn must contain :p1 character(s)',
+            ar: 'يجب أن يحوي :fn :p1 عنصر'
+        },
+
         'string.required': {
             en: 'The :fn is required',
             ar: 'لا يجوز ترك :fn فارغ'
@@ -1466,7 +1497,7 @@ var spa = function () {
 
         function getInputValue(v) {
             //input
-            if (v.pattern.type === PatternTypes.file) v.input.originalValue = v.input.jquery[0].files;else if (v.pattern.type === PatternTypes.check) {
+            if (v.pattern.type === PatternTypes.file) v.input.originalValue = v.input.jquery[0].files;else if (v.pattern.type === PatternTypes.array) v.input.originalValue = v.input.jquery.val();else if (v.pattern.type === PatternTypes.check) {
                 if (v.input.jquery.is(':checked')) v.input.originalValue = trim(v.input.jquery.val()) || 'true';else v.input.originalValue = '';
             } else {
                 //value is one of 3: has a value, '', undefined. ('', undefined evaluated to false in if statement)
@@ -1589,6 +1620,9 @@ var spa = function () {
                 case PatternTypes.check:
                     validators.check.set(vo);
                     return validators.check;
+                case PatternTypes.array:
+                    validators.array.set(vo);
+                    return validators.array;
                 default:
                     throw spa.resource.get('ex.usp', { p: vo.pattern.name });
             }
@@ -1740,6 +1774,102 @@ var spa = function () {
     }();
 
     var validators = {
+        array: function () {
+            var entry = void 0;
+            return {
+                set: function set(_entry) {
+                    entry = _entry;
+                },
+
+                validate: function validate() {
+                    validatorBase.applyPreRules(entry);
+
+                    var invalidRules = entry.pattern.invalidRules,
+                        l = entry.pattern.rules.length,
+                        isLite = entry.pattern.isLite,
+                        valueToValidate = entry.input.valueToValidate,
+                        rule = void 0,
+                        i = void 0,
+                        p1 = void 0,
+                        p2 = void 0,
+                        debug = config.debug;
+
+                    if (!valueToValidate || !valueToValidate.length) {
+                        if (entry.pattern.required) {
+                            invalidRules.push(entry.pattern.required);
+                            if (!isLite) for (i = 0; i < l; i++) {
+                                invalidRules.push(entry.pattern.rules[i]);
+                            }return false;
+                        }
+                        return true;
+                    }
+
+                    i = 0;
+                    while (!(invalidRules.length && isLite) && i < l) {
+                        rule = entry.pattern.rules[i];
+                        switch (rule.type) {
+                            case RuleTypes.min:
+                                debug && validatorBase.validateParamsCount(1, entry, rule);
+                                p1 = validatorBase.getParamValue(rule.params[0], 'i', entry.pattern.name, rule.name);
+
+                                if (validatorBase.isOut(rule)) {
+                                    //isOut
+                                    if (valueToValidate.length <= p1) invalidRules.push(rule);
+                                } else {
+                                    //in
+                                    if (valueToValidate.length < p1) invalidRules.push(rule);
+                                }
+
+                                break;
+                            case RuleTypes.max:
+                                debug && validatorBase.validateParamsCount(1, entry, rule);
+                                p1 = validatorBase.getParamValue(rule.params[0], 'i', entry.pattern.name, rule.name);
+
+                                if (validatorBase.isOut(rule)) {
+                                    //isOut
+                                    if (valueToValidate.length >= p1) invalidRules.push(rule);
+                                } else {
+                                    //in
+                                    if (valueToValidate.length > p1) invalidRules.push(rule);
+                                }
+                                break;
+                            case RuleTypes.range:
+                                debug && validatorBase.validateParamsCount(2, entry, rule);
+                                p1 = validatorBase.getParamValue(rule.params[0], 'i', entry.pattern.name, rule.name);
+                                p2 = validatorBase.getParamValue(rule.params[1], 'i', entry.pattern.name, rule.name);
+
+                                if (validatorBase.isOut(rule, 0)) {
+                                    //isOut
+                                    if (valueToValidate.length <= p1) invalidRules.push(rule);
+                                } else {
+                                    //in
+                                    if (valueToValidate.length < p1) invalidRules.push(rule);
+                                }
+
+                                if (validatorBase.isOut(rule, 1)) {
+                                    //isOut
+                                    if (valueToValidate.length >= p2) invalidRules.push(rule);
+                                } else {
+                                    //in
+                                    if (valueToValidate.length > p2) invalidRules.push(rule);
+                                }
+
+                                break;
+                            case RuleTypes.len:
+                                debug && validatorBase.validateParamsCount(1, entry, rule);
+                                p1 = validatorBase.getParamValue(rule.params[0], 'i', entry.pattern.name, rule.name);
+
+                                if (valueToValidate.length !== p1) invalidRules.push(rule);
+                                break;
+                            default:
+                                if (!validatorBase.customRule(entry, i)) invalidRules.push(rule);
+                        }
+                        i++;
+                    }
+                    return invalidRules.length === 0;
+                }
+            };
+        }(),
         check: function () {
             var entry = void 0;
 
