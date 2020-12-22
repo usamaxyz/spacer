@@ -4277,10 +4277,10 @@ let spa = (function () {
                                 return {
                                     results: result
                                 };
-                            }
+                            },
+                            delay: 250,
                         },
                         minimumInputLength: 2,
-                        delay: 250,
                     };
                     if (extraSelect2Options)
                         options = $.extend({}, options, extraSelect2Options);

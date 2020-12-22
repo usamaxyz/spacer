@@ -3989,10 +3989,10 @@ var spa = function () {
                                 return {
                                     results: result
                                 };
-                            }
+                            },
+                            delay: 250
                         },
-                        minimumInputLength: 2,
-                        delay: 250
+                        minimumInputLength: 2
                     };
                     if (extraSelect2Options) options = $.extend({}, options, extraSelect2Options);
                     spa.init.select2(input, options);
