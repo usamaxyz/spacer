@@ -3796,8 +3796,8 @@ var spa = function () {
             reload: function reload(ReloadFromServer) {
                 window.location.reload(ReloadFromServer);
             },
-            redirect: function redirect(url) {
-                // window.location.href = u;
+            redirect: function redirect(url, addCurrentUrlToHistory) {
+                if (addCurrentUrlToHistory) history.pushState(null, null, spa.web.getUrl());
                 window.location.replace(url);
             },
             newTab: function newTab(url) {

@@ -1,10 +1,11 @@
+3.3.14:
+- spa.web.redirect: add option to add current url to browser history
+
 3.3.13:
 - fix delay in spa.init.autocomplete
 
-
 3.3.11:
 - add array validation pattern
-
 
 3.3.10:
 - fix bug in array.removeWhere

@@ -1554,7 +1554,7 @@ let spa = (function () {
             if (v.pattern.type === PatternTypes.file)
                 v.input.originalValue = v.input.jquery[0].files;
 
-            else if(v.pattern.type === PatternTypes.array)
+            else if (v.pattern.type === PatternTypes.array)
                 v.input.originalValue = v.input.jquery.val();
 
             else if (v.pattern.type === PatternTypes.check) {
@@ -4077,8 +4077,9 @@ let spa = (function () {
             reload: function (ReloadFromServer) {
                 window.location.reload(ReloadFromServer);
             },
-            redirect: function (url) {
-                // window.location.href = u;
+            redirect: function (url, addCurrentUrlToHistory) {
+                if (addCurrentUrlToHistory)
+                    history.pushState(null, null, spa.web.getUrl());
                 window.location.replace(url);
             },
             newTab: function (url) {
