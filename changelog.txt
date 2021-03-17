@@ -1,3 +1,6 @@
+3.3.15:
+- spa.web.redirect: use location.href instead of replace to automatically push current url to browser history
+
 3.3.14:
 - spa.web.redirect: add option to add current url to browser history
 

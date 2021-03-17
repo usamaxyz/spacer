@@ -4077,10 +4077,8 @@ let spa = (function () {
             reload: function (ReloadFromServer) {
                 window.location.reload(ReloadFromServer);
             },
-            redirect: function (url, addCurrentUrlToHistory) {
-                if (addCurrentUrlToHistory)
-                    history.pushState(null, null, spa.web.getUrl());
-                window.location.replace(url);
+            redirect: function (url) {
+                window.location.href = url;
             },
             newTab: function (url) {
                 window.open(url, '_blank');
