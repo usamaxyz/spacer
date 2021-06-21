@@ -1,3 +1,7 @@
+3.3.16:
+- fix file validator
+
+
 3.3.15:
 - spa.web.redirect: use location.href instead of replace to automatically push current url to browser history
 

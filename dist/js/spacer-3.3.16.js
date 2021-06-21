@@ -2027,7 +2027,7 @@ var spa = function () {
                         p2 = void 0,
                         j = void 0,
                         sum = void 0,
-                        k = valueToValidate.length,
+                        k = valueToValidate ? valueToValidate.length : 0,
                         debug = config.debug;
 
                     if (k === 0) {

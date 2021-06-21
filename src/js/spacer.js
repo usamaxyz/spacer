@@ -2126,7 +2126,7 @@ let spa = (function () {
                         isLite = entry.pattern.isLite,
                         valueToValidate = entry.input.valueToValidate,
                         rule, i, p1, p2, j, sum,
-                        k = valueToValidate.length,
+                        k = valueToValidate ? valueToValidate.length : 0,
                         debug = config.debug;
 
                     if (k === 0) {
