@@ -1,3 +1,6 @@
+3.3.18:
+- add dist folder
+
 3.3.17:
 - revert fix file validator
 

@@ -1,0 +1,60 @@
+.spa-notify {
+    position: fixed;
+    top: 50px;
+    left: 50px;
+    z-index: 100000;
+    -moz-box-sizing: border-box;
+    box-sizing: border-box;
+    width: 350px;
+}
+
+.spa-notify-top-right,
+.spa-notify-bottom-right {
+    left: auto;
+    right: 50px;
+}
+
+.spa-notify-top-center,
+.spa-notify-bottom-center {
+    left: 50%;
+    margin-left: -175px;
+}
+
+.spa-notify-bottom-left,
+.spa-notify-bottom-right,
+.spa-notify-bottom-center {
+    top: auto;
+    bottom: 50px;
+}
+
+@media (max-width: 480px) {
+    .spa-notify {
+        left: 10px;
+        right: 10px;
+        width: auto;
+        margin: 0;
+    }
+}
+
+.spa-notify-message {
+    position: relative;
+    margin-bottom: 10px;
+    padding: 15px;
+    font-size: 16px;
+    line-height: 22px;
+    padding-right: 35px;
+    cursor: pointer;
+}
+
+.spa-notify-message.alert.alert-normal {
+    background: #444;
+    color: #fff;
+}
+
+.spa-notify-message > .close {
+    visibility: hidden;
+}
+
+.spa-notify-message:hover > .close {
+    visibility: visible;
+}
