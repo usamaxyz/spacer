@@ -3098,7 +3098,7 @@ var spa = function () {
                         spa.dom.unsetLoadingButton(button);
                     });
                 }
-                return ajax.done(fn);
+                return fn ? ajax.done(fn) : ajax;
             },
             post: function post(url, data, fn, button) {
                 var o = {
@@ -3117,7 +3117,7 @@ var spa = function () {
                         spa.dom.unsetLoadingButton(button);
                     });
                 }
-                return ajax.done(fn);
+                return fn ? ajax.done(fn) : ajax;
             },
             get: function get(url, data, fn, button) {
                 var o = {
@@ -3136,7 +3136,7 @@ var spa = function () {
                         spa.dom.unsetLoadingButton(button);
                     });
                 }
-                return ajax.done(fn);
+                return fn ? ajax.done(fn) : ajax;
             },
             delete: function _delete(url, data, fn, button) {
                 var o = {
@@ -3155,7 +3155,7 @@ var spa = function () {
                         spa.dom.unsetLoadingButton(button);
                     });
                 }
-                return ajax.done(fn);
+                return fn ? ajax.done(fn) : ajax;
             },
             put: function put(url, data, fn, button) {
                 var o = {
@@ -3174,7 +3174,7 @@ var spa = function () {
                         spa.dom.unsetLoadingButton(button);
                     });
                 }
-                return ajax.done(fn);
+                return fn ? ajax.done(fn) : ajax;
             },
             postBtn: function postBtn(button, url, data, fn) {
                 return sis(button).on('click', function (e) {
