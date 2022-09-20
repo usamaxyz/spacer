@@ -1,4 +1,4 @@
-let bootstrap3ValidationDriver = {
+window.bootstrap3ValidationDriver = {
     onError: function (vo) {
         let invalidRules = vo.pattern.invalidRules;
         let helpBlock = vo.input.jquery.closest('[class*="form-group"]').addClass('has-error').find('.help-block');

@@ -1,4 +1,4 @@
-let listOfErrors = (function () {
+window.listOfErrors = (function () {
     let validationErrors = [],
         listOfErrorsSelector = '#spa-listOfErrors';
 

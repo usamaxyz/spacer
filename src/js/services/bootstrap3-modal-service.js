@@ -1,4 +1,4 @@
-let bootstrap3ModalService = function(){
+window.bootstrap3ModalService = function(){
 
     let core = function(options) {
         let modalJq,

@@ -1,0 +1,17 @@
+{
+    "/dist/js/spacer.min.js": "/dist/js/spacer.min.js",
+    "/dist/js/spacer-3.3.20.min.js": "/dist/js/spacer-3.3.20.min.js",
+    "/dist/js/services/bootstrap3-modal-service.min.js": "/dist/js/services/bootstrap3-modal-service.min.js",
+    "/dist/js/services/bootstrap3-panel-service.min.js": "/dist/js/services/bootstrap3-panel-service.min.js",
+    "/dist/js/services/bootstrap3-validation-driver.min.js": "/dist/js/services/bootstrap3-validation-driver.min.js",
+    "/dist/js/services/bootstrap4-validation-driver.min.js": "/dist/js/services/bootstrap4-validation-driver.min.js",
+    "/dist/js/services/bootstrap4-3-hybrid-validation-driver.min.js": "/dist/js/services/bootstrap4-3-hybrid-validation-driver.min.js",
+    "/dist/js/services/listOfErrors-validation-driver.min.js": "/dist/js/services/listOfErrors-validation-driver.min.js",
+    "/dist/js/services/storage.min.js": "/dist/js/services/storage.min.js",
+    "/dist/js/services/spa-notify-remark.min.js": "/dist/js/services/spa-notify-remark.min.js",
+    "/dist/js/services/spa-notify-metronic.min.js": "/dist/js/services/spa-notify-metronic.min.js",
+    "/dist/js/services/spa-notify-bootstrap3.min.js": "/dist/js/services/spa-notify-bootstrap3.min.js",
+    "/dist/js/services/spa-notify-bootstrap4.min.js": "/dist/js/services/spa-notify-bootstrap4.min.js",
+    "/dist/css/spa-notify.rtl.min.css": "/dist/css/spa-notify.rtl.min.css",
+    "/dist/css/spa-notify.min.css": "/dist/css/spa-notify.min.css"
+}

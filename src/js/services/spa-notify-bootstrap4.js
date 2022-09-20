@@ -1,6 +1,4 @@
-"use strict";
-
-var spaNotifyBootstrap4 = function () {
+window.spaNotifyBootstrap4 = function () {
     var spaNotifyService = function () {
         var containers = {},
             messages = {},

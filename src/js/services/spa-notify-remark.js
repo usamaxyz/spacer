@@ -1,4 +1,4 @@
-let spaNotifyRemark = (function () {
+window.spaNotifyRemark = (function () {
     let spaNotifyService = (function () {
         var containers = {},
             messages = {},

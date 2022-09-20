@@ -1,4 +1,4 @@
-let spaNotifyMetronic = (function () {
+window.spaNotifyMetronic = (function () {
     let spaNotifyService = (function () {
         var containers = {},
             messages = {},

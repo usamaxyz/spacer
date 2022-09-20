@@ -1,4 +1,4 @@
-let bootstrap3PanelService = function () {
+window.bootstrap3PanelService = function () {
     let core = function (options) {
         let modalJq,
             confirmBtn;

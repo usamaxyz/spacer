@@ -1,4 +1,4 @@
-let storage = {
+window.storage = {
     length: function () {
         localStorage.length;
     },

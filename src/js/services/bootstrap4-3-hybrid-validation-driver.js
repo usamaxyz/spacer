@@ -1,4 +1,4 @@
-let bootstrap43HybridValidationDriver = {
+window.bootstrap43HybridValidationDriver = {
     onError: function (vo) {
         let invalidRules = vo.pattern.invalidRules;
         let helpBlock = vo.input.jquery.addClass('is-invalid').closest('[class*="form-group"]').addClass('has-error has-danger').find('.invalid-feedback');

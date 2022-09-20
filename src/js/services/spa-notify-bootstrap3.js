@@ -1,4 +1,4 @@
-let spaNotifyBootstrap3 = (function () {
+window.spaNotifyBootstrap3 = (function () {
     let spaNotifyService = (function () {
         var containers = {},
             messages = {},
