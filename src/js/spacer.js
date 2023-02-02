@@ -3425,6 +3425,11 @@ window.spa = (function () {
                     if (fn(array[i], i) === true)
                         spa.array.removeAt(array, i);
             },
+            removeWhereOnce: function (array, fn) {
+                for (let i = array.length - 1; i >= 0; i--)
+                    if (fn(array[i], i) === true)
+                        return spa.array.removeAt(array, i);
+            },
             searchGetBool: function (array, fn) {
                 for (let i = 0, l = array.length; i < l; i++)
                     if (fn(array[i], i) === true)

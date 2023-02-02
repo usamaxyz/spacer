@@ -3367,6 +3367,11 @@ window.spa = function () {
           if (fn(array[i], i) === true) spa.array.removeAt(array, i);
         }
       },
+      removeWhereOnce: function removeWhereOnce(array, fn) {
+        for (var i = array.length - 1; i >= 0; i--) {
+          if (fn(array[i], i) === true) return spa.array.removeAt(array, i);
+        }
+      },
       searchGetBool: function searchGetBool(array, fn) {
         for (var i = 0, l = array.length; i < l; i++) {
           if (fn(array[i], i) === true) return true;
