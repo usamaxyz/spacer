@@ -104,6 +104,8 @@ spa.setOptions({
         'max_input': {},
     },
     validationPre: undefined,
+    //validationPreGlobal(form, isSilent, exclude)
+    validationPreGlobal: undefined,
     validationIsLite: false,
 
     //momentLocales without en: because en is loaded by default

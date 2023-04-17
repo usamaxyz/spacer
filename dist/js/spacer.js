@@ -373,6 +373,7 @@ window.spa = function () {
       }
     },
     validationPre: undefined,
+    validationPreGlobal: undefined,
     validationIsLite: false,
     //momentLocales without en: because en is loaded by default
     momentLocales: {
@@ -1644,6 +1645,7 @@ window.spa = function () {
     function validate(form, isSilent, exclude) {
       form = sis(form);
       if (!form.length) throw spa.resource.get('ex.fnf');
+      config.validationPreGlobal && config.validationPreGlobal(form, isSilent, exclude);
       var inputs = getFormInputs(form),
           isValid = true,
           isDialogDriver = driversUnit.validationIsDialogOrFlashDriver,
