@@ -1445,7 +1445,7 @@ window.spa = (function () {
                 return;
 
             //extract ~~ expressions
-            let tildeExpressions = rulesStr.match(/~[^~.]+~/g);
+            let tildeExpressions = rulesStr.match(/~[^~]+~/g);
             if (tildeExpressions)
                 for (let i = 0, l = tildeExpressions.length; i < l; i++)
                     rulesStr = rulesStr.replace(tildeExpressions[i], 'r');

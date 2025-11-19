@@ -30,9 +30,4 @@ mix
     .js('src/js/services/spa-notify-metronic.js', `dist/js/services/spa-notify-metronic${suffix}.js`)
     .js('src/js/services/spa-notify-bootstrap3.js', `dist/js/services/spa-notify-bootstrap3${suffix}.js`)
     .js('src/js/services/spa-notify-bootstrap4.js', `dist/js/services/spa-notify-bootstrap4${suffix}.js`)
-
-    .sass('src/css/spa-notify.scss', `dist/css/spa-notify${suffix}.css`)
-    .sass('src/css/spa-notify.rtl.scss', `dist/css/spa-notify.rtl${suffix}.css`, {}, [
-        require("rtlcss")(),
-    ])
 ;

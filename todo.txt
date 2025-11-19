@@ -1,0 +1,3 @@
+build steps:
+increment the version in package.json
+npm run dev:js && npm run dev:css && npm run prod:js && npm run prod:css
