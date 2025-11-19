@@ -1,38 +1,42 @@
 /******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
 /*!************************************************!*\
   !*** ./src/js/services/spa-notify-metronic.js ***!
   \************************************************/
 window.spaNotifyMetronic = function () {
   var spaNotifyService = function () {
     var containers = {},
-      messages = {},
-      notify = function notify(options) {
-        //{title:title, message:message, status:status, icon:icon, pos:pos, timeout:timeout}
-        return new _Message(options).show();
-      },
-      closeAll = function closeAll(instantly) {
-        for (var id in messages) messages[id].close(instantly);
-      };
-    var _Message = function Message(options) {
+        messages = {},
+        notify = function notify(options) {
+      //{title:title, message:message, status:status, icon:icon, pos:pos, timeout:timeout}
+      return new Message(options).show();
+    },
+        closeAll = function closeAll(instantly) {
+      for (var id in messages) {
+        messages[id].close(instantly);
+      }
+    };
+
+    var Message = function Message(options) {
       this.options = {
-        title: options.title ? options.title : _Message.defaults.title,
-        message: options.message ? options.message : _Message.defaults.message,
-        status: options.status ? options.status : _Message.defaults.status,
-        icon: options.icon ? options.icon : _Message.defaults.icon,
-        pos: options.pos ? options.pos : _Message.defaults.pos,
-        timeout: options.timeout != null ? options.timeout : _Message.defaults.timeout
+        title: options.title ? options.title : Message.defaults.title,
+        message: options.message ? options.message : Message.defaults.message,
+        status: options.status ? options.status : Message.defaults.status,
+        icon: options.icon ? options.icon : Message.defaults.icon,
+        pos: options.pos ? options.pos : Message.defaults.pos,
+        timeout: options.timeout != null ? options.timeout : Message.defaults.timeout
       };
       this.uuid = "ID" + new Date().getTime() + "RAND" + Math.ceil(Math.random() * 100000);
-      this.element = $(['<div class="spa-notify-message">', options.icon ? '<div class="alert-icon">' + options.icon + '</div>' : '', '<div class="alert-text">', options.title ? '<h4 class="alert-heading">' + options.title + '</h4>' : '', this.options.message, '</div>', '<div class="alert-close">', '<button type="button" class="close" data-dismiss="alert" aria-label="Close">', '<span aria-hidden="true"><i class="la la-close"></i></span>', '</button>', '</div>', '</div>'].join('')).data("notifyMessage", this);
+      this.element = $(['<div class="spa-notify-message">', options.icon ? '<div class="alert-icon">' + options.icon + '</div>' : '', '<div class="alert-text">', options.title ? '<h4 class="alert-heading">' + options.title + '</h4>' : '', this.options.message, '</div>', '<div class="alert-close">', '<button type="button" class="close" data-dismiss="alert" aria-label="Close">', '<span aria-hidden="true"><i class="la la-close"></i></span>', '</button>', '</div>', '</div>'].join('')).data("notifyMessage", this); // status
 
-      // status
       if (this.options.status) this.element.addClass('alert alert-' + this.options.status);
       messages[this.uuid] = this;
       if (!containers[this.options.pos]) containers[this.options.pos] = $('<div class="spa-notify spa-notify-' + this.options.pos + '"></div>').appendTo('#notify').on("click", ".spa-notify-message", function () {
         $(this).data("notifyMessage").close();
       });
     };
-    $.extend(_Message.prototype, {
+
+    $.extend(Message.prototype, {
       show: function show() {
         if (this.element.is(":visible")) return;
         var $this = this;
@@ -51,6 +55,7 @@ window.spaNotifyMetronic = function () {
             var closefn = function closefn() {
               $this.close();
             };
+
             $this.timeout = setTimeout(closefn, $this.options.timeout);
             $this.element.hover(function () {
               clearTimeout($this.timeout);
@@ -63,11 +68,12 @@ window.spaNotifyMetronic = function () {
       },
       close: function close(instantly) {
         var $this = this,
-          finalize = function finalize() {
-            $this.element.remove();
-            if (!containers[$this.options.pos].children().length) containers[$this.options.pos].hide();
-            delete messages[$this.uuid];
-          };
+            finalize = function finalize() {
+          $this.element.remove();
+          if (!containers[$this.options.pos].children().length) containers[$this.options.pos].hide();
+          delete messages[$this.uuid];
+        };
+
         if (this.timeout) clearTimeout(this.timeout);
         if (instantly) finalize();else this.element.animate({
           "opacity": 0,
@@ -78,7 +84,7 @@ window.spaNotifyMetronic = function () {
         });
       }
     });
-    _Message.defaults = {
+    Message.defaults = {
       title: '',
       message: '',
       status: "normal",
@@ -91,6 +97,7 @@ window.spaNotifyMetronic = function () {
       closeAll: closeAll
     };
   }();
+
   return {
     //by default, spacer support 4 status and 4 icons: success, danger, warning, info
     flash: function flash(title, message, status, icon, timeout, pos) {

@@ -1,43 +1,46 @@
 /******/ (() => { // webpackBootstrap
+var __webpack_exports__ = {};
 /*!*****************************************************!*\
   !*** ./src/js/services/bootstrap3-panel-service.js ***!
   \*****************************************************/
 window.bootstrap3PanelService = function () {
   var core = function core(options) {
     var modalJq, confirmBtn;
-    options = $.extend({}, spa.dialogDefaults, options);
-    // options.status = options.status ? ('panel-' + options.status) : '';
-    options.confirmBtn["class"] = options.confirmBtn["class"] ? options.confirmBtn["class"] : 'btn-default';
-    options.cancelBtn["class"] = options.cancelBtn["class"] ? options.cancelBtn["class"] : 'btn-default';
+    options = $.extend({}, spa.dialogDefaults, options); // options.status = options.status ? ('panel-' + options.status) : '';
 
-    //build html
+    options.confirmBtn["class"] = options.confirmBtn["class"] ? options.confirmBtn["class"] : 'btn-default';
+    options.cancelBtn["class"] = options.cancelBtn["class"] ? options.cancelBtn["class"] : 'btn-default'; //build html
+
     var html = '<div id="_spa-modal" class="modal fade" tabindex="-1" role="dialog">' + '<div class="modal-dialog ' + options.dialogClass + '" role="document"><div class="modal-content">' + '<div class="panel panel-' + options.status + '" style="margin-bottom: 0;">';
     if (options.title) html += '<div class="panel-heading" style="padding: 12px 15px;">' + '<h3 class="panel-title text-center" style="font-size: 18px;">' + options.title + '</h3></div>';
     html += '<div class="panel-body text-center">';
     if (options.icon) html += '<h3 class="text-' + options.status + '" style="margin-top: 0;">' + options.icon + '</h3>';
     if (options.message) html += '<p style="font-size: 18px;">' + options.message + '</p>';
     html += '<div id="_spa-dialog-content" style="width: 80%; margin: 23px auto 0;"></div>';
+
     if (options.confirmBtn.text || options.cancelBtn.text) {
       html += '</div><div class="panel-footer text-right">';
       if (options.confirmBtn.text) html += '<button id="_spa-dialog-confirm" type="button" class="btn ' + options.confirmBtn["class"] + '" style="min-width: 80px;">' + options.confirmBtn.text + '</button> ';
       if (options.cancelBtn.text) html += '<button id="_spa-dialog-cancel" type="button" class="btn ' + options.cancelBtn["class"] + '" style="min-width: 80px;">' + options.cancelBtn.text + '</button> ';
       html += '</div>';
     }
+
     html += '</div></div></div></div></div>';
     modalJq = $(html);
     confirmBtn = modalJq.find('#_spa-dialog-confirm');
-    if (options.input) modalJq.find('#_spa-dialog-content').append(options.input);
+    if (options.input) modalJq.find('#_spa-dialog-content').append(options.input); //attach to body and prepare events
 
-    //attach to body and prepare events
     $('body').append(modalJq);
     var confirmed = false;
     var inputValue = undefined;
     if (options.confirmBtn.text) modalJq.on('click', '#_spa-dialog-confirm', function () {
       confirmed = true;
+
       if (options.input) {
         if (!spa.validation.validate(modalJq)) return;
         inputValue = spa.form.getFormInputsAsObject(modalJq);
       }
+
       if (options.preConfirm) options.preConfirm.call(dialog, inputValue);
       if (options.closeOnConfirm) dialog.hide();
     });
@@ -51,6 +54,7 @@ window.bootstrap3PanelService = function () {
       } else {
         if (options.onCancel) options.onCancel.call(dialog);
       }
+
       modalJq.remove();
       dialog = undefined;
     });
@@ -70,6 +74,7 @@ window.bootstrap3PanelService = function () {
     };
     return dialog;
   };
+
   return {
     message: function message(title, msg, status, icon, fn) {
       var b = {

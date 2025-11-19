@@ -1468,7 +1468,7 @@ window.spa = (function () {
                 if (ruleName === 'pattern' || ruleName === 'format') {
                     //get param from tilda expressions
                     if (tildeExpressions && tildeExpressions.length)
-                        ruleParamStr = tildeExpressions.shift().match(/~([^~.]+)~/)[1];
+                        ruleParamStr = tildeExpressions.shift().match(/~([^~]+)~/)[1];
                     else
                         throw spa.resource.get('ex.ipc', {p: entry.pattern.name, r: ruleName});
                 } else
